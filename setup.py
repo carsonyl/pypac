@@ -22,7 +22,7 @@ with open('requirements_dev.txt') as req_file:
     test_requirements = [line for line in req_file]
 
 classifiers = [
-    'Development Status :: 2 - Pre-Alpha',
+    'Development Status :: 3 - Alpha',
     'Environment :: Web Environment',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',

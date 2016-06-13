@@ -1,5 +1,5 @@
-PyPAC: Proxy auto-config file discovery and parsing
-===================================================
+PyPAC: Proxy auto-config for Python
+===================================
 
 PyPAC is a pure-Python library for finding, downloading, and parsing
 `proxy auto-config (PAC) <https://en.wikipedia.org/wiki/Proxy_auto-config>`_ files.
