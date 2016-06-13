@@ -48,12 +48,9 @@ def wpad_search_urls(subdomain_or_host, tld):
     """
     parts = subdomain_or_host.split('.')
     search_urls = []
-    for i in range(1, len(parts)):
+    for i in range(1, len(parts)+1):
         # Chop off host and move up the subdomain hierarchy.
-        url = 'http://wpad.{0}.{1}/wpad.dat'.format('.'.join(parts[i:]), tld)
+        url = 'http://wpad.{}/wpad.dat'.format('.'.join(parts[i:] + [tld]))
         search_urls.append(url)
-    else:
-        # Subdomain is just the host.
-        url = 'http://wpad.{}/wpad.dat'.format(tld)
-        search_urls.append(url)
+
     return search_urls

@@ -57,8 +57,8 @@ class MalformedPacError(Exception):
 
 class PyimportError(MalformedPacError):
     def __init__(self):
-        super(MalformedPacError, self).__init__("PAC file contains pyimport statement. "
-                                                "Ensure that the source of your PAC file is trustworthy")
+        super(PyimportError, self).__init__("PAC file contains pyimport statement. "
+                                            "Ensure that the source of your PAC file is trustworthy")
 
 
 def parse_pac_value(value, socks_scheme=None):
