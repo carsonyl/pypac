@@ -4,6 +4,7 @@ PyPAC: Proxy auto-config file discovery and parsing
 PyPAC is a pure-Python library for finding, downloading, and parsing
 `proxy auto-config (PAC) <https://en.wikipedia.org/wiki/Proxy_auto-config>`_ files.
 PAC files are often used in organizations that need fine-grained control of proxy settings.
+PyPAC supports Python 2.7 and 3.3+.
 
 PyPAC provides a subclass of a `Requests <http://docs.python-requests.org/en/master/>`_ ``Session``,
 so you can start using it immediately, with the PAC file transparently discovered and honoured:
