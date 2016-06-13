@@ -7,6 +7,6 @@ python:
 install:
   - pip install .
   - pip install python-coveralls pytest-cov
-script: py.test --cov=pypac tests/
+script: py.test tests --cov-report term-missing --cov pypac
 after_success:
   - coveralls
