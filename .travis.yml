@@ -5,7 +5,7 @@ python:
   - "3.4"
   - "3.5"
 install:
-  - pip install .
+  - pip install -e .
   - pip install python-coveralls pytest-cov
 script: py.test tests --cov-report term-missing --cov pypac
 after_success:
