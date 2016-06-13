@@ -6,7 +6,7 @@ python:
   - "3.5"
 install:
   - pip install .
-  - pip install coveralls pytest-cov
-script: py.test --cov=pypac
+  - pip install python-coveralls pytest-cov
+script: py.test --cov=pypac tests/
 after_success:
-  coveralls
+  - coveralls
