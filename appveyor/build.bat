@@ -8,7 +8,7 @@ if %ERRORLEVEL% NEQ 0 exit 1
 python -m pip install -e .
 if %ERRORLEVEL% NEQ 0 exit 1
 
-python -m pip install pytest mock pytest-cov coveralls
+python -m pip install -r requirements_dev.txt
 if %ERRORLEVEL% NEQ 0 exit 1
 
 py.test tests --cov-report term-missing --cov pypac

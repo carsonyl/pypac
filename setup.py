@@ -18,11 +18,8 @@ requirements = [
     'js2py >= 0.35',
 ]
 
-test_requirements = [
-    'tox',
-    'pytest>=2.2.0',
-    'mock >= 2.0.0, < 3.0.0',
-]
+with open('requirements_dev.txt') as req_file:
+    test_requirements = [line for line in req_file]
 
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
