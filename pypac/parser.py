@@ -27,7 +27,7 @@ class PACFile(object):
 
             self._context = context
             self._func = context.FindProxyForURL
-        except PyJsException as e:
+        except PyJsException:  # as e:
             raise MalformedPacError()  # from e
         finally:
             js2py.translators.pyjsparser.PyJsParser.parsePyimportStatement = orig_pyimport_meth

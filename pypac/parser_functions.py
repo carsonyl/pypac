@@ -7,7 +7,7 @@ import socket
 from calendar import monthrange
 from datetime import datetime, time, date
 from fnmatch import fnmatch
-from js2py.base import PyJsString, PyJs
+from js2py.base import PyJs
 from requests.utils import is_ipv4_address
 
 import struct
