@@ -4,5 +4,9 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-install: "pip install ."
-script: py.test
+install:
+  - pip install .
+  - pip install coveralls pytest-cov
+script: py.test --cov=pypac
+after_success:
+  coveralls
