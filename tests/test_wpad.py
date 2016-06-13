@@ -5,7 +5,7 @@ from mock import patch
 from pypac.wpad import proxy_urls_from_dns
 
 
-@pytest.mark.parametrize('bad_host', ['', ' ', '.', '.foo', 'bar.'])
+@pytest.mark.parametrize('bad_host', [' ', '.', '.foo', 'bar.'])
 def test_bad_host(bad_host):
     assert proxy_urls_from_dns(bad_host) == []
 
