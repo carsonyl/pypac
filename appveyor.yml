@@ -1,8 +1,17 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python27"
-build_script: appveyor/build.bat
+    - PYTHON: "C:\\Python35"
+install:
+  - set PATH="%PYTHON%";"%PYTHON%\Scripts";%PATH%
+  - python -m pip install -U setuptools pip wheel
+  - python -m pip install -e .
+  - python -m pip install -r requirements_dev.txt
+test_script:
+  - py.test tests --cov-report term-missing --cov pypac
+  - coveralls
+after_test:
+  - python setup.py bdist_wheel
 deploy: off
 artifacts:
   - path: dist/*
