@@ -15,7 +15,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'requests >= 2.0.0, < 3.0.0',
     'tld >= 0.7.3, < 1.0.0',
-    'js2py >= 0.35',
+    'js2py >= 0.43',
 ]
 
 with open('requirements_dev.txt') as req_file:
