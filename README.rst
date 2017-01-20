@@ -33,6 +33,19 @@ If a PAC file isn't found, then ``PACSession`` acts exactly like a regular ``Ses
 PyPAC can find PAC files according to the DNS portion of the `Web Proxy Auto-Discovery (WPAD)`_ protocol.
 On Windows, PyPAC can also obtain the PAC file URL from the Internet Options dialog, via the registry.
 
+If you know the URL for the PAC file to use, you can skip auto-discovery like so:
+
+.. code-block:: python
+
+    >>> from pypac import PACSession, get_pac
+    >>> session = PACSession(pac=get_pac(url='http://example.corp.local/proxies.pac'))
+    >>> session.get('http://example.org')
+    ...
+
+If there's no valid PAC at the given URL, ``get_pac()`` returns ``None``, and ``PACSession``
+falls back to auto-discovery behaviour. By default, ``get_pac()`` rejects PAC files that aren't served under
+one of the MIME types defined in the Netscape PAC specification.
+
 .. _Web Proxy Auto-Discovery (WPAD): https://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
 
 
