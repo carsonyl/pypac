@@ -14,11 +14,10 @@ class PACFile(object):
         :raises PyImportError: If the JavaScript tries to use Js2Py's `pyimport` keyword,
             which is not legitimate in the context of a PAC file.
         """
-        # Disallow parsing of the unsafe 'pyimport' statement in Js2Py by monkey-patching the parser.
-        # Try to be a good citizen by restoring original functionality once we're done.
-        # Don't want to make Mock a dependency just for this.
-        orig_pyimport_meth = js2py.translators.pyjsparser.PyJsParser.parsePyimportStatement
-        js2py.translators.pyjsparser.PyJsParser.parsePyimportStatement = _raise_pyimport_error
+        if 'pyimport' in pac_js:
+            raise PyimportError()
+        # Disallow parsing of the unsafe 'pyimport' statement in Js2Py.
+        js2py.disable_pyimport()
         try:
             context = js2py.EvalJs(function_injections)
             context.execute(pac_js)
@@ -29,8 +28,6 @@ class PACFile(object):
             self._func = context.FindProxyForURL
         except PyJsException:  # as e:
             raise MalformedPacError()  # from e
-        finally:
-            js2py.translators.pyjsparser.PyJsParser.parsePyimportStatement = orig_pyimport_meth
 
     def find_proxy_for_url(self, url, host):
         """
@@ -42,10 +39,6 @@ class PACFile(object):
         :rtype: str
         """
         return self._func(url, host)
-
-
-def _raise_pyimport_error(*args, **kwargs):
-    raise PyimportError()
 
 
 class MalformedPacError(Exception):
