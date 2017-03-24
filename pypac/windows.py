@@ -2,10 +2,12 @@
 Tools for getting the configured PAC file URL out of the Windows Registry.
 """
 import platform
-from subprocess import check_output, CalledProcessError, STDOUT
 
-
-REG_CMD = ['reg', 'query', 'HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings', '/v', 'AutoConfigURL']
+if platform.system() == 'Windows':
+    try:
+        import winreg
+    except ImportError:
+        import _winreg as winreg  # PY2.
 
 
 def on_windows():
@@ -28,28 +30,15 @@ def autoconfig_url_from_registry():
     """
     if not on_windows():
         raise NotWindowsError()
+
     try:
-        output = check_output(REG_CMD, stderr=STDOUT)
-        return parse_reg_output(output)
-    except CalledProcessError as e:
-        if e.returncode == 1:
-            # Assume that key wasn't found.
-            return
-        raise
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                            'Software\Microsoft\Windows\CurrentVersion\Internet Settings') as key:
+            return winreg.QueryValueEx(key, 'AutoConfigURL')[0]
+    except WindowsError:
+        return  # Key or value not found.
 
 
 class NotWindowsError(Exception):
     def __init__(self):
         super(NotWindowsError, self).__init__("Platform is not Windows.")
-
-
-def parse_reg_output(value):
-    """
-    Parse out the value of the REG_SZ key as output from the `reg` command.
-
-    :param value: bytestring output from `reg` that contains the value of `AutoConfigURL`.
-    :returns: URL
-    :rtype: str
-    """
-    decoded = value.decode('ascii')
-    return decoded[decoded.find('REG_SZ') + 6:].strip()
