@@ -41,7 +41,7 @@ class TestApiFunctions(object):
             assert isinstance(get_pac(), PACFile)
 
     def test_collect_pac_urls(self):
-        with patch('pypac.api.on_windows', return_value=True), \
+        with patch('pypac.api.ON_WINDOWS', return_value=True), \
              patch('pypac.api.autoconfig_url_from_registry', return_value='http://foo.bar/proxy.pac'), \
              patch('socket.getfqdn', return_value='host.dns.local'):
             assert collect_pac_urls() == [

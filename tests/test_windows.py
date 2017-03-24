@@ -4,8 +4,7 @@ from mock import patch
 
 import sys
 
-from pypac.windows import on_windows, autoconfig_url_from_registry, NotWindowsError
-
+from pypac.windows import autoconfig_url_from_registry, NotWindowsError, ON_WINDOWS
 
 test_reg_output_url = 'http://foo-bar.baz/x/proxy.pac'
 
@@ -15,7 +14,7 @@ xfail_reason = 'not on Windows'
 
 @pytest.mark.xfail(not_windows, reason=xfail_reason)
 def test_os_detect():
-    assert on_windows()
+    assert ON_WINDOWS
 
 
 @pytest.mark.xfail(not_windows, reason=xfail_reason, raises=NotWindowsError)

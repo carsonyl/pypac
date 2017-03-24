@@ -3,7 +3,7 @@ from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.windows import on_windows, autoconfig_url_from_registry
+from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS
 from pypac.wpad import proxy_urls_from_dns
 
 
@@ -53,7 +53,7 @@ def collect_pac_urls(from_registry=True, from_dns=True):
     :rtype: list[str]
     """
     pac_urls = []
-    if from_registry and on_windows():
+    if from_registry and ON_WINDOWS:
         url = autoconfig_url_from_registry()
         if url:
             pac_urls.append(url)

@@ -3,19 +3,13 @@ Tools for getting the configured PAC file URL out of the Windows Registry.
 """
 import platform
 
-if platform.system() == 'Windows':
+ON_WINDOWS = platform.system() == 'Windows'
+
+if ON_WINDOWS:
     try:
         import winreg
     except ImportError:
         import _winreg as winreg  # PY2.
-
-
-def on_windows():
-    """
-    :return: `True` when running on Windows.
-    :rtype: bool
-    """
-    return platform.system() == 'Windows'
 
 
 def autoconfig_url_from_registry():
@@ -28,7 +22,7 @@ def autoconfig_url_from_registry():
     :rtype: str|None
     :raises NotWindowsError: If called on a non-Windows platform.
     """
-    if not on_windows():
+    if not ON_WINDOWS:
         raise NotWindowsError()
 
     try:
