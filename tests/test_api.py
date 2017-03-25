@@ -4,9 +4,10 @@ import requests
 from requests.exceptions import ProxyError, ConnectTimeout
 from mock import patch, Mock, ANY, call
 from requests.utils import select_proxy
+from tempfile import mkstemp
 
 from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession
-from pypac.parser import PACFile
+from pypac.parser import PACFile, MalformedPacError
 from pypac.resolver import proxy_parameter_for_requests
 
 proxy_pac_js_tpl = 'function FindProxyForURL(url, host) { return "%s"; }'
@@ -42,13 +43,18 @@ class TestApiFunctions(object):
 
     def test_collect_pac_urls(self):
         with patch('pypac.api.ON_WINDOWS', return_value=True), \
-             patch('pypac.api.autoconfig_url_from_registry', return_value='http://foo.bar/proxy.pac'), \
              patch('socket.getfqdn', return_value='host.dns.local'):
-            assert collect_pac_urls() == [
-                'http://foo.bar/proxy.pac',
-                'http://wpad.dns.local/wpad.dat',
-                'http://wpad.local/wpad.dat',
-            ]
+            with patch('pypac.api.autoconfig_url_from_registry', return_value='http://foo.bar/proxy.pac'):
+                assert collect_pac_urls() == [
+                    'http://foo.bar/proxy.pac',
+                    'http://wpad.dns.local/wpad.dat',
+                    'http://wpad.local/wpad.dat',
+                ]
+            with patch('pypac.api.autoconfig_url_from_registry', return_value=r'C:\foo'):
+                assert collect_pac_urls() == [
+                    'http://wpad.dns.local/wpad.dat',
+                    'http://wpad.local/wpad.dat',
+                ]
 
     def test_download_pac_timeout(self):
         assert download_pac([arbitrary_pac_url], timeout=0.001) is None
@@ -69,6 +75,25 @@ class TestApiFunctions(object):
         with _patch_request_base(mock_pac_response):
             result = download_pac([arbitrary_pac_url], allowed_content_types=allowed_content_types)
             assert result == expected_value
+
+    def test_registry_filesystem_path(self):
+        """
+        The AutoConfigURL from the Windows Registry can also be a filesystem path.
+        Test that this works, but local PAC files with invalid contents raise an error.
+        """
+        handle, fs_pac_path = mkstemp()
+        os.close(handle)
+        try:
+            with patch('pypac.api.ON_WINDOWS', return_value=True), \
+                 patch('pypac.api.autoconfig_url_from_registry', return_value=fs_pac_path):
+                with pytest.raises(MalformedPacError):
+                    get_pac(from_registry=True)
+
+                with open(fs_pac_path, 'w') as f:
+                    f.write(proxy_pac_js_tpl % 'DIRECT')
+                assert isinstance(get_pac(from_registry=True), PACFile)
+        finally:
+            os.remove(fs_pac_path)
 
 
 proxy_pac_js = proxy_pac_js_tpl % 'PROXY fake.local:8080; DIRECT'
