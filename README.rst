@@ -43,8 +43,9 @@ If you know the URL for the PAC file to use, you can skip auto-discovery like so
     ...
 
 If there's no valid PAC at the given URL, ``get_pac()`` returns ``None``, and ``PACSession``
-falls back to auto-discovery behaviour. By default, ``get_pac()`` rejects PAC files that aren't served under
-one of the MIME types defined in the Netscape PAC specification.
+falls back to auto-discovery behaviour. By default, ``get_pac()`` accepts PAC files served with
+a content type of ``application/x-ns-proxy-autoconfig`` or ``application/x-javascript-config``.
+These are defined in the Netscape PAC specification.
 
 .. _Web Proxy Auto-Discovery (WPAD): https://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
 

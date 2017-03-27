@@ -13,7 +13,7 @@ class PACFile(object):
             or is otherwise invalid.
         :raises PyImportError: If the JavaScript tries to use Js2Py's `pyimport` keyword,
             which is not legitimate in the context of a PAC file.
-        :raises PacComplexityError: If the JavaScript was complex enough that the 
+        :raises PacComplexityError: If the JavaScript was complex enough that the
             Python recursion limit was hit during parsing.
         """
         if 'pyimport' in pac_js:
