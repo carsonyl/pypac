@@ -1,7 +1,7 @@
 import pytest
 import warnings
 
-from pypac.parser import MalformedPacError, PACFile, PyimportError, parse_pac_value, proxy_url
+from pypac.parser import MalformedPacError, PACFile, PyimportError, parse_pac_value, proxy_url, PacComplexityError
 
 
 class TestPacFile(object):
@@ -47,6 +47,16 @@ class TestPacFile(object):
     ])
     def test_builtins_undefined(self, pac_js):
         with pytest.raises(MalformedPacError):
+            PACFile(pac_js)
+
+    def test_large_pac_handling(self):
+        """
+        Try to load a large PAC file that triggers Js2Py hitting the default Python recursion limit.
+        Ensure it raises a more useful message.
+        """
+        pac_js = 'function FindProxyForURL(url, host) { if(%s) { return "DIRECT"; } }' % \
+                 ' || '.join(200 * ['shExpMatch(host, "*.example.com")'])
+        with pytest.raises(PacComplexityError):
             PACFile(pac_js)
 
 
