@@ -13,6 +13,8 @@ class PACFile(object):
             or is otherwise invalid.
         :raises PyImportError: If the JavaScript tries to use Js2Py's `pyimport` keyword,
             which is not legitimate in the context of a PAC file.
+        :raises PacComplexityError: If the JavaScript was complex enough that the
+            Python recursion limit was hit during parsing.
         """
         if 'pyimport' in pac_js:
             raise PyimportError()
@@ -28,6 +30,9 @@ class PACFile(object):
             self._func = context.FindProxyForURL
         except PyJsException:  # as e:
             raise MalformedPacError()  # from e
+        except RuntimeError:
+            # RecursionError in PY >= 3.5.
+            raise PacComplexityError()
 
     def find_proxy_for_url(self, url, host):
         """
@@ -52,6 +57,13 @@ class PyimportError(MalformedPacError):
     def __init__(self):
         super(PyimportError, self).__init__("PAC file contains pyimport statement. "
                                             "Ensure that the source of your PAC file is trustworthy")
+
+
+class PacComplexityError(RuntimeError):
+    def __init__(self):
+        super(PacComplexityError, self).__init__(
+            "Maximum recursion depth exceeded while parsing PAC file. "
+            "Raise it using sys.setrecursionlimit()")
 
 
 def parse_pac_value(value, socks_scheme=None):

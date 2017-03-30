@@ -1,9 +1,10 @@
+import os
 import requests
 from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.windows import on_windows, autoconfig_url_from_registry
+from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS
 from pypac.wpad import proxy_urls_from_dns
 
 
@@ -15,7 +16,7 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         If provided, `from_registry` and `from_dns` are ignored.
     :param str js: Parse the given string as a PAC file.
         If provided, `from_registry` and `from_dns` are ignored.
-    :param bool from_registry: Look for a PAC URL from the Windows Registry, and download it if present.
+    :param bool from_registry: Look for a PAC URL or filesystem path from the Windows Registry, and use it if present.
         Doesn't do anything on non-Windows platforms.
     :param bool from_dns: Look for a PAC file using the WPAD protocol.
     :param timeout: Time to wait for host resolution and response for each URL.
@@ -25,7 +26,7 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
     :return: The first valid parsed PAC file according to the criteria, or `None` if nothing was found.
     :rtype: PACFile|None
-    :raises MalformedPacError: If something that claims to be a PAC file was downloaded but could not be parsed.
+    :raises MalformedPacError: If something that claims to be a PAC file was obtained but could not be parsed.
     """
     if url:
         downloaded_pac = download_pac([url], timeout=timeout, allowed_content_types=allowed_content_types)
@@ -34,7 +35,14 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         return PACFile(downloaded_pac)
     if js:
         return PACFile(js)
-    pac_candidate_urls = collect_pac_urls(from_registry=from_registry, from_dns=from_dns)
+
+    if from_registry and ON_WINDOWS:
+        path = autoconfig_url_from_registry()
+        if path and os.path.isfile(path):
+            with open(path) as f:
+                return PACFile(f.read())
+
+    pac_candidate_urls = collect_pac_urls(from_registry=True, from_dns=from_dns)
     downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types)
     if not downloaded_pac:
         return
@@ -46,17 +54,17 @@ def collect_pac_urls(from_registry=True, from_dns=True):
     Get all the URLs that potentially yield a PAC file.
 
     :param bool from_registry: Look for a PAC URL from the Windows Registry.
-        If such a value is found, it comes first in the returned list.
+        If a value is found and is a URL, it comes first in the returned list.
         Doesn't do anything on non-Windows platforms.
     :param bool from_dns: Assemble a list of PAC URL candidates using the WPAD protocol.
     :return: A list of URLs that should be tried in order.
     :rtype: list[str]
     """
     pac_urls = []
-    if from_registry and on_windows():
-        url = autoconfig_url_from_registry()
-        if url:
-            pac_urls.append(url)
+    if from_registry and ON_WINDOWS:
+        url_or_path = autoconfig_url_from_registry()
+        if url_or_path and (url_or_path.lower().startswith('http://') or url_or_path.lower().startswith('https://')):
+            pac_urls.append(url_or_path)
     if from_dns:
         pac_urls.extend(proxy_urls_from_dns())
     return pac_urls
