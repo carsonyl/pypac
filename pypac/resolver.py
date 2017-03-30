@@ -25,6 +25,16 @@ class ProxyResolver(object):
         self._offline_proxies = set()
         self._cache = {}  # Cache parsed version of FindProxyForURL() return values.
 
+    @property
+    def proxy_auth(self):
+        return self._proxy_auth
+
+    @proxy_auth.setter
+    def proxy_auth(self, value):
+        self._proxy_auth = value
+        self._cache.clear()
+        self.unban_all()
+
     def get_proxies(self, url):
         """
         Get the proxies that are applicable to a given URL, according to the PAC file.

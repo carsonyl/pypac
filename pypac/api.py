@@ -149,6 +149,16 @@ class PACSession(requests.Session):
     def _get_proxy_resolver(self, pac):
         return ProxyResolver(pac, proxy_auth=self._proxy_auth, socks_scheme=self._socks_scheme)
 
+    @property
+    def proxy_auth(self):
+        return self._proxy_auth
+
+    @proxy_auth.setter
+    def proxy_auth(self, value):
+        self._proxy_auth = value
+        if self._proxy_resolver:
+            self._proxy_resolver.proxy_auth = value
+
     def request(self, method, url, proxies=None, **kwargs):
         """
         :raises ProxyConfigExhaustedError: If the PAC file provided no usable proxy configuration.

@@ -1,6 +1,7 @@
 import os
 import pytest
 import requests
+from requests.auth import HTTPProxyAuth
 from requests.exceptions import ProxyError, ConnectTimeout
 from mock import patch, Mock, ANY, call
 from requests.utils import select_proxy
@@ -327,4 +328,20 @@ class TestPACSession(object):
             request.assert_has_calls([
                 get_call(arbitrary_url, 'http://a:80'),
                 get_call(arbitrary_url, 'http://b:80'),
+            ])
+
+    def test_post_init_proxy_auth(self):
+        """Set proxy auth info after constructing PACSession, and ensure that PAC proxy URLs then reflect it."""
+        sess = PACSession(pac=PACFile(proxy_pac_js_tpl % 'PROXY a:80;'))
+        with _patch_request_base() as request:
+            sess.get(arbitrary_url)  # Prime proxy resolver state.
+            request.assert_has_calls([
+                get_call(arbitrary_url, 'http://a:80'),
+            ])
+
+        sess.proxy_auth = HTTPProxyAuth('user', 'pwd')
+        with _patch_request_base() as request:
+            sess.get(arbitrary_url)
+            request.assert_has_calls([
+                get_call(arbitrary_url, 'http://user:pwd@a:80'),
             ])
