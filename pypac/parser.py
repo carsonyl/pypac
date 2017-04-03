@@ -1,3 +1,6 @@
+"""
+Functions and classes for parsing and executing PAC files.
+"""
 import js2py
 import warnings
 from js2py.base import PyJsException
@@ -6,8 +9,19 @@ from pypac.parser_functions import function_injections
 
 
 class PACFile(object):
+    """
+    Represents a PAC file.
+    
+    JavaScript parsing and execution is handled by the `Js2Py`_ library.
+    
+    .. _Js2Py: https://github.com/PiotrDabkowski/Js2Py
+    """
+
     def __init__(self, pac_js):
         """
+        Load a PAC file from a given string of JavaScript.
+        Errors during parsing and validation may raise a specialized exception.
+        
         :param str pac_js: JavaScript that defines the FindProxyForURL() function.
         :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
             or is otherwise invalid.
@@ -36,11 +50,11 @@ class PACFile(object):
 
     def find_proxy_for_url(self, url, host):
         """
-        Call FindProxyForURL() with the given arguments.
+        Call ``FindProxyForURL()`` in the PAC file with the given arguments.
 
         :param str url: The full URL.
         :param str host: The URL's host.
-        :return: Result of evaluating the FindProxyForURL() JavaScript function in the PAC file.
+        :return: Result of evaluating the ``FindProxyForURL()`` JavaScript function in the PAC file.
         :rtype: str
         """
         return self._func(url, host)
@@ -68,14 +82,14 @@ class PacComplexityError(RuntimeError):
 
 def parse_pac_value(value, socks_scheme=None):
     """
-    Parse the return value of FindProxyForURL() into a fairly usable list.
-    List elements will either be the string 'DIRECT' or a proxy URL.
+    Parse the return value of ``FindProxyForURL()`` into a list.
+    List elements will either be the string "DIRECT" or a proxy URL.
 
-    For example, the result of parsing `PROXY example.local:8080; DIRECT`
-    is a list of size 2, containing strings `http://example.local:8080` and `DIRECT`.
+    For example, the result of parsing ``PROXY example.local:8080; DIRECT``
+    is a list containing strings ``http://example.local:8080`` and ``DIRECT``.
 
-    :param str value: Any value returned by FindProxyForURL().
-    :param str socks_scheme: Scheme to assume for SOCKS proxies. `socks5` by default.
+    :param str value: Any value returned by ``FindProxyForURL()``.
+    :param str socks_scheme: Scheme to assume for SOCKS proxies. ``socks5`` by default.
     :returns: Parsed output, with invalid elements ignored. Warnings are logged for invalid elements.
     :rtype: list[str]
     """
@@ -95,9 +109,9 @@ def proxy_url(value, socks_scheme=None):
     """
     Parse a single proxy config value from FindProxyForURL() into a more usable element.
 
-    :param str value: Value to parse, e.g.: `DIRECT`, `PROXY example.local:8080`, or `SOCKS example.local:8080`.
-    :param str socks_scheme: Scheme to assume for SOCKS proxies. `socks5` by default.
-    :returns: Parsed value, e.g.: `DIRECT`, `http://example.local:8080`, or `socks5://example.local:8080`.
+    :param str value: Value to parse, e.g.: ``DIRECT``, ``PROXY example.local:8080``, or ``SOCKS example.local:8080``.
+    :param str socks_scheme: Scheme to assume for SOCKS proxies. ``socks5`` by default.
+    :returns: Parsed value, e.g.: ``DIRECT``, ``http://example.local:8080``, or ``socks5://example.local:8080``.
     :rtype: str
     :raises ValueError: If input value is invalid.
     """

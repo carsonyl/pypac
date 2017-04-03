@@ -123,7 +123,8 @@ class PACSession(requests.Session):
             By default, the response is not inspected.
         :param exception_proxy_fail_filter: Callable that takes an exception and returns
             a boolean for whether the exception means the proxy used for the request should no longer be used.
-            By default, ``requests.exceptions.ConnectTimeout`` and ``requests.exceptions.ProxyError`` are matched.
+            By default, :class:`requests.exceptions.ConnectTimeout` and 
+            :class:`requests.exceptions.ProxyError` are matched.
         :param str socks_scheme: Scheme to use when PAC file returns a SOCKS proxy. `socks5` by default.
         """
         super(PACSession, self).__init__()
