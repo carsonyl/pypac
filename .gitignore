@@ -70,3 +70,5 @@ target/
 # Cookiecutter
 output/
 boilerplate/
+
+docs/_build*
