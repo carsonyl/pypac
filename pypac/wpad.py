@@ -14,7 +14,7 @@ def proxy_urls_from_dns(local_hostname=None):
     generated URLs don't go outside the scope of the organization.
     If the fully-qualified hostname doesn't have a recognized TLD,
     such as in the case of intranets with '.local' or '.internal',
-    the TLD is assumed to be the part following the rightmost '.'.
+    the TLD is assumed to be the part following the rightmost dot.
 
     :param str local_hostname: Hostname to use for generating the WPAD URLs.
         If not provided, the local hostname is used.

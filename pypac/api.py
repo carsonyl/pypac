@@ -1,3 +1,6 @@
+"""
+These are the most commonly used components of PyPAC.
+"""
 import os
 import requests
 from requests.exceptions import ProxyError, ConnectTimeout
@@ -104,8 +107,8 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
 
 class PACSession(requests.Session):
     """
-    A PAC-aware Requests Session that discovers and complies with a PAC file, without any configuration necessary.
-    PAC file discovery is accomplished via the Windows Registry (if applicable),
+    A PAC-aware :ref:`Requests Session <requests:session-objects>` that discovers and complies with a PAC file, 
+    without any configuration necessary. PAC file discovery is accomplished via the Windows Registry (if applicable),
     and the Web Proxy Auto-Discovery (WPAD) protocol. Alternatively, a PAC file may be provided in the constructor.
     """
 
@@ -123,7 +126,8 @@ class PACSession(requests.Session):
             By default, the response is not inspected.
         :param exception_proxy_fail_filter: Callable that takes an exception and returns
             a boolean for whether the exception means the proxy used for the request should no longer be used.
-            By default, ``requests.exceptions.ConnectTimeout`` and ``requests.exceptions.ProxyError`` are matched.
+            By default, :class:`requests.exceptions.ConnectTimeout` and 
+            :class:`requests.exceptions.ProxyError` are matched.
         :param str socks_scheme: Scheme to use when PAC file returns a SOCKS proxy. `socks5` by default.
         """
         super(PACSession, self).__init__()
@@ -132,6 +136,8 @@ class PACSession(requests.Session):
         self._proxy_resolver = None
         self._proxy_auth = proxy_auth
         self._socks_scheme = socks_scheme
+
+        #: Set to ``False`` to disable all PAC functionality, including PAC auto-discovery.
         self.pac_enabled = pac_enabled
 
         if pac:
@@ -151,6 +157,7 @@ class PACSession(requests.Session):
 
     @property
     def proxy_auth(self):
+        """Proxy authentication object."""
         return self._proxy_auth
 
     @proxy_auth.setter

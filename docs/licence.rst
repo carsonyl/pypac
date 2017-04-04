@@ -1,0 +1,4 @@
+PyPAC licence
+=============
+
+.. include:: ../LICENSE

@@ -3,6 +3,7 @@ Tools for getting the configured PAC file URL out of the Windows Registry.
 """
 import platform
 
+#: True if running on Windows.
 ON_WINDOWS = platform.system() == 'Windows'
 
 if ON_WINDOWS:

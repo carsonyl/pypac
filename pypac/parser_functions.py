@@ -1,7 +1,10 @@
 """
-Implementations of PAC file JavaScript functions.
+Python implementations of JavaScript functions needed to execute a PAC file.
 
-Most docstrings are adapted from http://findproxyforurl.com/netscape-documentation/.
+These are injected into the JavaScript execution scope and aren't intended to be called directly from Python.
+For this reason, their function signatures may look somewhat strange.
+
+Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
 """
 import socket
 from calendar import monthrange
@@ -150,19 +153,19 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     """
     Accepted forms:
 
-    * weekdayRange(wd1)
-    * weekdayRange(wd1, gmt)
-    * weekdayRange(wd1, wd2)
-    * weekdayRange(wd1, wd2, gmt)
+    * ``weekdayRange(wd1)``
+    * ``weekdayRange(wd1, gmt)``
+    * ``weekdayRange(wd1, wd2)``
+    * ``weekdayRange(wd1, wd2, gmt)``
 
     If only one parameter is present, the function yields a true value on the weekday that the parameter represents.
     If the string "GMT" is specified as a second parameter, times are taken to be in GMT, otherwise in local timezone.
 
-    If both wd1 and wd1 are defined, the condition is true if the current weekday is in between those two weekdays.
-    Bounds are inclusive. If the "GMT" parameter is specified, times are taken to be in GMT,
+    If both ``wd1`` and wd2`` are defined, the condition is true if the current weekday is in between those two weekdays.
+    Bounds are inclusive. If the ``gmt`` parameter is specified, times are taken to be in GMT,
     otherwise the local timezone is used.
 
-    Weekday arguments are one of `MON TUE WED THU FRI SAT SUN`.
+    Weekday arguments are one of ``MON TUE WED THU FRI SAT SUN``.
 
     :param str|PyJsString start_day: Weekday string.
     :param str|PyJsString end_day: Weekday string.
@@ -199,32 +202,32 @@ def dateRange(*args):
     """
     Accepted forms:
 
-    * dateRange(day)
-    * dateRange(day1, day2)
-    * dateRange(mon)
-    * dateRange(month1, month2)
-    * dateRange(year)
-    * dateRange(year1, year2)
-    * dateRange(day1, month1, day2, month2)
-    * dateRange(month1, year1, month2, year2)
-    * dateRange(day1, month1, year1, day2, month2, year2)
-    * dateRange(day1, month1, year1, day2, month2, year2, gmt)
+    * ``dateRange(day)``
+    * ``dateRange(day1, day2)``
+    * ``dateRange(mon)``
+    * ``dateRange(month1, month2)``
+    * ``dateRange(year)``
+    * ``dateRange(year1, year2)``
+    * ``dateRange(day1, month1, day2, month2)``
+    * ``dateRange(month1, year1, month2, year2)``
+    * ``dateRange(day1, month1, year1, day2, month2, year2)``
+    * ``dateRange(day1, month1, year1, day2, month2, year2, gmt)``
 
-    day
+    ``day``
         is the day of month between 1 and 31 (as an integer).
-    month
+    ``month``
         is one of the month strings:
-            `JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC`
-    year
+            ``JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC``
+    ``year``
         is the full year number, for example 1995 (but not 95). Integer.
-    gmt
+    ``gmt``
         is either the string "GMT", which makes time comparison occur in GMT timezone;
         if left unspecified, times are taken to be in the local timezone.
 
     Even though the above examples don't show,
     the "GMT" parameter can be specified in any of the 9 different call profiles, always as the last parameter.
 
-    If only a single value is specified (from each category: day, month, year),
+    If only a single value is specified (from each category: ``day``, ``month``, ``year``),
     the function returns a true value only on days that match that specification.
     If both values are specified, the result is true between those times, including bounds.
 
@@ -285,19 +288,19 @@ def timeRange(*args):
     """
     Accepted forms:
 
-    * timeRange(hour)
-    * timeRange(hour1, hour2)
-    * timeRange(hour1, min1, hour2, min2)
-    * timeRange(hour1, min1, sec1, hour2, min2, sec2)
-    * timeRange(hour1, min1, sec1, hour2, min2, sec2, gmt)
+    * ``timeRange(hour)``
+    * ``timeRange(hour1, hour2)``
+    * ``timeRange(hour1, min1, hour2, min2)``
+    * ``timeRange(hour1, min1, sec1, hour2, min2, sec2)``
+    * ``timeRange(hour1, min1, sec1, hour2, min2, sec2, gmt)``
 
-    hour
+    ``hour``
         is the hour from 0 to 23. (0 is midnight, 23 is 11 pm.)
-    min
+    ``min``
         minutes from 0 to 59.
-    sec
+    ``sec``
         seconds from 0 to 59.
-    gmt
+    ``gmt``
         either the string "GMT" for GMT timezone, or not specified, for local timezone.
         Again, even though the above list doesn't show it, this parameter may be present in each of
         the different parameter profiles, always as the last parameter.
@@ -331,7 +334,7 @@ def timeRange(*args):
 
 
 def alert(_):
-    """No-op."""
+    """No-op. PyPAC ignores JavaScript alerts."""
     pass
 
 
