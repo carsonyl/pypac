@@ -11,7 +11,7 @@ from pypac.parser_functions import function_injections
 class PACFile(object):
     """
     Represents a PAC file.
-    
+
     JavaScript parsing and execution is handled by the `Js2Py`_ library.
     
     .. _Js2Py: https://github.com/PiotrDabkowski/Js2Py

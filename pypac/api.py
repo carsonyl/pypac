@@ -107,7 +107,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
 
 class PACSession(requests.Session):
     """
-    A PAC-aware :ref:`Requests Session <requests:session-objects>` that discovers and complies with a PAC file, 
+    A PAC-aware :ref:`Requests Session <requests:session-objects>` that discovers and complies with a PAC file,
     without any configuration necessary. PAC file discovery is accomplished via the Windows Registry (if applicable),
     and the Web Proxy Auto-Discovery (WPAD) protocol. Alternatively, a PAC file may be provided in the constructor.
     """
@@ -126,7 +126,7 @@ class PACSession(requests.Session):
             By default, the response is not inspected.
         :param exception_proxy_fail_filter: Callable that takes an exception and returns
             a boolean for whether the exception means the proxy used for the request should no longer be used.
-            By default, :class:`requests.exceptions.ConnectTimeout` and 
+            By default, :class:`requests.exceptions.ConnectTimeout` and
             :class:`requests.exceptions.ProxyError` are matched.
         :param str socks_scheme: Scheme to use when PAC file returns a SOCKS proxy. `socks5` by default.
         """
