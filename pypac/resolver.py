@@ -1,3 +1,6 @@
+"""
+Tools for working with a given PAC file and its return values.
+"""
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -27,6 +30,7 @@ class ProxyResolver(object):
 
     @property
     def proxy_auth(self):
+        """Proxy authentication object."""
         return self._proxy_auth
 
     @proxy_auth.setter
@@ -104,9 +108,9 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
     """
     Add a username and password to a proxy URL, if the input value is a proxy URL.
 
-    :param str possible_proxy_url: Proxy URL or 'DIRECT'.
+    :param str possible_proxy_url: Proxy URL or ``DIRECT``.
     :param requests.auth.HTTPProxyAuth proxy_auth: Proxy authentication info.
-    :returns: Proxy URL with auth info added, or 'DIRECT'.
+    :returns: Proxy URL with auth info added, or ``DIRECT``.
     :rtype: str
     """
     if possible_proxy_url == 'DIRECT':
@@ -117,7 +121,7 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
 
 def proxy_parameter_for_requests(proxy_url_or_direct):
     """
-    :param str proxy_url_or_direct: Proxy URL, or 'DIRECT'. Cannot be empty.
+    :param str proxy_url_or_direct: Proxy URL, or ``DIRECT``. Cannot be empty.
     :return: Value for use with the ``proxies`` parameter in Requests.
     :rtype: dict
     """

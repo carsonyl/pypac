@@ -36,6 +36,8 @@ can be used to get and parse a PAC file from a given URL, which can then be pass
    pac = get_pac(url='http://foo.corp.local/proxy.pac')
    session = PACSession(pac)
 
+This is useful if you already know the URL for the PAC file to use, and want to skip auto-discovery.
+
 Note that by default, PyPAC requires that PAC files be served with a content-type of either
 ``application/x-ns-proxy-autoconfig`` or ``application/x-javascript-config``.
 Files served with other types are excluded from consideration as a PAC file.
@@ -126,3 +128,58 @@ PyPAC defines some exceptions that can occur in the course of PAC auto-discovery
 :class:`ProxyConfigExhaustedError <pypac.resolver.ProxyConfigExhaustedError>`
    All proxy servers for the given URL have been marked as failed,
    and the PAC file did not specify a final instruction to go ``DIRECT``.
+
+
+Security considerations
+-----------------------
+
+Supporting and using PAC files comes with some security implications that are worth considering.
+
+
+PAC discovery and parsing
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PAC files are JavaScript. PyPAC uses `Js2Py <https://github.com/PiotrDabkowski/Js2Py>`_
+to parse and execute JavaScript. Js2Py was not designed for handling untrusted JavaScript,
+and so it is unclear whether the handling of PAC files is sufficiently sandboxed to prevent
+untrusted Python code execution.
+
+When looking for a PAC file using DNS WPAD, the local machine's fully-qualified hostname is
+checked against the `Mozilla Public Suffix List`_ to prevent requesting any PAC files outside
+the scope of the organization. If the hostname's TLD isn't in the Public Suffix List, then
+everything up to the final node is used in the search path. For example, a hostname of
+``foo.bar.local`` will result in a search for a PAC file from ``wpad.bar.local`` and ``wpad.local``.
+
+PyPAC uses the `tld <https://pypi.python.org/pypi/tld>`_ library to match TLDs.
+
+.. _Mozilla Public Suffix List: https://publicsuffix.org/
+
+
+HTTPS-decrypting proxies
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Proxies operated by a firewall or web security gateway may may be configured with a
+man-in-the-middle (MITM) certificate to allow decrypting HTTPS traffic for inspection.
+Your organization may then provision its client machines with this certificate trusted.
+Browsers such as Internet Explorer and Chrome, which honour the operating system's certificate store,
+will accept the proxy's certificate.
+However, Requests defaults to its own bundled CA certificates,
+and thus SSL certificate verification will fail when using such a proxy.
+
+A quick solution is to make your requests with the ``verify=False`` option.
+Understand that this is an overly broad solution: while it allows your request to proceed and be
+decrypted for inspection by your network proxy (an entity that you ostensibly trust),
+it also disables SSL certificate verification entirely.
+This means you request may be vulnerable to MITM attacks further down the line.
+
+
+What's missing
+--------------
+
+The DHCP portion of the Web Proxy Auto-Discovery (WPAD) protocol is not implemented.
+
+PyPAC currently works with Requests by including a subclass of :ref:`requests.Session <requests:session-objects>`.
+No ready-to-use solutions are included for other HTTP libraries,
+though PyPAC has all the building blocks needed to make one easily.
+
+Pull requests to add these features are welcome.

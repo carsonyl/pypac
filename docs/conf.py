@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'pypac'
+project = 'PyPAC'
 copyright = '2017, Carson Lam'
 author = 'Carson Lam'
 
@@ -137,7 +137,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'pypac.tex', 'pypac Documentation',
+    (master_doc, 'pypac.tex', 'PyPAC Documentation',
      'Carson Lam', 'manual'),
 ]
 
@@ -147,7 +147,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pypac', 'pypac Documentation',
+    (master_doc, 'pypac', 'PyPAC Documentation',
      [author], 1)
 ]
 
@@ -158,12 +158,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'pypac', 'pypac Documentation',
+    (master_doc, 'pypac', 'PyPAC Documentation',
      author, 'pypac', 'One line description of project.',
      'Miscellaneous'),
 ]
 
 
 intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
     'requests': ('http://docs.python-requests.org/en/master/', None),
 }

@@ -16,7 +16,7 @@ Release v\ |version|.
 
 PyPAC is a pure-Python library for finding :doc:`proxy auto-config (PAC) <about_pac>` files and making HTTP requests
 that respect them. PAC files are often used in organizations that need fine-grained and centralized control
-of proxy settings.
+of proxy settings. :ref:`Are you using one? <who-uses-pacs>`
 
 .. _proxy auto-config (PAC): about_pac
 
@@ -31,6 +31,7 @@ Features
 * The same Requests API that you already know and love
 * Honour PAC setting from Windows Internet Options
 * Follow DNS Web Proxy Auto-Discovery protocol
+* Proxy authentication pass-through
 * Proxy failover and load balancing
 
 PyPAC supports Python 2.7 and 3.3+.
@@ -46,6 +47,24 @@ Install PyPAC using `pip <https://pip.pypa.io>`_::
 The source is also `available on GitHub <https://github.com/rbcarson/pypac>`_.
 
 
+Quickstart
+----------
+
+The quickest way to get started is to use a :class:`PACSession <pypac.PACSession>`:
+
+   >>> from pypac import PACSession
+   >>> session = PACSession()
+   >>> session.get('http://example.org')
+   <Response [200]>
+
+Behind the scenes, the first request made with the session will trigger the PAC auto-discovery process.
+This process first looks for a PAC URL setting in Windows, and if not found,
+moves on to the :ref:`DNS WPAD protocol <wpad>`.
+
+Once a PAC file is found, it will be automatically consulted for every request.
+If a PAC wasn't found, then :class:`PACSession` acts just like a :ref:`requests.Session <requests:session-objects>`.
+
+
 Documentation
 -------------
 .. toctree::
@@ -57,6 +76,8 @@ Documentation
 
 .. toctree::
    :maxdepth: 1
+
+   licence
    changelog
 
 

@@ -218,7 +218,7 @@ def dateRange(*args):
     ``month``
         is one of the month strings:
             ``JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC``
-    ``year
+    ``year``
         is the full year number, for example 1995 (but not 95). Integer.
     ``gmt``
         is either the string "GMT", which makes time comparison occur in GMT timezone;
