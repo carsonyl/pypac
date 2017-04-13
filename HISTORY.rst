@@ -1,5 +1,5 @@
-0.3.0-dev
----------
+0.3.0
+-----
 - Windows: Get system auto-proxy config setting using ``winreg`` module.
 - Windows: Accept local filesystem paths from system proxy auto-config setting.
 - Raise ``PacComplexityError`` when recursion limit is hit while parsing PAC file.
