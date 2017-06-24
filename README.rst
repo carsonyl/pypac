@@ -3,12 +3,12 @@ PyPAC: Proxy auto-config for Python
 
 .. image:: https://img.shields.io/pypi/v/pypac.svg?maxAge=2592000
     :target: https://pypi.python.org/pypi/pypac
-.. image:: https://img.shields.io/travis/rbcarson/pypac.svg?maxAge=2592000
-    :target: https://travis-ci.org/rbcarson/pypac
+.. image:: https://img.shields.io/travis/carsonyl/pypac.svg?maxAge=2592000
+    :target: https://travis-ci.org/carsonyl/pypac
 .. image:: https://ci.appveyor.com/api/projects/status/y7nxvu2feu87i39t/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/rbcarson/pypac/branch/master
-.. image:: https://img.shields.io/coveralls/rbcarson/pypac/HEAD.svg?maxAge=2592000
-    :target: https://coveralls.io/github/rbcarson/pypac
+    :target: https://ci.appveyor.com/project/carsonyl/pypac/branch/master
+.. image:: https://img.shields.io/coveralls/carsonyl/pypac/HEAD.svg?maxAge=2592000
+    :target: https://coveralls.io/github/carsonyl/pypac
 .. image:: https://img.shields.io/codacy/grade/71ac103b491d44efb94976ca5ea5d89c.svg?maxAge=2592000
     :target: https://www.codacy.com/app/carsonyl/pypac
 

@@ -61,7 +61,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Carson Lam",
     author_email='carsonyylam@gmail.com',
-    url='https://github.com/rbcarson/pypac',
+    url='https://github.com/carsonyl/pypac',
     packages=[
         'pypac',
     ],
