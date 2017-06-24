@@ -1,3 +1,9 @@
+0.3.1 (2017-06-23)
+------------------
+
+- Update GitHub username.
+
+
 0.3.0 (2017-04-12)
 ------------------
 - Windows: Get system auto-proxy config setting using ``winreg`` module.
