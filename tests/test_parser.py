@@ -51,13 +51,16 @@ class TestPacFile(object):
 
     def test_large_pac_handling(self):
         """
-        Try to load a large PAC file that triggers Js2Py hitting the default Python recursion limit.
+        Try to load a large PAC file that triggers Js2Py hitting the Python recursion limit.
         Ensure it raises a more useful message.
+
+        Note that unrecoverable stack overflows are possible, where this message won't be raised.
+        See https://github.com/carsonyl/pypac/issues/8.
         """
         pac_js = 'function FindProxyForURL(url, host) { if(%s) { return "DIRECT"; } }' % \
                  ' || '.join(200 * ['shExpMatch(host, "*.example.com")'])
         with pytest.raises(PacComplexityError):
-            PACFile(pac_js)
+            PACFile(pac_js, recursion_limit=1000)
 
 
 dummy_js = 'function FindProxyForURL(url, host) {return %s ? "DIRECT" : "PROXY 0.0.0.0:80";}'
