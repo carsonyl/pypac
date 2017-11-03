@@ -5,13 +5,13 @@ import os
 import requests
 from requests.exceptions import ProxyError, ConnectTimeout
 
-from pypac.parser import PACFile
+from pypac.parser import PACFile, ARBITRARY_HIGH_RECURSION_LIMIT
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
 from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS
 from pypac.wpad import proxy_urls_from_dns
 
 
-def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, allowed_content_types=None):
+def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, allowed_content_types=None, **kwargs):
     """
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
 
@@ -35,21 +35,21 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         downloaded_pac = download_pac([url], timeout=timeout, allowed_content_types=allowed_content_types)
         if not downloaded_pac:
             return
-        return PACFile(downloaded_pac)
+        return PACFile(downloaded_pac, **kwargs)
     if js:
-        return PACFile(js)
+        return PACFile(js, **kwargs)
 
     if from_registry and ON_WINDOWS:
         path = autoconfig_url_from_registry()
         if path and os.path.isfile(path):
             with open(path) as f:
-                return PACFile(f.read())
+                return PACFile(f.read(), **kwargs)
 
     pac_candidate_urls = collect_pac_urls(from_registry=True, from_dns=from_dns)
     downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types)
     if not downloaded_pac:
         return
-    return PACFile(downloaded_pac)
+    return PACFile(downloaded_pac, **kwargs)
 
 
 def collect_pac_urls(from_registry=True, from_dns=True):
@@ -114,7 +114,7 @@ class PACSession(requests.Session):
 
     def __init__(self, pac=None, proxy_auth=None, pac_enabled=True,
                  response_proxy_fail_filter=None, exception_proxy_fail_filter=None,
-                 socks_scheme='socks5'):
+                 socks_scheme='socks5', recursion_limit=ARBITRARY_HIGH_RECURSION_LIMIT):
         """
         :param PACFile pac: The PAC file to consult for proxy configuration info.
             If not provided, then upon the first request, :func:`get_pac` is called with default arguments
@@ -128,6 +128,9 @@ class PACSession(requests.Session):
             a boolean for whether the exception means the proxy used for the request should no longer be used.
             By default, :class:`requests.exceptions.ConnectTimeout` and
             :class:`requests.exceptions.ProxyError` are matched.
+        :param int recursion_limit: Python recursion limit when executing JavaScript.
+            PAC files are often complex enough to need this to be higher than the interpreter default.
+            This value is passed to auto-discovered :class:`PACFile` only.
         :param str socks_scheme: Scheme to use when PAC file returns a SOCKS proxy. `socks5` by default.
         """
         super(PACSession, self).__init__()
@@ -136,6 +139,7 @@ class PACSession(requests.Session):
         self._proxy_resolver = None
         self._proxy_auth = proxy_auth
         self._socks_scheme = socks_scheme
+        self._recursion_limit = recursion_limit
 
         #: Set to ``False`` to disable all PAC functionality, including PAC auto-discovery.
         self.pac_enabled = pac_enabled
@@ -237,7 +241,7 @@ class PACSession(requests.Session):
         if not self.pac_enabled:
             return
 
-        pac = get_pac()
+        pac = get_pac(recursion_limit=self._recursion_limit)
         self._tried_get_pac = True
         if pac:
             self._proxy_resolver = self._get_proxy_resolver(pac)
