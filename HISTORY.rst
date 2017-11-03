@@ -1,3 +1,11 @@
+0.4.0 (2017-11-03)
+------------------
+
+- Add ``recursion_limit`` keyword argument to ``PACSession`` and ``PACFile``.
+  The default is an arbitrarily high value (10000), which should cover most applications.
+- Exclude port numbers from ``host`` passed to ``FindProxyForURL(url, host)``.
+
+
 0.3.1 (2017-06-23)
 ------------------
 
