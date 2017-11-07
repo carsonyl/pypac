@@ -48,12 +48,16 @@ class ProxyResolver(object):
             Can be empty, which means to abort the request.
         :rtype: list[str]
         """
-        host_no_port = urlparse(url).netloc.split(':')[0]
-        value_from_js_func = self.pac.find_proxy_for_url(url, host_no_port)
+        hostname = urlparse(url).hostname
+        if hostname is None:
+          # URL has no hostname, and PAC functions don't expect to receive nulls.
+          hostname = ""
+          
+        value_from_js_func = self.pac.find_proxy_for_url(url, hostname)
         if value_from_js_func in self._cache:
             return self._cache[value_from_js_func]
 
-        config_values = parse_pac_value(value_from_js_func, self.socks_scheme)
+        config_values = parse_pac_value(self.pac.find_proxy_for_url(url, hostname), self.socks_scheme)
         if self._proxy_auth:
             config_values = [add_proxy_auth(value, self._proxy_auth) for value in config_values]
 
