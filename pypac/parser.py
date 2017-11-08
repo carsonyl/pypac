@@ -3,9 +3,24 @@ Functions and classes for parsing and executing PAC files.
 """
 import js2py
 import warnings
+from contextlib import contextmanager
 from js2py.base import PyJsException
 
+import sys
+
 from pypac.parser_functions import function_injections
+
+
+ARBITRARY_HIGH_RECURSION_LIMIT = 10000
+
+
+@contextmanager
+def _temp_recursion_limit(limit):
+    """Context manager to temporarily adjust Python's recursion limit."""
+    prev_limit = sys.getrecursionlimit()
+    sys.setrecursionlimit(limit)
+    yield
+    sys.setrecursionlimit(prev_limit)
 
 
 class PACFile(object):
@@ -17,12 +32,14 @@ class PACFile(object):
     .. _Js2Py: https://github.com/PiotrDabkowski/Js2Py
     """
 
-    def __init__(self, pac_js):
+    def __init__(self, pac_js, recursion_limit=ARBITRARY_HIGH_RECURSION_LIMIT):
         """
         Load a PAC file from a given string of JavaScript.
         Errors during parsing and validation may raise a specialized exception.
         
         :param str pac_js: JavaScript that defines the FindProxyForURL() function.
+        :param int recursion_limit: Python recursion limit when executing JavaScript.
+            PAC files are often complex enough to need this to be higher than the interpreter default.
         :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
             or is otherwise invalid.
         :raises PyImportError: If the JavaScript tries to use Js2Py's `pyimport` keyword,
@@ -30,15 +47,18 @@ class PACFile(object):
         :raises PacComplexityError: If the JavaScript was complex enough that the
             Python recursion limit was hit during parsing.
         """
+        self._recursion_limit = recursion_limit
+
         if 'pyimport' in pac_js:
             raise PyimportError()
         # Disallow parsing of the unsafe 'pyimport' statement in Js2Py.
         js2py.disable_pyimport()
         try:
-            context = js2py.EvalJs(function_injections)
-            context.execute(pac_js)
-            # A test call to weed out errors like unimplemented functions.
-            context.FindProxyForURL('/', '0.0.0.0')
+            with _temp_recursion_limit(self._recursion_limit):
+                context = js2py.EvalJs(function_injections)
+                context.execute(pac_js)
+                # A test call to weed out errors like unimplemented functions.
+                context.FindProxyForURL('/', '0.0.0.0')
 
             self._context = context
             self._func = context.FindProxyForURL
@@ -57,7 +77,8 @@ class PACFile(object):
         :return: Result of evaluating the ``FindProxyForURL()`` JavaScript function in the PAC file.
         :rtype: str
         """
-        return self._func(url, host)
+        with _temp_recursion_limit(self._recursion_limit):
+            return self._func(url, host)
 
 
 class MalformedPacError(Exception):

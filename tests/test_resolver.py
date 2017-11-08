@@ -65,3 +65,11 @@ def test_get_proxy_for_requests():
     res.ban_proxy('http://foo:8080')
     with pytest.raises(ProxyConfigExhaustedError):
         res.get_proxy_for_requests(arbitrary_url)
+
+
+def test_url_host_port_excluded():
+    res = ProxyResolver(PACFile(
+        'function FindProxyForURL(url, host) { return host.indexOf(" ") == -1 ? "PROXY PASS:80" : "PROXY FAIL:80"; }'
+    ))
+    for url in ('http://foo/bar', 'http://foo:80/bar'):
+        assert res.get_proxy(url) == 'http://PASS:80'
