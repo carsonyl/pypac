@@ -1,4 +1,4 @@
-0.4.0 (2017-11-03)
+0.4.0 (2017-11-07)
 ------------------
 
 - Add ``recursion_limit`` keyword argument to ``PACSession`` and ``PACFile``.
