@@ -97,7 +97,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
         try:
             resp = sess.get(pac_url, timeout=timeout)
             content_type = resp.headers.get('content-type', '').lower()
-            if True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
+            if content_type and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
                 continue
             if resp.ok:
                 return resp.text
