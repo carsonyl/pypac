@@ -1,8 +1,8 @@
 """
 Python implementations of JavaScript functions needed to execute a PAC file.
 
-These are injected into the JavaScript execution scope and aren't intended to be called directly from Python.
-For this reason, their function signatures may look somewhat strange.
+These are injected into the JavaScript execution context.
+They aren't meant to be called directly from Python, so the function signatures may look unusual.
 
 Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
 """

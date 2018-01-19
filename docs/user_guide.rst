@@ -123,7 +123,9 @@ PyPAC defines some exceptions that can occur in the course of PAC auto-discovery
 
 :class:`PacComplexityError <pypac.parser.PacComplexityError>`
    PAC file is large enough that it couldn't be parsed under the current recursion limit.
-   The recursion limit can be raised using :ref:`sys.setrecursionlimit`.
+   The recursion limit can be raised using :ref:`sys.setrecursionlimit`,
+   or the ``recursion_limit`` keyword on the :class:`PACSession` constructor.
+   **Note:** It's possible for this exception to not be raised successfully.
 
 :class:`ProxyConfigExhaustedError <pypac.resolver.ProxyConfigExhaustedError>`
    All proxy servers for the given URL have been marked as failed,
