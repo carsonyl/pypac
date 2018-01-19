@@ -1,3 +1,9 @@
+0.5.0 (2018-01-18)
+------------------
+
+- Accept PAC files served with no ``Content-Type`` header.
+
+
 0.4.0 (2017-11-07)
 ------------------
 

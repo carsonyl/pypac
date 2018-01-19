@@ -72,3 +72,5 @@ output/
 boilerplate/
 
 docs/_build*
+
+venv/*
