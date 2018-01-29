@@ -7,7 +7,7 @@ from mock import patch, Mock, ANY, call
 from requests.utils import select_proxy
 from tempfile import mkstemp
 
-from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession
+from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url
 from pypac.parser import PACFile, MalformedPacError, ARBITRARY_HIGH_RECURSION_LIMIT
 from pypac.resolver import proxy_parameter_for_requests
 
@@ -345,3 +345,26 @@ class TestPACSession(object):
             request.assert_has_calls([
                 get_call(arbitrary_url, 'http://user:pwd@a:80'),
             ])
+
+
+class TestContextManager(object):
+    def test_no_pac_no_env(self, monkeypatch):
+        monkeypatch.delenv('HTTP_PROXY', raising=False)
+        monkeypatch.delenv('HTTPS_PROXY', raising=False)
+        with pac_context_for_url(arbitrary_url):
+            assert not os.environ.get('HTTP_PROXY')
+        assert not os.environ.get('HTTP_PROXY')
+
+    def test_no_pac(self, monkeypatch):
+        monkeypatch.setenv('HTTP_PROXY', 'http://env')
+        with pac_context_for_url(arbitrary_url):
+            assert os.environ['HTTP_PROXY'] == 'http://env'
+        assert os.environ['HTTP_PROXY'] == 'http://env'
+
+    def test_pac(self, monkeypatch):
+        monkeypatch.setenv('HTTP_PROXY', 'http://env')
+        with _patch_get_pac(PACFile(proxy_pac_js)):
+            with pac_context_for_url(arbitrary_url):
+                assert os.environ['HTTP_PROXY'] == fake_proxy_url
+                assert os.environ['HTTPS_PROXY'] == fake_proxy_url
+        assert os.environ['HTTP_PROXY'] == 'http://env'
