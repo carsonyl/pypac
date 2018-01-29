@@ -1,3 +1,10 @@
+0.6.0 (2018-01-28)
+------------------
+
+- Add ``pac_context_for_url``, a context manager that adds basic PAC functionality
+  through proxy environment variables.
+
+
 0.5.0 (2018-01-18)
 ------------------
 
