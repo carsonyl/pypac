@@ -2,6 +2,8 @@
 These are the most commonly used components of PyPAC.
 """
 import os
+from contextlib import contextmanager
+
 import requests
 from requests.exceptions import ProxyError, ConnectTimeout
 
@@ -246,6 +248,40 @@ class PACSession(requests.Session):
         if pac:
             self._proxy_resolver = self._get_proxy_resolver(pac)
         return pac
+
+
+@contextmanager
+def pac_context_for_url(url, proxy_auth=None):
+    """
+    This context manager provides a simple way to add rudimentary PAC functionality
+    to code that cannot be modified to use :class:`PACSession`,
+    but obeys the ``HTTP_PROXY`` and ``HTTPS_PROXY`` environment variables.
+
+    Upon entering this context, PAC discovery occurs with default parameters.
+    If a PAC is found, then it's asked for the proxy to use for the given URL.
+    The proxy environment variables are then set accordingly.
+
+    Note that this provides a very simplified PAC experience that's insufficient for some scenarios.
+
+    :param url: Consult the PAC for the proxy to use for this URL.
+    :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
+    """
+    prev_http_proxy, prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
+    pac = get_pac()
+    if pac:
+        resolver = ProxyResolver(pac, proxy_auth=proxy_auth)
+        proxies = resolver.get_proxy_for_requests(url)
+        os.environ['HTTP_PROXY'] = proxies.get('http')
+        os.environ['HTTPS_PROXY'] = proxies.get('https')
+    yield
+    if prev_http_proxy:
+        os.environ['HTTP_PROXY'] = prev_http_proxy
+    elif 'HTTP_PROXY' in os.environ:
+        del os.environ['HTTP_PROXY']
+    if prev_https_proxy:
+        os.environ['HTTPS_PROXY'] = prev_https_proxy
+    elif 'HTTPS_PROXY' in os.environ:
+        del os.environ['HTTPS_PROXY']
 
 
 def default_proxy_fail_response_filter(response):
