@@ -64,6 +64,21 @@ moves on to the :ref:`DNS WPAD protocol <wpad>`.
 Once a PAC file is found, it will be automatically consulted for every request.
 If a PAC wasn't found, then :class:`PACSession` acts just like a :ref:`requests.Session <requests:session-objects>`.
 
+If you're looking to add *basic* PAC functionality to a library that you're using,
+try the :func:`pac_context_for_url <pypac.pac_context_for_url>` context manager:
+
+.. code-block:: python
+
+   from pypac import pac_context_for_url
+   import boto3
+
+   with pac_context_for_url('https://example.amazonaws.com'):
+       client = boto3.client('sqs')
+       client.list_queues()
+
+This sets up proxy environment variables at the start of the scope, based on any auto-discovered PAC and the given URL.
+:func:`pac_context_for_url <pypac.pac_context_for_url>` should work for any library
+that honours proxy environment variables.
 
 Documentation
 -------------

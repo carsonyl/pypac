@@ -19,6 +19,8 @@ Main interface
 
 .. autofunction:: pypac.download_pac
 
+.. autofunction:: pypac.pac_context_for_url
+
 
 PAC parsing and execution
 -------------------------
