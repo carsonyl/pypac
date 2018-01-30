@@ -80,6 +80,7 @@ This sets up proxy environment variables at the start of the scope, based on any
 :func:`pac_context_for_url <pypac.pac_context_for_url>` should work for any library
 that honours proxy environment variables.
 
+
 Documentation
 -------------
 .. toctree::

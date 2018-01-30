@@ -35,6 +35,22 @@ On Windows, PyPAC can also obtain the PAC file URL from the Internet Options dia
 
 .. _Web Proxy Auto-Discovery (WPAD): https://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
 
+If you're looking to add *basic* PAC functionality to a library that you're using,
+try the :func:`pac_context_for_url <pypac.pac_context_for_url>` context manager:
+
+.. code-block:: python
+
+   from pypac import pac_context_for_url
+   import boto3
+
+   with pac_context_for_url('https://example.amazonaws.com'):
+       client = boto3.client('sqs')
+       client.list_queues()
+
+This sets up proxy environment variables at the start of the scope, based on any auto-discovered PAC and the given URL.
+:func:`pac_context_for_url <pypac.pac_context_for_url>` should work for any library
+that honours proxy environment variables.
+
 
 Features
 --------
