@@ -52,7 +52,7 @@ class ProxyResolver(object):
         if hostname is None:
             # URL has no hostname, and PAC functions don't expect to receive nulls.
             hostname = ""
-            
+
         value_from_js_func = self.pac.find_proxy_for_url(url, hostname)
         if value_from_js_func in self._cache:
             return self._cache[value_from_js_func]
