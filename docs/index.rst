@@ -5,6 +5,8 @@ Release v\ |version|.
 
 .. image:: https://img.shields.io/pypi/v/pypac.svg?maxAge=2592000
     :target: https://pypi.python.org/pypi/pypac
+.. image:: https://readthedocs.org/projects/pypac/badge/?version=latest
+    :target: https://pypac.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/travis/carsonyl/pypac.svg?maxAge=2592000
     :target: https://travis-ci.org/carsonyl/pypac
 .. image:: https://ci.appveyor.com/api/projects/status/y7nxvu2feu87i39t/branch/master?svg=true
