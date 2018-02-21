@@ -4,16 +4,17 @@ environment:
     - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python36"
 install:
-  - set PATH="%PYTHON%";"%PYTHON%\Scripts";%PATH%
-  - python -m pip install -U setuptools pip wheel
-  - python -m pip install -e .
-  - python -m pip install -r requirements_dev.txt
+  - set PATH="%PYTHON%";"%PYTHON%\\Scripts";%PATH%
+  - pip install --disable-pip-version-check --user --upgrade pip
+  - pip install pipenv
+  - pipenv install
+  - pipenv install --dev
 build: off
 test_script:
-  - py.test tests --cov-report term-missing --cov pypac
-  - coveralls
+  - pipenv run py.test tests --cov-report term-missing --cov pypac
+  - pipenv run coveralls
 after_test:
-  - python setup.py bdist_wheel
+  - pipenv run python setup.py bdist_wheel
 deploy: off
 artifacts:
   - path: dist/*

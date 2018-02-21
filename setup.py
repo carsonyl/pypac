@@ -18,9 +18,6 @@ requirements = [
     'js2py >= 0.43',
 ]
 
-with open('requirements_dev.txt') as req_file:
-    test_requirements = [line for line in req_file]
-
 classifiers = [
     'Development Status :: 3 - Alpha',
     'Environment :: Web Environment',
@@ -75,7 +72,10 @@ setup(
     classifiers=classifiers,
     cmdclass={'test': PyTest},
     test_suite='tests',
-    tests_require=test_requirements,
+    tests_require=[
+        'pytest',
+        'mock',
+    ],
     extras_require={
         'socks': ['requests[socks]>=2.10.0'],
     },
