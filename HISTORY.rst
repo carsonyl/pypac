@@ -1,4 +1,4 @@
-0.7.0 (unreleased)
+0.7.0 (2018-02-21)
 ------------------
 
 - Drop support for Python 3.3.
