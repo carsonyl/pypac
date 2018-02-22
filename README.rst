@@ -63,7 +63,7 @@ Features
 * Proxy authentication pass-through
 * Proxy failover and load balancing
 
-PyPAC supports Python 2.7 and 3.3+.
+PyPAC supports Python 2.7 and 3.4+.
 
 
 Installation

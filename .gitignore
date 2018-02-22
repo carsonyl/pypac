@@ -73,4 +73,4 @@ boilerplate/
 
 docs/_build*
 
-venv/*
+.venv/*

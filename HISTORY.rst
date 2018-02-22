@@ -1,3 +1,11 @@
+0.7.0 (unreleased)
+------------------
+
+- Drop support for Python 3.3.
+- Add doc explaining how to use ``pac_context_for_url``.
+- Internal changes to dev and test processes.
+
+
 0.6.0 (2018-01-28)
 ------------------
 

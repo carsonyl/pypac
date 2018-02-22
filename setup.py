@@ -18,9 +18,6 @@ requirements = [
     'js2py >= 0.43',
 ]
 
-with open('requirements_dev.txt') as req_file:
-    test_requirements = [line for line in req_file]
-
 classifiers = [
     'Development Status :: 3 - Alpha',
     'Environment :: Web Environment',
@@ -29,7 +26,7 @@ classifiers = [
     'Natural Language :: English',
     'Operating System :: OS Independent',
     'Topic :: Internet',
-] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.3 3.4 3.5 3.6'.split()]
+] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.4 3.5 3.6'.split()]
 
 
 def get_version():
@@ -69,13 +66,17 @@ setup(
     package_data={'': ['LICENSE']},
     include_package_data=True,
     install_requires=requirements,
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
     license="Apache 2.0",
     zip_safe=False,
     keywords='pypac pac proxy autoconfig requests',
     classifiers=classifiers,
     cmdclass={'test': PyTest},
     test_suite='tests',
-    tests_require=test_requirements,
+    tests_require=[
+        'pytest',
+        'mock',
+    ],
     extras_require={
         'socks': ['requests[socks]>=2.10.0'],
     },
