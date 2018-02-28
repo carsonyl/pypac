@@ -74,3 +74,4 @@ boilerplate/
 docs/_build*
 
 .venv/*
+.pytest_cache/*

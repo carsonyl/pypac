@@ -9,7 +9,7 @@ from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile, ARBITRARY_HIGH_RECURSION_LIMIT
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS
+from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS, file_url_to_local_path
 from pypac.wpad import proxy_urls_from_dns
 
 
@@ -43,6 +43,9 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
 
     if from_registry and ON_WINDOWS:
         path = autoconfig_url_from_registry()
+        if path and path.lower().startswith('file://'):
+            path = file_url_to_local_path(path)
+
         if path and os.path.isfile(path):
             with open(path) as f:
                 return PACFile(f.read(), **kwargs)
