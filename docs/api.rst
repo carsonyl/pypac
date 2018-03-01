@@ -3,13 +3,13 @@ Developer interface
 
 These are the interfaces that PyPAC exposes to developers.
 
+
 Main interface
 --------------
 
 .. automodule:: pypac.api
 
 .. autoclass:: pypac.PACSession
-   :special-members:
    :members:
 
 
@@ -28,7 +28,6 @@ PAC parsing and execution
 .. automodule:: pypac.parser
 
 .. autoclass:: pypac.parser.PACFile
-   :special-members:
    :members:
 
 .. autofunction:: pypac.parser.parse_pac_value

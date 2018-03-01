@@ -172,7 +172,7 @@ A quick solution is to make your requests with the ``verify=False`` option.
 Understand that this is an overly broad solution: while it allows your request to proceed and be
 decrypted for inspection by your network proxy (an entity that you ostensibly trust),
 it also disables SSL certificate verification entirely.
-This means you request may be vulnerable to MITM attacks further down the line.
+This means requests may be vulnerable to MITM attacks.
 
 
 What's missing

@@ -25,8 +25,8 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         Doesn't do anything on non-Windows platforms.
     :param bool from_dns: Look for a PAC file using the WPAD protocol.
     :param timeout: Time to wait for host resolution and response for each URL.
-    :param allowed_content_types: Consider PAC file response to be valid only
-        if the server responds with one of these content types.
+    :param allowed_content_types: If the response has a ``Content-Type`` header,
+        then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
     :return: The first valid parsed PAC file according to the criteria, or `None` if nothing was found.
@@ -86,8 +86,8 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
         Requests are made in order, one by one.
     :param timeout: Time to wait for host resolution and response for each URL.
         When a timeout or DNS failure occurs, the next candidate URL is tried.
-    :param allowed_content_types: Consider PAC file response to be valid only
-        if the server responds with one of these content types.
+    :param allowed_content_types: If the response has a ``Content-Type`` header,
+        then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
     :return: Contents of the PAC file, or `None` if no URL was successful.

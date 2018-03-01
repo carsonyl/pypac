@@ -31,6 +31,8 @@ from pypac import __version__
 #
 # needs_sphinx = '1.0'
 
+autoclass_content = 'both'
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -54,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyPAC'
-copyright = '2017, Carson Lam'
+copyright = '2018, Carson Lam'
 author = 'Carson Lam'
 
 # The version info for the project you're documenting, acts as replacement for
