@@ -1,10 +1,8 @@
 """
 Functions and classes for parsing and executing PAC files.
 """
-import js2py
 import warnings
 from contextlib import contextmanager
-from js2py.base import PyJsException
 
 import sys
 
@@ -49,6 +47,9 @@ class PACFile(object):
         """
         self._recursion_limit = recursion_limit
 
+        # Defer importing of js2py, as it greatly increases memory use (~120MB). See #20.
+        import js2py
+
         if 'pyimport' in pac_js:
             raise PyimportError()
         # Disallow parsing of the unsafe 'pyimport' statement in Js2Py.
@@ -62,7 +63,7 @@ class PACFile(object):
 
             self._context = context
             self._func = context.FindProxyForURL
-        except PyJsException:  # as e:
+        except js2py.base.PyJsException:  # as e:
             raise MalformedPacError()  # from e
         except RuntimeError:
             # RecursionError in PY >= 3.5.

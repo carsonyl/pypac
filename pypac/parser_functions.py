@@ -10,7 +10,6 @@ import socket
 from calendar import monthrange
 from datetime import datetime, time, date
 from fnmatch import fnmatch
-from js2py.base import PyJs
 from requests.utils import is_ipv4_address
 
 import struct
@@ -23,6 +22,7 @@ def _to_py(value):
     :param str|PyJs value: Value to convert.
     :rtype: str
     """
+    from js2py.base import PyJs  # Defer to conserve memory when PAC not loaded.
     if isinstance(value, PyJs):
         return value.value
     return value
