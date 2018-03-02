@@ -1,3 +1,10 @@
+0.8.1 (2018-03-01)
+------------------
+
+- Defer Js2Py import until it's needed. It uses a lot of memory.
+  See #20 for details.
+
+
 0.8.0 (2018-02-28)
 ------------------
 
