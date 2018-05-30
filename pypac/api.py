@@ -9,8 +9,8 @@ from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile, ARBITRARY_HIGH_RECURSION_LIMIT
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.os_settings import (autoconfig_url_from_registry, autoconfig_url_from_preferences,
-                               ON_WINDOWS, ON_DARWIN, file_url_to_local_path)
+from pypac.os_settings import autoconfig_url_from_registry, autoconfig_url_from_preferences, \
+    ON_WINDOWS, ON_DARWIN, file_url_to_local_path
 from pypac.wpad import proxy_urls_from_dns
 
 
@@ -19,9 +19,9 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, 
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
 
     :param str url: Download PAC from a URL.
-        If provided, `from_registry` and `from_dns` are ignored.
+        If provided, `from_os_settings` and `from_dns` are ignored.
     :param str js: Parse the given string as a PAC file.
-        If provided, `from_registry` and `from_dns` are ignored.
+        If provided, `from_os_settings` and `from_dns` are ignored.
     :param bool from_os_settings: Look for a PAC URL or filesystem path from the OS settings, and use it if present.
         Doesn't do anything on non-Windows or non-macOS/OSX platforms.
     :param bool from_dns: Look for a PAC file using the WPAD protocol.
@@ -42,6 +42,13 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, 
     if js:
         return PACFile(js, **kwargs)
 
+    # Deprecated in 0.8.2
+    from_registry = kwargs.get('from_registry')
+    if from_registry is not None:
+        import warnings
+        warnings.warn('from_registry is deprecated, use from_os_settings instead.')
+        from_os_settings = from_registry
+
     if from_os_settings:
         if ON_WINDOWS:
             path = autoconfig_url_from_registry()
@@ -57,26 +64,33 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, 
             with open(path) as f:
                 return PACFile(f.read(), **kwargs)
 
-    pac_candidate_urls = collect_pac_urls(from_registry=True, from_dns=from_dns)
+    pac_candidate_urls = collect_pac_urls(from_os_settings=True, from_dns=from_dns)
     downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types)
     if not downloaded_pac:
         return
     return PACFile(downloaded_pac, **kwargs)
 
 
-def collect_pac_urls(from_registry=True, from_dns=True):
+def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
     """
     Get all the URLs that potentially yield a PAC file.
 
-    :param bool from_registry: Look for a PAC URL from the Windows Registry.
+    :param bool from_os_settings: Look for a PAC URL from the OS settings.
         If a value is found and is a URL, it comes first in the returned list.
-        Doesn't do anything on non-Windows platforms.
+        Doesn't do anything on non-Windows or non-macOS/OSX platforms.
     :param bool from_dns: Assemble a list of PAC URL candidates using the WPAD protocol.
     :return: A list of URLs that should be tried in order.
     :rtype: list[str]
     """
+    # Deprecated in 0.8.2
+    from_registry = kwargs.get('from_registry')
+    if from_registry is not None:
+        import warnings
+        warnings.warn('from_registry is deprecated, use from_os_settings instead.')
+        from_os_settings = from_registry
+
     pac_urls = []
-    if from_registry:
+    if from_os_settings:
         if ON_WINDOWS:
             url_or_path = autoconfig_url_from_registry()
         elif ON_DARWIN:

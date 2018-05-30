@@ -69,10 +69,12 @@ WPAD functions
    :members:
 
 
-Windows stuff
+OS stuff
 -------------
 
-.. automodule:: pypac.windows
+.. automodule:: pypac.os_settings
    :members:
 
-.. autoclass:: pypac.windows.NotWindowsError
+.. autoclass:: pypac.os_settings.NotWindowsError
+
+.. autoclass:: pypac.os_settings.NotDarwinError
