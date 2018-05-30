@@ -86,6 +86,8 @@ def file_url_to_local_path(file_url):
     parts = urlparse(file_url)
     path = unquote(parts.path)
     if path.startswith('/') and not path.startswith('//'):
+        if ON_DARWIN:
+            return path
         if len(parts.netloc) == 2 and parts.netloc[1] == ':':  # Drive letter and colon.
             return parts.netloc + path
         return 'C:' + path  # Assume C drive if it's just a path starting with /.
