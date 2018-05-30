@@ -88,11 +88,11 @@ class TestApiFunctions(object):
             with patch('pypac.api.ON_WINDOWS', return_value=True), \
                  patch('pypac.api.autoconfig_url_from_registry', return_value=fs_pac_path):
                 with pytest.raises(MalformedPacError):
-                    get_pac(from_registry=True)
+                    get_pac(from_os_settings=True)
 
                 with open(fs_pac_path, 'w') as f:
                     f.write(proxy_pac_js_tpl % 'DIRECT')
-                assert isinstance(get_pac(from_registry=True), PACFile)
+                assert isinstance(get_pac(from_os_settings=True), PACFile)
         finally:
             os.remove(fs_pac_path)
 
