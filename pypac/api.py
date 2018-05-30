@@ -9,11 +9,12 @@ from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile, ARBITRARY_HIGH_RECURSION_LIMIT
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.windows import autoconfig_url_from_registry, ON_WINDOWS, file_url_to_local_path
+from pypac.os_settings import (autoconfig_url_from_registry, autoconfig_url_from_preferences,
+                               ON_WINDOWS, ON_DARWIN, file_url_to_local_path)
 from pypac.wpad import proxy_urls_from_dns
 
 
-def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, allowed_content_types=None, **kwargs):
+def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, allowed_content_types=None, **kwargs):
     """
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
 
@@ -21,8 +22,8 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
         If provided, `from_registry` and `from_dns` are ignored.
     :param str js: Parse the given string as a PAC file.
         If provided, `from_registry` and `from_dns` are ignored.
-    :param bool from_registry: Look for a PAC URL or filesystem path from the Windows Registry, and use it if present.
-        Doesn't do anything on non-Windows platforms.
+    :param bool from_os_settings: Look for a PAC URL or filesystem path from the OS settings, and use it if present.
+        Doesn't do anything on non-Windows or non-macOS/OSX platforms.
     :param bool from_dns: Look for a PAC file using the WPAD protocol.
     :param timeout: Time to wait for host resolution and response for each URL.
     :param allowed_content_types: If the response has a ``Content-Type`` header,
@@ -41,8 +42,14 @@ def get_pac(url=None, js=None, from_registry=True, from_dns=True, timeout=2, all
     if js:
         return PACFile(js, **kwargs)
 
-    if from_registry and ON_WINDOWS:
-        path = autoconfig_url_from_registry()
+    if from_os_settings:
+        if ON_WINDOWS:
+            path = autoconfig_url_from_registry()
+        elif ON_DARWIN:
+            path = autoconfig_url_from_preferences()
+        else:
+            path = None
+
         if path and path.lower().startswith('file://'):
             path = file_url_to_local_path(path)
 
@@ -69,8 +76,14 @@ def collect_pac_urls(from_registry=True, from_dns=True):
     :rtype: list[str]
     """
     pac_urls = []
-    if from_registry and ON_WINDOWS:
-        url_or_path = autoconfig_url_from_registry()
+    if from_registry:
+        if ON_WINDOWS:
+            url_or_path = autoconfig_url_from_registry()
+        elif ON_DARWIN:
+            url_or_path = autoconfig_url_from_preferences()
+        else:
+            url_or_path = None
+
         if url_or_path and (url_or_path.lower().startswith('http://') or url_or_path.lower().startswith('https://')):
             pac_urls.append(url_or_path)
     if from_dns:

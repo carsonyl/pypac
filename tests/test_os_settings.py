@@ -4,7 +4,7 @@ from mock import patch
 
 import sys
 
-from pypac.windows import autoconfig_url_from_registry, NotWindowsError, ON_WINDOWS, file_url_to_local_path
+from pypac.os_settings import autoconfig_url_from_registry, NotWindowsError, ON_WINDOWS, file_url_to_local_path
 
 test_reg_output_url = 'http://foo-bar.baz/x/proxy.pac'
 
