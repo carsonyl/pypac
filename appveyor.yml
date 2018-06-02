@@ -5,7 +5,7 @@ environment:
     - PYTHON: "C:\\Python36"
 install:
   - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
-  - pip install --upgrade pip
+  - python -m pip install --upgrade pip
   - pip install pipenv
   - pipenv install
   - pipenv install --dev
