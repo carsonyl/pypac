@@ -60,6 +60,16 @@ If "use automatic configuration script" is enabled, the address field contains t
 These settings are often enforced through Group Policy,
 which means that any changes will be overwritten with the official values from the Group Policy a few minutes later.
 
+macOS/OSX
+^^^^^^^^^
+
+On macOS, proxy settings are under System Preferences > Network > Advanced... > Proxies:
+
+.. image:: _static/internet-options-macos.png
+
+If "Auto Proxy Discovery" is enabled, then Web Proxy Auto-Discovery is in use (see next section).
+If " Automatic Proxy Configuration" is enabled, the address field contains the PAC URL.
+
 
 Other operating systems
 ^^^^^^^^^^^^^^^^^^^^^^^

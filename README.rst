@@ -34,6 +34,7 @@ If a PAC file isn't found, then ``PACSession`` acts exactly like a regular ``Ses
 
 PyPAC can find PAC files according to the DNS portion of the `Web Proxy Auto-Discovery (WPAD)`_ protocol.
 On Windows, PyPAC can also obtain the PAC file URL from the Internet Options dialog, via the registry.
+On macOS, PyPAC can obtain the PAC file URL from System Preferences.
 
 .. _Web Proxy Auto-Discovery (WPAD): https://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
 
@@ -58,7 +59,7 @@ Features
 --------
 
 * The same Requests API that you already know and love
-* Honour PAC setting from Windows Internet Options
+* Honour PAC setting from Windows Internet Options and macOS System Preferences
 * Follow DNS Web Proxy Auto-Discovery protocol
 * Proxy authentication pass-through
 * Proxy failover and load balancing
