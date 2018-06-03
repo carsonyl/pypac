@@ -1,3 +1,11 @@
+0.9.0 (2018-06-02)
+------------------
+
+- Add macOS support for PAC in System Preferences (#23). Thanks @LKleinNux.
+- The `from_registry` argument on `pypac.get_pac()` and `pypac.collect_pac_urls()`
+  is now deprecated and will be removed in 1.0.0. Use `from_os_settings` instead.
+
+
 0.8.1 (2018-03-01)
 ------------------
 
