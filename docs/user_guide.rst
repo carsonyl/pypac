@@ -117,16 +117,6 @@ PyPAC defines some exceptions that can occur in the course of PAC auto-discovery
 :class:`MalformedPacError <pypac.parser.MalformedPacError>`
    PyPAC failed to parse a file that claims to be a PAC.
 
-:class:`PyimportError <pypac.parser.PyimportError>`
-   A PAC file contains the ``pyimport`` keyword specific to Js2Py.
-   This represents a serious security issue.
-
-:class:`PacComplexityError <pypac.parser.PacComplexityError>`
-   PAC file is large enough that it couldn't be parsed under the current recursion limit.
-   The recursion limit can be raised using :ref:`sys.setrecursionlimit`,
-   or the ``recursion_limit`` keyword on the :class:`PACSession` constructor.
-   **Note:** It's possible for this exception to not be raised successfully.
-
 :class:`ProxyConfigExhaustedError <pypac.resolver.ProxyConfigExhaustedError>`
    All proxy servers for the given URL have been marked as failed,
    and the PAC file did not specify a final instruction to go ``DIRECT``.
@@ -141,8 +131,8 @@ Supporting and using PAC files comes with some security implications that are wo
 PAC discovery and parsing
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PAC files are JavaScript. PyPAC uses `Js2Py <https://github.com/PiotrDabkowski/Js2Py>`_
-to parse and execute JavaScript. Js2Py was not designed for handling untrusted JavaScript,
+PAC files are JavaScript. PyPAC uses `dukpy <https://pypi.org/p/dukpy>`_
+to parse and execute JavaScript. dukpy was not designed for handling untrusted JavaScript,
 and so it is unclear whether the handling of PAC files is sufficiently sandboxed to prevent
 untrusted Python code execution.
 

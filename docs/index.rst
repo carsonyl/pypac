@@ -16,7 +16,7 @@ Release v\ |version|.
 .. image:: https://img.shields.io/codacy/grade/71ac103b491d44efb94976ca5ea5d89c.svg?maxAge=2592000
     :target: https://www.codacy.com/app/carsonyl/pypac
 
-PyPAC is a pure-Python library for finding :doc:`proxy auto-config (PAC) <about_pac>` files and making HTTP requests
+PyPAC is a Python library for finding :doc:`proxy auto-config (PAC) <about_pac>` files and making HTTP requests
 that respect them. PAC files are often used in organizations that need fine-grained and centralized control
 of proxy settings. :ref:`Are you using one? <who-uses-pacs>`
 

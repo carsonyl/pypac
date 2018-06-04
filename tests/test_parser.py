@@ -1,7 +1,7 @@
 import pytest
 import warnings
 
-from pypac.parser import MalformedPacError, PACFile, PyimportError, parse_pac_value, proxy_url, PacComplexityError
+from pypac.parser import MalformedPacError, PACFile, parse_pac_value, proxy_url
 
 
 class TestPacFile(object):
@@ -32,16 +32,6 @@ class TestPacFile(object):
         assert pac.find_proxy_for_url('/', 'example.com') == 'DIRECT'
 
     @pytest.mark.parametrize('pac_js', [
-        'pyimport os; function FindProxyForURL(url, host) { return "DIRECT"; }',
-        'function FindProxyForURL(url, host) { if(url=="/") return "DIRECT"; pyimport os; x = os; }',
-        'function FindProxyForURL(url, host) { if(url=="/") return "DIRECT"; return foo(); } '
-        'function foo() { pyimport os; x = os; }',
-    ])
-    def test_pyimport(self, pac_js):
-        with pytest.raises(PyimportError):
-            PACFile(pac_js)
-
-    @pytest.mark.parametrize('pac_js', [
         'function FindProxyForURL(url, host) { return __builtins__; }',
         'function FindProxyForURL(url, host) { return shExpMatch.__class__.__class__; }',
     ])
@@ -49,18 +39,14 @@ class TestPacFile(object):
         with pytest.raises(MalformedPacError):
             PACFile(pac_js)
 
-    def test_large_pac_handling(self):
+    def test_pac_callstack_limit(self):
         """
-        Try to load a large PAC file that triggers Js2Py hitting the Python recursion limit.
-        Ensure it raises a more useful message.
-
-        Note that unrecoverable stack overflows are possible, where this message won't be raised.
-        See https://github.com/carsonyl/pypac/issues/8.
+        Try to load a PAC file that hits the Duktape call stack limit.
         """
-        pac_js = 'function FindProxyForURL(url, host) { if(%s) { return "DIRECT"; } }' % \
-                 ' || '.join(200 * ['shExpMatch(host, "*.example.com")'])
-        with pytest.raises(PacComplexityError):
-            PACFile(pac_js, recursion_limit=1000)
+        pac_js = 'function FindProxyForURL(url, host) {function b() {a();} function a() {b();}; a(); return "DIRECT";}'
+        with pytest.raises(MalformedPacError) as e:
+            PACFile(pac_js)
+        assert 'callstack limit' in str(e.value)
 
 
 dummy_js = 'function FindProxyForURL(url, host) {return %s ? "DIRECT" : "PROXY 0.0.0.0:80";}'
