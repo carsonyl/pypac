@@ -44,7 +44,7 @@ def autoconfig_url_from_registry():
 
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                            'Software\Microsoft\Windows\CurrentVersion\Internet Settings') as key:
+                            'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings') as key:
             return winreg.QueryValueEx(key, 'AutoConfigURL')[0]
     except WindowsError:
         return  # Key or value not found.
