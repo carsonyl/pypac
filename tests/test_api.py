@@ -368,3 +368,11 @@ class TestContextManager(object):
                 assert os.environ['HTTP_PROXY'] == fake_proxy_url
                 assert os.environ['HTTPS_PROXY'] == fake_proxy_url
         assert os.environ['HTTP_PROXY'] == 'http://env'
+
+    def test_pac_direct(self, monkeypatch):
+        monkeypatch.setenv('HTTP_PROXY', 'http://env')
+        with _patch_get_pac(PACFile(proxy_pac_js_tpl % 'DIRECT')):
+            with pac_context_for_url(arbitrary_url):
+                assert os.environ['HTTP_PROXY'] == ''
+                assert os.environ['HTTPS_PROXY'] == ''
+        assert os.environ['HTTP_PROXY'] == 'http://env'
