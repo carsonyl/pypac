@@ -301,8 +301,9 @@ def pac_context_for_url(url, proxy_auth=None):
     if pac:
         resolver = ProxyResolver(pac, proxy_auth=proxy_auth)
         proxies = resolver.get_proxy_for_requests(url)
-        os.environ['HTTP_PROXY'] = proxies.get('http')
-        os.environ['HTTPS_PROXY'] = proxies.get('https')
+        # Cannot set None for environ. (#27)
+        os.environ['HTTP_PROXY'] = proxies.get('http') or ''
+        os.environ['HTTPS_PROXY'] = proxies.get('https') or ''
     yield
     if prev_http_proxy:
         os.environ['HTTP_PROXY'] = prev_http_proxy
