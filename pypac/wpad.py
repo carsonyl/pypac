@@ -29,20 +29,22 @@ def proxy_urls_from_dns(local_hostname=None):
         return []
     try:
         parsed = get_tld('http://' + local_hostname, as_object=True)
-        subdomain, tld = parsed.subdomain, parsed.tld
+        subdomain, tld = parsed.subdomain, parsed.fld
     except TldDomainNotFound:
         final_dot_index = local_hostname.rfind('.')
         subdomain, tld = local_hostname[0:final_dot_index], local_hostname[final_dot_index+1:]
     return wpad_search_urls(subdomain, tld)
 
 
-def wpad_search_urls(subdomain_or_host, tld):
+def wpad_search_urls(subdomain_or_host, fld):
     """
     Generate URLs from which to look for a PAC file, based on the subdomain and TLD parts of
     a fully-qualified host name.
 
     :param str subdomain_or_host: Subdomain portion of the fully-qualified host name.
-    :param str tld: TLD portion of the fully-qualified host name.
+        For foo.bar.example.com, this is foo.bar.
+    :param str fld: FLD portion of the fully-qualified host name.
+        For foo.bar.example.com, this is example.com. 
     :return: PAC URLs to try in order, according to the WPAD protocol.
     :rtype: list[str]
     """
@@ -50,7 +52,7 @@ def wpad_search_urls(subdomain_or_host, tld):
     search_urls = []
     for i in range(1, len(parts)+1):
         # Chop off host and move up the subdomain hierarchy.
-        url = 'http://wpad.{}/wpad.dat'.format('.'.join(parts[i:] + [tld]))
+        url = 'http://wpad.{}/wpad.dat'.format('.'.join(parts[i:] + [fld]))
         search_urls.append(url)
 
     return search_urls
