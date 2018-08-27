@@ -7,7 +7,7 @@ from contextlib import contextmanager
 import requests
 from requests.exceptions import ProxyError, ConnectTimeout
 
-from pypac.parser import PACFile, ARBITRARY_HIGH_RECURSION_LIMIT
+from pypac.parser import PACFile
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
 from pypac.os_settings import autoconfig_url_from_registry, autoconfig_url_from_preferences, \
     ON_WINDOWS, ON_DARWIN, file_url_to_local_path
@@ -146,7 +146,7 @@ class PACSession(requests.Session):
 
     def __init__(self, pac=None, proxy_auth=None, pac_enabled=True,
                  response_proxy_fail_filter=None, exception_proxy_fail_filter=None,
-                 socks_scheme='socks5', recursion_limit=ARBITRARY_HIGH_RECURSION_LIMIT):
+                 socks_scheme='socks5', **kwargs):
         """
         :param PACFile pac: The PAC file to consult for proxy configuration info.
             If not provided, then upon the first request, :func:`get_pac` is called with default arguments
@@ -160,9 +160,6 @@ class PACSession(requests.Session):
             a boolean for whether the exception means the proxy used for the request should no longer be used.
             By default, :class:`requests.exceptions.ConnectTimeout` and
             :class:`requests.exceptions.ProxyError` are matched.
-        :param int recursion_limit: Python recursion limit when executing JavaScript.
-            PAC files are often complex enough to need this to be higher than the interpreter default.
-            This value is passed to auto-discovered :class:`PACFile` only.
         :param str socks_scheme: Scheme to use when PAC file returns a SOCKS proxy. `socks5` by default.
         """
         super(PACSession, self).__init__()
@@ -171,7 +168,10 @@ class PACSession(requests.Session):
         self._proxy_resolver = None
         self._proxy_auth = proxy_auth
         self._socks_scheme = socks_scheme
-        self._recursion_limit = recursion_limit
+
+        if kwargs.get('recursion_limit'):
+            import warnings
+            warnings.warn('recursion_limit is deprecated and has no effect. It will be removed in a future release.')
 
         #: Set to ``False`` to disable all PAC functionality, including PAC auto-discovery.
         self.pac_enabled = pac_enabled
@@ -273,7 +273,7 @@ class PACSession(requests.Session):
         if not self.pac_enabled:
             return
 
-        pac = get_pac(recursion_limit=self._recursion_limit)
+        pac = get_pac()
         self._tried_get_pac = True
         if pac:
             self._proxy_resolver = self._get_proxy_resolver(pac)

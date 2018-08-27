@@ -1,20 +1,15 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
-"js2py" = "*"
 requests = "*"
 tld = "*"
 "e1839a8" = {path = ".", editable = true}
-
+dukpy = "*"
 
 [dev-packages]
-
 pytest = "*"
 mock = "*"
 pytest-cov = "*"

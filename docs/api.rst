@@ -36,10 +36,6 @@ PAC parsing and execution
 
 .. autoclass:: pypac.parser.MalformedPacError
 
-.. autoclass:: pypac.parser.PyimportError
-
-.. autoclass:: pypac.parser.PacComplexityError
-
 
 PAC JavaScript functions
 ^^^^^^^^^^^^^^^^^^^^^^^^

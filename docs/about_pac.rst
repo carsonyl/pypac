@@ -102,7 +102,7 @@ How PyPAC works
 
 PyPAC implements PAC file discovery via Windows Internet Options and the DNS portion of the WPAD protocol.
 It implements all of the functions necessary to execute a PAC file,
-and uses the `Js2Py`_ library to parse and execute the JavaScript.
+and uses the `dukpy`_ library to parse and execute the JavaScript.
 On top of this, PyPAC implements tools to track proxy failover state,
 and to convert the return value of the JavaScript function into a form understood by the Requests API.
 
@@ -111,7 +111,7 @@ the proxy configuration for the given URL.
 
 DHCP WPAD is currently not implemented.
 
-.. _Js2Py: https://github.com/PiotrDabkowski/Js2Py
+.. _dukpy: https://pypi.org/p/dukpy
 
 
 Can't I just hard-code the proxy?

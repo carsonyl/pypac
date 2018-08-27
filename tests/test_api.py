@@ -8,7 +8,7 @@ from requests.utils import select_proxy
 from tempfile import mkstemp
 
 from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url
-from pypac.parser import PACFile, MalformedPacError, ARBITRARY_HIGH_RECURSION_LIMIT
+from pypac.parser import PACFile, MalformedPacError
 from pypac.resolver import proxy_parameter_for_requests
 
 proxy_pac_js_tpl = 'function FindProxyForURL(url, host) { return "%s"; }'
@@ -226,7 +226,7 @@ class TestPACSession(object):
             # When re-enabled, PAC discovery should proceed and be honoured.
             sess.pac_enabled = True
             assert sess.get(arbitrary_url).status_code == 204
-            gp.assert_called_with(recursion_limit=ARBITRARY_HIGH_RECURSION_LIMIT)
+            gp.assert_called_with()
             request.assert_called_with('GET', arbitrary_url, proxies=fake_proxies_requests_arg, allow_redirects=ANY)
 
     @pytest.mark.parametrize('proxy_host', ['unreachable.local', 'localhost'])

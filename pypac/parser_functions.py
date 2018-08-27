@@ -15,19 +15,6 @@ from requests.utils import is_ipv4_address
 import struct
 
 
-def _to_py(value):
-    """
-    Convert a Js2Py value to an Python primitive.
-
-    :param str|PyJs value: Value to convert.
-    :rtype: str
-    """
-    from js2py.base import PyJs  # Defer to conserve memory when PAC not loaded.
-    if isinstance(value, PyJs):
-        return value.value
-    return value
-
-
 def dnsDomainIs(host, domain):
     """
     :param str|PyJsString host: is the hostname from the URL.
@@ -35,7 +22,6 @@ def dnsDomainIs(host, domain):
     :return: true iff the domain of hostname matches.
     :rtype: bool
     """
-    host, domain = _to_py(host), _to_py(domain)
     if domain.startswith('.'):
         domain = '*' + domain
     return shExpMatch(host, domain)
@@ -49,7 +35,7 @@ def shExpMatch(host, pattern):
     :param str|PyJsString pattern: Shell expression pattern to match against.
     :rtype: bool
     """
-    return fnmatch(_to_py(host).lower(), _to_py(pattern).lower())
+    return fnmatch(host.lower(), pattern.lower())
 
 
 def _address_in_network(ip, netaddr, mask):
@@ -74,7 +60,6 @@ def isInNet(host, pattern, mask):
     :returns: True iff the IP address of the host matches the specified IP address pattern.
     :rtype: bool
     """
-    host, pattern, mask = _to_py(host), _to_py(pattern), _to_py(mask)
     host_ip = host if is_ipv4_address(host) else dnsResolve(host)
     if not host_ip or not is_ipv4_address(pattern) or not is_ipv4_address(mask):
         return False
@@ -89,7 +74,6 @@ def localHostOrDomainIs(host, hostdom):
         or if there is no domain name part in the hostname, but the unqualified hostname matches.
     :rtype: bool
     """
-    host, hostdom = _to_py(host), _to_py(hostdom)
     return hostdom.lower().startswith(host.lower())
 
 
@@ -111,7 +95,7 @@ def dnsResolve(host):
     :rtype: str|None
     """
     try:
-        return socket.gethostbyname(_to_py(host))
+        return socket.gethostbyname(host)
     except socket.gaierror:
         return  # Eat DNS resolution failures.
 
@@ -134,7 +118,7 @@ def isResolvable(host):
     :rtype: bool
     """
     try:
-        socket.gethostbyname(_to_py(host))
+        socket.gethostbyname(host)
     except socket.gaierror:
         return False
     return True
@@ -146,7 +130,7 @@ def dnsDomainLevels(host):
     :return: the number (integer) of DNS domain levels (number of dots) in the hostname.
     :rtype: int
     """
-    return _to_py(host).count('.')
+    return host.count('.')
 
 
 def weekdayRange(start_day, end_day=None, gmt=None):
@@ -172,7 +156,6 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     :param str|PyJsString gmt: is either the string: GMT or is left out.
     :rtype: bool
     """
-    start_day, end_day = _to_py(start_day), _to_py(end_day)
     now_weekday_num = _now('GMT' if end_day == 'GMT' else gmt).weekday()
     weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
 
@@ -195,7 +178,7 @@ def _now(gmt=None):
     :param str|PyJsString|None gmt: Use 'GMT' to get GMT.
     :rtype: datetime
     """
-    return datetime.utcnow() if _to_py(gmt) == 'GMT' else datetime.today()
+    return datetime.utcnow() if gmt == 'GMT' else datetime.today()
 
 
 def dateRange(*args):
@@ -233,7 +216,6 @@ def dateRange(*args):
 
     :rtype: bool
     """
-    args = list(map(_to_py, args))
     months = [None, 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
     gmt_arg_present = (len(args) == 2 and args[1] == 'GMT') or (len(args) % 2 == 1 and len(args) > 1)
     if gmt_arg_present:
@@ -308,7 +290,6 @@ def timeRange(*args):
     :return: True during (or between) the specified time(s).
     :rtype: bool
     """
-    args = list(map(_to_py, args))
     gmt_arg_present = (len(args) == 2 and args[1] == 'GMT') or (len(args) % 2 == 1 and len(args) > 1)
     if gmt_arg_present:
         # Remove and handle GMT argument.

@@ -15,7 +15,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'requests >= 2.0.0, < 3.0.0',
     'tld >= 0.7.3, < 1.0.0',
-    'js2py >= 0.43',
+    'dukpy >= 0.2.0, < 1.0.0',
     'pyobjc-framework-SystemConfiguration >= 3.2.1; sys.platform=="darwin"',
 ]
 

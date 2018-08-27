@@ -2,72 +2,63 @@
 Functions and classes for parsing and executing PAC files.
 """
 import warnings
-from contextlib import contextmanager
 
-import sys
+import dukpy
 
 from pypac.parser_functions import function_injections
 
 
-ARBITRARY_HIGH_RECURSION_LIMIT = 10000
+def _inject_function_into_js(context, name, func):
+    """
+    Inject a Python function into the global scope of a dukpy JavaScript interpreter context.
 
-
-@contextmanager
-def _temp_recursion_limit(limit):
-    """Context manager to temporarily adjust Python's recursion limit."""
-    prev_limit = sys.getrecursionlimit()
-    sys.setrecursionlimit(limit)
-    yield
-    sys.setrecursionlimit(prev_limit)
+    :type context: dukpy.JSInterpreter
+    :param name: Name to give the function in JavaScript.
+    :param func: Python function.
+    """
+    context.export_function(name, func)
+    context.evaljs(""";
+        {name} = function() {{
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift('{name}');
+            return call_python.apply(null, args);
+        }};
+    """.format(name=name))
 
 
 class PACFile(object):
     """
     Represents a PAC file.
 
-    JavaScript parsing and execution is handled by the `Js2Py`_ library.
+    JavaScript parsing and execution is handled by the `dukpy`_ library.
 
-    .. _Js2Py: https://github.com/PiotrDabkowski/Js2Py
+    .. _dukpy: https://github.com/amol-/dukpy
     """
 
-    def __init__(self, pac_js, recursion_limit=ARBITRARY_HIGH_RECURSION_LIMIT):
+    def __init__(self, pac_js, **kwargs):
         """
         Load a PAC file from a given string of JavaScript.
         Errors during parsing and validation may raise a specialized exception.
         
         :param str pac_js: JavaScript that defines the FindProxyForURL() function.
-        :param int recursion_limit: Python recursion limit when executing JavaScript.
-            PAC files are often complex enough to need this to be higher than the interpreter default.
         :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
             or is otherwise invalid.
-        :raises PyImportError: If the JavaScript tries to use Js2Py's `pyimport` keyword,
-            which is not legitimate in the context of a PAC file.
-        :raises PacComplexityError: If the JavaScript was complex enough that the
-            Python recursion limit was hit during parsing.
         """
-        self._recursion_limit = recursion_limit
+        if kwargs.get('recursion_limit'):
+            import warnings
+            warnings.warn('recursion_limit is deprecated and has no effect. It will be removed in a future release.')
 
-        # Defer importing of js2py, as it greatly increases memory use (~120MB). See #20.
-        import js2py
-
-        if 'pyimport' in pac_js:
-            raise PyimportError()
-        # Disallow parsing of the unsafe 'pyimport' statement in Js2Py.
-        js2py.disable_pyimport()
         try:
-            with _temp_recursion_limit(self._recursion_limit):
-                context = js2py.EvalJs(function_injections)
-                context.execute(pac_js)
-                # A test call to weed out errors like unimplemented functions.
-                context.FindProxyForURL('/', '0.0.0.0')
+            self._context = dukpy.JSInterpreter()
+            for name, func in function_injections.items():
+                _inject_function_into_js(self._context, name, func)
+            self._context.evaljs(pac_js)
 
-            self._context = context
-            self._func = context.FindProxyForURL
-        except js2py.base.PyJsException:  # as e:
-            raise MalformedPacError()  # from e
-        except RuntimeError:
-            # RecursionError in PY >= 3.5.
-            raise PacComplexityError()
+            # A test call to weed out errors like unimplemented functions.
+            self.find_proxy_for_url('/', '0.0.0.0')
+
+        except dukpy.JSRuntimeError as e:
+            raise MalformedPacError(original_exc=e)  # from e
 
     def find_proxy_for_url(self, url, host):
         """
@@ -78,14 +69,16 @@ class PACFile(object):
         :return: Result of evaluating the ``FindProxyForURL()`` JavaScript function in the PAC file.
         :rtype: str
         """
-        with _temp_recursion_limit(self._recursion_limit):
-            return self._func(url, host)
+        return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
 
 
 class MalformedPacError(Exception):
-    def __init__(self, msg=None):
+    def __init__(self, msg=None, original_exc=None):
         if not msg:
             msg = "Malformed PAC file"
+        self.original_exc = original_exc
+        if original_exc:
+            msg += ' ({})'.format(original_exc)
         super(MalformedPacError, self).__init__(msg)
 
 
@@ -93,6 +86,8 @@ class PyimportError(MalformedPacError):
     def __init__(self):
         super(PyimportError, self).__init__("PAC file contains pyimport statement. "
                                             "Ensure that the source of your PAC file is trustworthy")
+        import warnings
+        warnings.warn('PyimportError is deprecated and will be removed in a future release.')
 
 
 class PacComplexityError(RuntimeError):
@@ -100,6 +95,8 @@ class PacComplexityError(RuntimeError):
         super(PacComplexityError, self).__init__(
             "Maximum recursion depth exceeded while parsing PAC file. "
             "Raise it using sys.setrecursionlimit()")
+        import warnings
+        warnings.warn('PacComplexityError is deprecated and will be removed in a future release.')
 
 
 def parse_pac_value(value, socks_scheme=None):
