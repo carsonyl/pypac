@@ -6,6 +6,7 @@ python:
   - "3.6"
 install:
   - pip install pipenv
+  - pipenv --version
   - pipenv install
   - pipenv install --dev
 script: pipenv run py.test tests --cov-report term-missing --cov pypac
