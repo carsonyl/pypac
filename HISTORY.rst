@@ -1,3 +1,11 @@
+0.10.0 (2018-08-26)
+-------------------
+
+- Switch JavaScript interpreter to dukpy. (#24)
+- Fix ``pac_context_for_url()`` erroring with ``DIRECT`` PAC setting. (#27)
+- Fix warning about invalid escape sequence (#26). Thanks @BoboTiG.
+
+
 0.9.0 (2018-06-02)
 ------------------
 
@@ -23,14 +31,14 @@
 ------------------
 
 - Drop support for Python 3.3.
-- Add doc explaining how to use ``pac_context_for_url``.
+- Add doc explaining how to use ``pac_context_for_url()``.
 - Internal changes to dev and test processes.
 
 
 0.6.0 (2018-01-28)
 ------------------
 
-- Add ``pac_context_for_url``, a context manager that adds basic PAC functionality
+- Add ``pac_context_for_url()``, a context manager that adds basic PAC functionality
   through proxy environment variables.
 
 
