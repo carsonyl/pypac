@@ -14,9 +14,11 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'requests >= 2.0.0, < 3.0.0',
-    'tld ~= 0.9',
-    'dukpy >= 0.2.0, < 1.0.0',
-    'pyobjc-framework-SystemConfiguration >= 3.2.1; sys.platform=="darwin"',
+    'tld ~= 0.9'
+]
+
+extra_dependencies = [
+    'https://github.com/kovidgoyal/dukpy/tarball/master#egg=dukpy'
 ]
 
 classifiers = [
@@ -67,6 +69,7 @@ setup(
     package_data={'': ['LICENSE']},
     include_package_data=True,
     install_requires=requirements,
+    dependency_links=extra_dependencies,
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
     license="Apache 2.0",
     zip_safe=False,
