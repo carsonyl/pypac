@@ -12,18 +12,11 @@ def _inject_function_into_js(context, name, func):
     """
     Inject a Python function into the global scope of a dukpy JavaScript interpreter context.
 
-    :type context: dukpy.JSInterpreter
+    :type context: dukpy.Context
     :param name: Name to give the function in JavaScript.
     :param func: Python function.
     """
-    context.export_function(name, func)
-    context.evaljs(""";
-        {name} = function() {{
-            var args = Array.prototype.slice.call(arguments);
-            args.unshift('{name}');
-            return call_python.apply(null, args);
-        }};
-    """.format(name=name))
+    setattr(context.g, name, func)
 
 
 class PACFile(object):
@@ -49,15 +42,15 @@ class PACFile(object):
             warnings.warn('recursion_limit is deprecated and has no effect. It will be removed in a future release.')
 
         try:
-            self._context = dukpy.JSInterpreter()
+            self._context = dukpy.Context()
             for name, func in function_injections.items():
                 _inject_function_into_js(self._context, name, func)
-            self._context.evaljs(pac_js)
+            self._context.eval(pac_js)
 
             # A test call to weed out errors like unimplemented functions.
             self.find_proxy_for_url('/', '0.0.0.0')
 
-        except dukpy.JSRuntimeError as e:
+        except dukpy.JSError as e:
             raise MalformedPacError(original_exc=e)  # from e
 
     def find_proxy_for_url(self, url, host):
@@ -69,7 +62,8 @@ class PACFile(object):
         :return: Result of evaluating the ``FindProxyForURL()`` JavaScript function in the PAC file.
         :rtype: str
         """
-        return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
+        javascript_string = 'FindProxyForURL("{url}", "{host}")'.format(url=url, host=host)
+        return self._context.eval(javascript_string)
 
 
 class MalformedPacError(Exception):
