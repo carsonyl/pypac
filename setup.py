@@ -17,10 +17,6 @@ requirements = [
     'tld ~= 0.9'
 ]
 
-extra_dependencies = [
-    'https://github.com/kovidgoyal/dukpy/tarball/master#egg=dukpy'
-]
-
 classifiers = [
     'Development Status :: 3 - Alpha',
     'Environment :: Web Environment',
@@ -69,7 +65,6 @@ setup(
     package_data={'': ['LICENSE']},
     include_package_data=True,
     install_requires=requirements,
-    dependency_links=extra_dependencies,
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
     license="Apache 2.0",
     zip_safe=False,
