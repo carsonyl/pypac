@@ -1,3 +1,11 @@
+0.11.0 (2018-09-08)
+-------------------
+
+- Require dukpy 0.2.2, to fix memory leak. (#32) Thanks maximinus.
+- Change Mac environment marker. (#30)
+- Support Python 3.7.
+
+
 0.10.1 (2018-08-26)
 -------------------
 
