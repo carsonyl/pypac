@@ -15,8 +15,8 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'requests >= 2.0.0, < 3.0.0',
     'tld ~= 0.9',
-    'dukpy >= 0.2.0, < 1.0.0',
-    'pyobjc-framework-SystemConfiguration >= 3.2.1; sys.platform=="darwin"',
+    'dukpy ~=0.2.2',
+    'pyobjc-framework-SystemConfiguration >= 3.2.1; sys_platform=="darwin"',
 ]
 
 classifiers = [
@@ -27,7 +27,7 @@ classifiers = [
     'Natural Language :: English',
     'Operating System :: OS Independent',
     'Topic :: Internet',
-] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.4 3.5 3.6'.split()]
+] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.4 3.5 3.6 3.7'.split()]
 
 
 def get_version():
