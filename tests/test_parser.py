@@ -90,6 +90,14 @@ class TestFunctionsInPacParser(object):
         parser = PACFile(js)
         assert parser.find_proxy_for_url('/', 'www.google.com') is not None
 
+    def test_dnsResolve_propagation(self):
+        """
+        dnsResolve must return an empty string now we use dukpy, otherwise
+        None value causes dukpy error as it propagates
+        """
+        parser = PACFile(dummy_js % 'isInNet(dnsResolve(host), "10.1.1.0", "255.255.255.0")')
+        assert parser.find_proxy_for_url('$%$', '$%$') == 'PROXY 0.0.0.0:80'
+
     def test_dnsDomainLevels(self):
         parser = PACFile(dummy_js % 'dnsDomainLevels(host)')
         assert parser.find_proxy_for_url('/', 'google.com') == 'DIRECT'
