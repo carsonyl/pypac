@@ -17,8 +17,8 @@ import struct
 
 def dnsDomainIs(host, domain):
     """
-    :param str|PyJsString host: is the hostname from the URL.
-    :param str|PyJsString domain: is the domain name to test the hostname against.
+    :param str host: is the hostname from the URL.
+    :param str domain: is the domain name to test the hostname against.
     :return: true iff the domain of hostname matches.
     :rtype: bool
     """
@@ -31,8 +31,8 @@ def shExpMatch(host, pattern):
     """
     Case-insensitive host comparison using a shell expression pattern.
 
-    :param str|PyJsString host:
-    :param str|PyJsString pattern: Shell expression pattern to match against.
+    :param str host:
+    :param str pattern: Shell expression pattern to match against.
     :rtype: bool
     """
     return fnmatch(host.lower(), pattern.lower())
@@ -52,10 +52,10 @@ def isInNet(host, pattern, mask):
     """
     Pattern and mask specification is done the same way as for SOCKS configuration.
 
-    :param str|PyJsString host: a DNS hostname, or IP address.
+    :param str host: a DNS hostname, or IP address.
         If a hostname is passed, it will be resolved into an IP address by this function.
-    :param str|PyJsString pattern: an IP address pattern in the dot-separated format
-    :param str|PyJsString mask: mask for the IP address pattern informing which parts of
+    :param str pattern: an IP address pattern in the dot-separated format
+    :param str mask: mask for the IP address pattern informing which parts of
         the IP address should be matched against. 0 means ignore, 255 means match.
     :returns: True iff the IP address of the host matches the specified IP address pattern.
     :rtype: bool
@@ -68,8 +68,8 @@ def isInNet(host, pattern, mask):
 
 def localHostOrDomainIs(host, hostdom):
     """
-    :param str|PyJsString host: the hostname from the URL.
-    :param str|PyJsString hostdom: fully qualified hostname to match against.
+    :param str host: the hostname from the URL.
+    :param str hostdom: fully qualified hostname to match against.
     :return: true if the hostname matches exactly the specified hostname,
         or if there is no domain name part in the hostname, but the unqualified hostname matches.
     :rtype: bool
@@ -91,7 +91,7 @@ def dnsResolve(host):
     Resolves the given DNS hostname into an IP address, and returns it in the dot separated format as a string.
     Returns an empty string if there is an error
 
-    :param str|PyJsString host: hostname to resolve
+    :param str host: hostname to resolve
     :return: Resolved IP address, or empty string if resolution failed.
     :rtype: str
     """
@@ -103,7 +103,7 @@ def dnsResolve(host):
 
 def isPlainHostName(host):
     """
-    :param str|PyJsString host: the hostname from the URL (excluding port number).
+    :param str host: the hostname from the URL (excluding port number).
     :return: True iff there is no domain name in the hostname (no dots).
     :rtype: bool
     """
@@ -114,7 +114,7 @@ def isResolvable(host):
     """
     Tries to resolve the hostname.
 
-    :param str|PyJsString host: is the hostname from the URL.
+    :param str host: is the hostname from the URL.
     :return: true if succeeds.
     :rtype: bool
     """
@@ -127,7 +127,7 @@ def isResolvable(host):
 
 def dnsDomainLevels(host):
     """
-    :param str|PyJsString host: is the hostname from the URL.
+    :param str host: is the hostname from the URL.
     :return: the number (integer) of DNS domain levels (number of dots) in the hostname.
     :rtype: int
     """
@@ -152,9 +152,9 @@ def weekdayRange(start_day, end_day=None, gmt=None):
 
     Weekday arguments are one of ``MON TUE WED THU FRI SAT SUN``.
 
-    :param str|PyJsString start_day: Weekday string.
-    :param str|PyJsString end_day: Weekday string.
-    :param str|PyJsString gmt: is either the string: GMT or is left out.
+    :param str start_day: Weekday string.
+    :param str end_day: Weekday string.
+    :param str gmt: is either the string: GMT or is left out.
     :rtype: bool
     """
     now_weekday_num = _now('GMT' if end_day == 'GMT' else gmt).weekday()
@@ -176,7 +176,7 @@ def weekdayRange(start_day, end_day=None, gmt=None):
 
 def _now(gmt=None):
     """
-    :param str|PyJsString|None gmt: Use 'GMT' to get GMT.
+    :param str|None gmt: Use 'GMT' to get GMT.
     :rtype: datetime
     """
     return datetime.utcnow() if gmt == 'GMT' else datetime.today()
