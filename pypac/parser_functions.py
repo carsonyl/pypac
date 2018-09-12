@@ -89,15 +89,16 @@ def myIpAddress():
 def dnsResolve(host):
     """
     Resolves the given DNS hostname into an IP address, and returns it in the dot separated format as a string.
+    Returns an empty string if there is an error
 
     :param str|PyJsString host: hostname to resolve
-    :return: Resolved IP address, or `None` if resolution failed.
-    :rtype: str|None
+    :return: Resolved IP address, or empty string if resolution failed.
+    :rtype: str
     """
     try:
         return socket.gethostbyname(host)
     except socket.gaierror:
-        return  # Eat DNS resolution failures.
+        return ''
 
 
 def isPlainHostName(host):

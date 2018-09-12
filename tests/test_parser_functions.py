@@ -50,7 +50,7 @@ def test_myIpAddress():
 
 def test_dnsResolve():
     assert dnsResolve('google.com').count('.') == 3
-    assert dnsResolve('bogus.domain.foobar') is None
+    assert dnsResolve('bogus.domain.foobar') == ''
 
 
 @pytest.mark.parametrize('host,expected_levels', [
