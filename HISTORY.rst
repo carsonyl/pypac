@@ -1,7 +1,13 @@
+0.12.0 (2018-09-11)
+-------------------
+
+- Fix possible error when ``dnsResolve()`` fails. (#34) Thanks @maximinus.
+
+
 0.11.0 (2018-09-08)
 -------------------
 
-- Require dukpy 0.2.2, to fix memory leak. (#32) Thanks maximinus.
+- Require dukpy 0.2.2, to fix memory leak. (#32) Thanks @maximinus.
 - Change Mac environment marker. (#30)
 - Support Python 3.7.
 
