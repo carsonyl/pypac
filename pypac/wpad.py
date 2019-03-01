@@ -1,10 +1,12 @@
 """
 Tools for the Web Proxy Auto-Discovery Protocol.
 """
+import logging
 import socket
 
 from tld import get_tld
-from tld.exceptions import TldDomainNotFound
+
+logger = logging.getLogger(__name__)
 
 
 def proxy_urls_from_dns(local_hostname=None):
@@ -30,7 +32,8 @@ def proxy_urls_from_dns(local_hostname=None):
     try:
         parsed = get_tld('http://' + local_hostname, as_object=True)
         subdomain, tld = parsed.subdomain, parsed.fld
-    except TldDomainNotFound:
+    except Exception as e:
+        logger.warning("Failed to get a recognized TLD, using fully-qualified hostname rightmost part as TLD")
         final_dot_index = local_hostname.rfind('.')
         subdomain, tld = local_hostname[0:final_dot_index], local_hostname[final_dot_index+1:]
     return wpad_search_urls(subdomain, tld)
