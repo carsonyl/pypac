@@ -14,7 +14,8 @@ from pypac.os_settings import autoconfig_url_from_registry, autoconfig_url_from_
 from pypac.wpad import proxy_urls_from_dns
 
 
-def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, allowed_content_types=None, **kwargs):
+def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
+            allowed_content_types=None, session=None, **kwargs):
     """
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
 
@@ -35,7 +36,9 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, 
     :raises MalformedPacError: If something that claims to be a PAC file was obtained but could not be parsed.
     """
     if url:
-        downloaded_pac = download_pac([url], timeout=timeout, allowed_content_types=allowed_content_types)
+        downloaded_pac = download_pac([url], timeout=timeout,
+                                      allowed_content_types=allowed_content_types,
+                                      session=session)
         if not downloaded_pac:
             return
         return PACFile(downloaded_pac, **kwargs)
@@ -65,7 +68,7 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2, 
                 return PACFile(f.read(), **kwargs)
 
     pac_candidate_urls = collect_pac_urls(from_os_settings=True, from_dns=from_dns)
-    downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types)
+    downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types, session=session)
     if not downloaded_pac:
         return
     return PACFile(downloaded_pac, **kwargs)
@@ -105,7 +108,8 @@ def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
     return pac_urls
 
 
-def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
+def download_pac(candidate_urls, timeout=1, allowed_content_types=None,
+                 session=None):
     """
     Try to download a PAC file from one of the given candidate URLs.
 
@@ -123,7 +127,10 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None):
     if not allowed_content_types:
         allowed_content_types = {'application/x-ns-proxy-autoconfig', 'application/x-javascript-config'}
 
-    sess = requests.Session()
+    if not session:
+        sess = requests.Session()
+    else:
+        sess = session
     sess.trust_env = False  # Don't inherit proxy config from environment variables.
     for pac_url in candidate_urls:
         try:
@@ -256,7 +263,7 @@ class PACSession(requests.Session):
         self._proxy_resolver.ban_proxy(proxy_url)
         return self._proxy_resolver.get_proxy_for_requests(for_url)
 
-    def get_pac(self):
+    def get_pac(self, **kwargs):
         """
         Search for, download, and parse PAC file if it hasn't already been done.
         This method is called upon the first use of :meth:`request`,
@@ -273,7 +280,7 @@ class PACSession(requests.Session):
         if not self.pac_enabled:
             return
 
-        pac = get_pac()
+        pac = get_pac(**kwargs)
         self._tried_get_pac = True
         if pac:
             self._proxy_resolver = self._get_proxy_resolver(pac)
