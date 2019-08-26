@@ -43,6 +43,7 @@ def test_proxy_failover_no_fallback():
     ('DIRECT', mock_proxy_auth, 'DIRECT'),
     ('http://foo:8080', mock_proxy_auth, 'http://user:pwd@foo:8080'),
     ('socks5://foo:8080', mock_proxy_auth, 'socks5://user:pwd@foo:8080'),
+    ('http://foo:8080', HTTPProxyAuth('u$er', 'p@ss:'), 'http://u%24er:p%40ss%3A@foo:8080'),
 ])
 def test_add_proxy_auth(proxy_value, auth_obj, expected_result):
     assert add_proxy_auth(proxy_value, auth_obj) == expected_result
