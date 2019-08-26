@@ -6,9 +6,10 @@ try:
 except ImportError:
     from urlparse import urlparse
 try:
-    from urllib import quote_plus
-except ImportError:
     from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
+
 from pypac.parser import parse_pac_value
 
 
