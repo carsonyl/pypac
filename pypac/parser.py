@@ -39,7 +39,7 @@ class PACFile(object):
         """
         Load a PAC file from a given string of JavaScript.
         Errors during parsing and validation may raise a specialized exception.
-        
+
         :param str pac_js: JavaScript that defines the FindProxyForURL() function.
         :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
             or is otherwise invalid.
@@ -140,6 +140,8 @@ def proxy_url(value, socks_scheme=None):
 
     if len(parts) == 2:
         keyword, proxy = parts[0].upper(), parts[1]
+        if keyword == 'HTTPS':
+            return 'https://' + proxy
         if keyword == 'PROXY':
             return 'http://' + proxy
         if keyword == 'SOCKS':

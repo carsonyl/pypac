@@ -167,14 +167,6 @@ class TestRequests(object):
         assert settings['proxies'] == {}  # requests.session.merge_setting removes entries with None value.
         assert not select_proxy(arbitrary_url, settings['proxies'])
 
-    def test_supercede_environment_settings(self, monkeypatch):
-        monkeypatch.setenv('HTTP_PROXY', 'http://env')
-        sess = requests.Session()
-        settings = sess.merge_environment_settings(arbitrary_url, {'http': 'http://other'}, False, False, False)
-        assert settings['proxies'] == {'http': 'http://other'}
-        assert select_proxy(arbitrary_url, settings['proxies']) == 'http://other'
-
-
 class TestPACSession(object):
     def test_default_behaviour_no_pac_found(self):
         sess = PACSession()
@@ -205,6 +197,22 @@ class TestPACSession(object):
         sess = PACSession(pac=PACFile(direct_pac_js))
         for _ in range(2):
             assert sess.get_pac() is not None
+
+    def test_pac_download_after_session_init(self):
+        sess = PACSession()
+        proxy = 'PROXY %s; DIRECT' % arbitrary_pac_url
+        pac_js = proxy_pac_js_tpl % 'PROXY %s; DIRECT' % arbitrary_pac_url
+        pac= sess.get_pac(js=pac_js)
+        assert proxy == pac.find_proxy_for_url(host='example.org', url='http://example.org')
+
+    def test_extend_session_with_pacsession(self):
+        sess = requests.Session()
+        sess = PACSession(session=sess)
+        proxy = 'PROXY %s; DIRECT' % arbitrary_pac_url
+        pac_js = proxy_pac_js_tpl % 'PROXY %s; DIRECT' % arbitrary_pac_url
+        pac= sess.get_pac(js=pac_js)
+        assert proxy == pac.find_proxy_for_url(host='example.org', url='http://example.org')
+
 
     def test_pac_override_using_request_proxies_parameter(self):
         sess = PACSession()
