@@ -5,6 +5,10 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from pypac.parser import parse_pac_value
 
@@ -121,7 +125,12 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
     if possible_proxy_url == 'DIRECT':
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)
-    return '{0}://{1}:{2}@{3}'.format(parsed.scheme, proxy_auth.username, proxy_auth.password, parsed.netloc)
+    return '{0}://{1}:{2}@{3}'.format(
+        parsed.scheme,
+        quote_plus(proxy_auth.username),
+        quote_plus(proxy_auth.password),
+        parsed.netloc
+    )
 
 
 def proxy_parameter_for_requests(proxy_url_or_direct):
