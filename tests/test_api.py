@@ -140,6 +140,7 @@ class TestRequests(object):
         monkeypatch.setenv('NO_PROXY', 'a.local, .b.local')
         sess = requests.Session()
         settings = sess.merge_environment_settings(request_url, {}, False, False, False)
+        settings['proxies'].pop('travis_apt', None)
         assert settings['proxies'] == expected_proxies
         assert select_proxy(request_url, settings['proxies']) == expected_proxy_selection
 
@@ -164,8 +165,10 @@ class TestRequests(object):
         monkeypatch.setenv('HTTP_PROXY', 'http://env')
         sess = requests.Session()
         settings = sess.merge_environment_settings(arbitrary_url, {'http': None}, False, False, False)
+        settings['proxies'].pop('travis_apt', None)
         assert settings['proxies'] == {}  # requests.session.merge_setting removes entries with None value.
         assert not select_proxy(arbitrary_url, settings['proxies'])
+
 
 class TestPACSession(object):
     def test_default_behaviour_no_pac_found(self):
