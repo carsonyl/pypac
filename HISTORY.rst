@@ -1,3 +1,10 @@
+0.13.0 (2019-09-16)
+-------------------
+
+- Make it possible to configure the request for the PAC file. (#44) Thanks @SeyfSV.
+- urlencode proxy username and password. (#46) Thanks @aslafy-z.
+
+
 0.12.0 (2018-09-11)
 -------------------
 
