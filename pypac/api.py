@@ -288,7 +288,7 @@ class PACSession(requests.Session):
 
 
 @contextmanager
-def pac_context_for_url(url, proxy_auth=None):
+def pac_context_for_url(url, pac=None, proxy_auth=None):
     """
     This context manager provides a simple way to add rudimentary PAC functionality
     to code that cannot be modified to use :class:`PACSession`,
@@ -301,10 +301,12 @@ def pac_context_for_url(url, proxy_auth=None):
     Note that this provides a very simplified PAC experience that's insufficient for some scenarios.
 
     :param url: Consult the PAC for the proxy to use for this URL.
+    :param PACFile pac: The PAC to use to resolve the proxy. If not provided, :func:`get_pac` is 
+        called with default arguments in order to find a PAC file.
     :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
     """
     prev_http_proxy, prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
-    pac = get_pac()
+    pac = pac or get_pac()
     if pac:
         resolver = ProxyResolver(pac, proxy_auth=proxy_auth)
         proxies = resolver.get_proxy_for_requests(url)
