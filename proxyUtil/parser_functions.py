@@ -316,7 +316,7 @@ def timeRange(*args):
 
 
 def alert(_):
-    """No-op. PyPAC ignores JavaScript alerts."""
+    """No-op. proxyUtil ignores JavaScript alerts."""
     pass
 
 

@@ -5,7 +5,7 @@ import warnings
 
 import dukpy
 
-from pypac.parser_functions import function_injections
+from proxyUtil.parser_functions import function_injections
 
 
 def _inject_function_into_js(context, name, func):

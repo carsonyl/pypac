@@ -1,5 +1,6 @@
-PyPAC licence
-=============
+"""
+proxyUtil: Proxy auto-config for Python
+===================================
 
 Copyright 2018 Carson Lam
 Copyright 2020 Hiroki Fujii
@@ -15,3 +16,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+"""
+
+from proxyUtil.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url, virtualProxyEnviron
+
+
+__version__ = '0.13.0'
+
+
+__all__ = [
+    'get_pac', 'collect_pac_urls', 'download_pac', 'PACSession', 'pac_context_for_url', 'virtualProxyEnviron'
+]

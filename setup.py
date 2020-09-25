@@ -32,7 +32,7 @@ classifiers = [
 
 def get_version():
     p = os.path.join(os.path.dirname(
-                     os.path.abspath(__file__)), "pypac", "__init__.py")
+                     os.path.abspath(__file__)), "proxyUtil", "__init__.py")
     with open(p) as f:
         for line in f.readlines():
             if "__version__" in line:
@@ -53,24 +53,24 @@ class PyTest(test_command):
 
 
 setup(
-    name='pypac',
+    name='proxyUtil',
     version=get_version(),
     description="Proxy auto-config and auto-discovery for Python.",
     long_description=readme + '\n\n' + history,
-    author="Carson Lam",
-    author_email='carsonyylam@gmail.com',
-    url='https://github.com/carsonyl/pypac',
+    author="Hiroki Fujii",
+    author_email='hfujii@hisystron.com',
+    url='https://github.com/actlaboratory/proxyUtil',
     packages=[
-        'pypac',
+        'pproxyUtil',
     ],
-    package_dir={'pypac': 'pypac'},
+    package_dir={'proxyUtil': 'proxyUtil'},
     package_data={'': ['LICENSE']},
     include_package_data=True,
     install_requires=requirements,
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
     license="Apache 2.0",
     zip_safe=False,
-    keywords='pypac pac proxy autoconfig requests',
+    keywords='proxyUtil pypac pac proxy autoconfig requests',
     classifiers=classifiers,
     cmdclass={'test': PyTest},
     test_suite='tests',

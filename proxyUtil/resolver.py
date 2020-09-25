@@ -10,7 +10,7 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-from pypac.parser import parse_pac_value
+from proxyUtil.parser import parse_pac_value
 
 
 class ProxyResolver(object):
@@ -20,7 +20,7 @@ class ProxyResolver(object):
 
     def __init__(self, pac, proxy_auth=None, socks_scheme='socks5'):
         """
-        :param pypac.parser.PACFile pac: Parsed PAC file.
+        :param proxyUtil.parser.PACFile pac: Parsed PAC file.
         :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
             If provided, then all proxy URLs returned will include these credentials.
         :param str socks_scheme: Scheme to assume for SOCKS proxies. `socks5` by default.
