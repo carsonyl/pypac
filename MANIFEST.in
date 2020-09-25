@@ -1,1 +1,1 @@
-include README.rst HISTORY.rst LICENSE requirements_dev.txt
+include README.rst HISTORY.rst LICENSE requirements_dev.txt readme.md

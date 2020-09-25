@@ -21,7 +21,7 @@ limitations under the License.
 from proxyUtil.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url, virtualProxyEnviron
 
 
-__version__ = '0.13.0'
+__version__ = '0.1'
 
 
 __all__ = [

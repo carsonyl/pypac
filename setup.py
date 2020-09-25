@@ -6,8 +6,11 @@ from setuptools.command.test import test as test_command
 
 import sys
 
-with open('README.rst', encoding="utf-8") as readme_file:
+with open('readme.md', encoding='utf-8') as readme_file:
     readme = readme_file.read()
+
+with open('PYPAC_README.rst') as pypac_readme_file:
+    pypac_readme = pypac_readme_file.read()
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
@@ -56,7 +59,7 @@ setup(
     name='proxyUtil',
     version=get_version(),
     description="Proxy auto-config and auto-discovery for Python.",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + '\n\n\n>>> 以下、Fork元の文書 >>>\n\n\n' + pypac_readme + '\n\n' + history,
     author="Hiroki Fujii",
     author_email='hfujii@hisystron.com',
     url='https://github.com/actlaboratory/proxyUtil',
