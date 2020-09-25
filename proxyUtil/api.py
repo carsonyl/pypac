@@ -331,7 +331,7 @@ def default_proxy_fail_exception_filter(req_exc):
     return isinstance(req_exc, (ProxyError, ConnectTimeout))
 
 class virtualProxyEnviron():
-    def __init__(self, proxy_auth=None, url="https://www.riken.jp/")
+    def __init__(self, proxy_auth=None, url="https://www.riken.jp/"):
         """
         :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
         :param url: Consult the PAC for the proxy to use for this URL.
@@ -341,17 +341,17 @@ class virtualProxyEnviron():
         self.url = url
         self.prev_http_proxy, self.prev_https_proxy = None, None
 
-    def set_pac(self):
+    def set_environ(self):
         self.prev_http_proxy, self.prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
         pac = get_pac()
         if pac:
-            resolver = ProxyResolver(pac, proxy_auth=proxy_auth)
-            proxies = resolver.get_proxy_for_requests(url)
+            resolver = ProxyResolver(pac, proxy_auth=self.proxy_auth)
+            proxies = resolver.get_proxy_for_requests(self.url)
             # Cannot set None for environ. (#27)
             os.environ['HTTP_PROXY'] = proxies.get('http') or ''
             os.environ['HTTPS_PROXY'] = proxies.get('https') or ''
 
-    def unset_pac(self):
+    def unset_environ(self):
         if self.prev_http_proxy:
             os.environ['HTTP_PROXY'] = self.prev_http_proxy
         elif 'HTTP_PROXY' in os.environ:

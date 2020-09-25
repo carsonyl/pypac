@@ -6,7 +6,7 @@ from setuptools.command.test import test as test_command
 
 import sys
 
-with open('README.rst') as readme_file:
+with open('README.rst', encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
@@ -61,7 +61,7 @@ setup(
     author_email='hfujii@hisystron.com',
     url='https://github.com/actlaboratory/proxyUtil',
     packages=[
-        'pproxyUtil',
+        'proxyUtil',
     ],
     package_dir={'proxyUtil': 'proxyUtil'},
     package_data={'': ['LICENSE']},

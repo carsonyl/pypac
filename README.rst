@@ -15,7 +15,7 @@ virtualProxyEnviron()
 
 以下、およびその他のドキュメントについては、pypac、あるいはPyPAC表記をproxyUtilに読み替えてください。
 フォーク元のPyPACへの影響が最小限となるように勤めています。
-    
+
 
 
 PyPAC: Proxy auto-config for Python
