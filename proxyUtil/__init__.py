@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from proxyUtil.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url, virtualProxyEnviron
-prom proxyUtil import __pyinstaller
+from proxyUtil import __pyinstaller
 
 
 __version__ = '0.1.1'
