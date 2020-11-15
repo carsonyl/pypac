@@ -9,7 +9,7 @@ Fork元のPyPACへの影響が最小限となるように勤めています。
 
 
 ## インストール方法
-- pip install https://github.com/actlaboratory/proxyutil/archive/0.1.zip
+- pip install https://github.com/actlaboratory/proxyutil/archive/0.1.1.zip
 
 
 ## 追加機能の使用方法
@@ -29,5 +29,9 @@ class virtualProxyEnviron():
 
 
 ## 更新履歴
+
+- Version 0.1.1 2020.11.15
+	- pyInstaller用fookを追加
+
 - Version 0.1 2020.09.25
     - 初回リリース
