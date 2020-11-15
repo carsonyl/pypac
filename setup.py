@@ -64,7 +64,7 @@ setup(
     author_email='hfujii@hisystron.com',
     url='https://github.com/actlaboratory/proxyUtil',
     packages=[
-        'proxyUtil',
+        'proxyUtil','proxyUtil/__pyinstaller'
     ],
     package_dir={'proxyUtil': 'proxyUtil'},
     package_data={'': ['LICENSE']},
