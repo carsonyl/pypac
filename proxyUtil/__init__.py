@@ -18,12 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from proxyUtil import *
 from proxyUtil.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url, virtualProxyEnviron
 
 __version__ = '0.1.1'
 
 
 __all__ = [
-    'get_pac', 'collect_pac_urls', 'download_pac', 'PACSession', 'pac_context_for_url', 'virtualProxyEnviron', 'proxyUtil'
+    'get_pac', 'collect_pac_urls', 'download_pac', 'PACSession', 'pac_context_for_url', 'virtualProxyEnviron'
 ]
