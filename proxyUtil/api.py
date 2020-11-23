@@ -1,7 +1,7 @@
 """
 These are the most commonly used components of proxyUtil.
 """
-import os
+import os, winreg
 from contextlib import contextmanager
 
 import requests
@@ -341,10 +341,23 @@ class virtualProxyEnviron():
         self.url = url
         self.prev_http_proxy, self.prev_https_proxy = None, None
 
-    def set_environ(self):
+    def set_environ(self, server=None, port=None):
+        """ str server, int port """
         self.prev_http_proxy, self.prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
+        if server != None and port != None:
+            os.environ["HTTP_PROXY"] = "%s:%i" %(server, port)
+            os.environ["HTTPS_PROXY"] = "%s:%i" %(server, port)
+            return
         pac = get_pac()
-        if pac:
+        path = r"Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+        key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, path)
+        p, regtype = winreg.QueryValueEx(key, "ProxyServer")
+        e, regtype = winreg.QueryValueEx(key, "ProxyEnable")
+        winreg.CloseKey(key)
+        if bool(e):
+	        os.environ["HTTP_PROXY"] = p
+	        os.environ["HTTPS_PROXY"] = p
+        elif pac:
             resolver = ProxyResolver(pac, proxy_auth=self.proxy_auth)
             proxies = resolver.get_proxy_for_requests(self.url)
             # Cannot set None for environ. (#27)

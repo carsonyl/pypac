@@ -9,7 +9,7 @@ Fork元のPyPACへの影響が最小限となるように勤めています。
 
 
 ## インストール方法
-- pip install https://github.com/actlaboratory/proxyutil/archive/0.1.1.zip
+- pip install https://github.com/actlaboratory/proxyutil/archive/0.2.0.zip
 
 
 ## 追加機能の使用方法
@@ -22,13 +22,17 @@ class virtualProxyEnviron():
             プロキシ認証。デフォルトは認証なし
         URL = https://www.riken.jp/
             このURLと通信するためのPACを自動で取得します。デフォルトは理化学研究所
-    def set_environ(self):
-        環境変数をセットします。
+    def set_environ(self, server, port):
+        環境変数をセットします。serverとportを指定して、手動で登録することもできます。
     def unset_environ(self):
         環境変数の設定を元に戻します。
 
 
 ## 更新履歴
+
+- Version 0.2.0 2020.11.23
+	- set_environでのサーバ名とポートの直接指定に対応。
+	- レジストリに格納されたプロキシ設定の読み込みに対応。
 
 - Version 0.1.1 2020.11.15
 	- pyInstaller用fookを追加
