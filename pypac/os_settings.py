@@ -7,9 +7,10 @@ from sys import version_info
 
 if version_info[0] == 2:
     from urlparse import urlparse  # noqa
-    from urllib import unquote  # noqa
+    from urllib import url2pathname  # noqa
 else:
-    from urllib.parse import urlparse, unquote  # noqa
+    from urllib.parse import urlparse  # noqa
+    from urllib.request import url2pathname  # noqa
 
 
 #: True if running on Windows.
@@ -84,15 +85,7 @@ def file_url_to_local_path(file_url):
     :return: A local filesystem path. It might not exist.
     """
     parts = urlparse(file_url)
-    path = unquote(parts.path)
-    if path.startswith('/') and not path.startswith('//'):
-        if ON_DARWIN:
-            return path
-        if len(parts.netloc) == 2 and parts.netloc[1] == ':':  # Drive letter and colon.
-            return parts.netloc + path
-        return 'C:' + path  # Assume C drive if it's just a path starting with /.
-    if len(path) > 2 and path[1] == ':':
-        return path
+    return url2pathname(path)
 
 
 class NotWindowsError(Exception):
