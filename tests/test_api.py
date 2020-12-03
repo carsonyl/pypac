@@ -3,9 +3,12 @@ import pytest
 import requests
 from requests.auth import HTTPProxyAuth
 from requests.exceptions import ProxyError, ConnectTimeout
-from mock import patch, Mock, ANY, call
 from requests.utils import select_proxy
 from tempfile import mkstemp
+try:
+    from unittest.mock import patch, Mock, ANY, call
+except ImportError:
+    from mock import patch, Mock, ANY, call
 
 from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url
 from pypac.parser import PACFile, MalformedPacError
