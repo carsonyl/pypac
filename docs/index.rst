@@ -45,7 +45,7 @@ Installation
 
 Install PyPAC using `pip <https://pip.pypa.io>`_::
 
-    $ pip install pypac
+    $ python -m pip install pypac
 
 The source is also `available on GitHub <https://github.com/carsonyl/pypac>`_.
 

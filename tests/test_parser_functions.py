@@ -1,6 +1,10 @@
 import pytest
 from datetime import datetime
-from mock import patch
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 from pypac.parser_functions import dnsDomainIs, isResolvable, isInNet, dnsResolve, dnsDomainLevels, weekdayRange, \
     myIpAddress, isPlainHostName, shExpMatch, timeRange, localHostOrDomainIs, dateRange, alert

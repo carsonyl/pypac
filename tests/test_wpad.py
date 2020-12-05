@@ -1,6 +1,10 @@
 from __future__ import print_function
 import pytest
-from mock import patch
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 from pypac.wpad import proxy_urls_from_dns
 
