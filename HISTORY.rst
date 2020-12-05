@@ -1,3 +1,9 @@
+0.14.0 (2020-12-05)
+-------------------
+
+- Add ability to supply ``PACFile`` to ``pac_context_for_url()``. (#52) Thanks @alexrohvarger.
+
+
 0.13.0 (2019-09-16)
 -------------------
 
