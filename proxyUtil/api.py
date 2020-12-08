@@ -348,12 +348,16 @@ class virtualProxyEnviron():
             os.environ["HTTP_PROXY"] = "%s:%i" %(server, port)
             os.environ["HTTPS_PROXY"] = "%s:%i" %(server, port)
             return
-        pac = get_pac()
-        path = r"Software\Microsoft\Windows\CurrentVersion\Internet Settings"
-        key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, path)
-        p, regtype = winreg.QueryValueEx(key, "ProxyServer")
-        e, regtype = winreg.QueryValueEx(key, "ProxyEnable")
-        winreg.CloseKey(key)
+        try:
+            pac = get_pac()
+            path = r"Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+            key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, path)
+            p, regtype = winreg.QueryValueEx(key, "ProxyServer")
+            e, regtype = winreg.QueryValueEx(key, "ProxyEnable")
+        except WindowsError:
+            return
+        finally:
+            winreg.CloseKey(key)
         if bool(e):
 	        os.environ["HTTP_PROXY"] = p
 	        os.environ["HTTPS_PROXY"] = p
