@@ -357,7 +357,8 @@ class virtualProxyEnviron():
         except WindowsError:
             return
         finally:
-            winreg.CloseKey(key)
+            try: winreg.CloseKey(key)
+            except: pass
         if bool(e):
 	        os.environ["HTTP_PROXY"] = p
 	        os.environ["HTTPS_PROXY"] = p
