@@ -336,14 +336,17 @@ class virtualProxyEnviron():
         :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
         :param url: Consult the PAC for the proxy to use for this URL.
         """
-
+        self.__setFirst = False #まだセットしたことはない
         self.proxy_auth = proxy_auth
         self.url = url
         self.prev_http_proxy, self.prev_https_proxy = None, None
 
     def set_environ(self, server=None, port=None):
         """ str server, int port """
-        self.prev_http_proxy, self.prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
+        if not self.__setFirst:
+            self.prev_http_proxy, self.prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
+            self.__setFirst = True
+        self.unset_environ() #いったん設定情報を削除
         if server != None and port != None:
             os.environ["HTTP_PROXY"] = "%s:%i" %(server, port)
             os.environ["HTTPS_PROXY"] = "%s:%i" %(server, port)

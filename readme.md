@@ -9,7 +9,7 @@ Fork元のPyPACへの影響が最小限となるように勤めています。
 
 
 ## インストール方法
-- pip install https://github.com/actlaboratory/proxyutil/archive/0.2.2.zip
+- pip install https://github.com/actlaboratory/proxyutil/archive/0.2.3.zip
 
 
 ## 追加機能の使用方法
@@ -29,6 +29,9 @@ class virtualProxyEnviron():
 
 
 ## 更新履歴
+
+- Version 0.2.3 2020.12.30
+    - プロキシ情報再設定時、自動で前の設定が削除されるように修正
 
 - Version 0.2.2 2020.12.17
 	- レジストリを閉じる際にエラーが出る場合がある問題を修正
