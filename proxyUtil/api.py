@@ -357,7 +357,7 @@ class virtualProxyEnviron():
             key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, path)
             p, regtype = winreg.QueryValueEx(key, "ProxyServer")
             e, regtype = winreg.QueryValueEx(key, "ProxyEnable")
-        except WindowsError:
+        except (WindowsError, UnicodeDecodeError):
             return
         finally:
             try: winreg.CloseKey(key)

@@ -3,7 +3,7 @@ proxyUtil: Proxy auto-config for Python
 ===================================
 
 Copyright 2018 Carson Lam
-Copyright 2020 Hiroki Fujii
+Copyright 2020-2021 Hiroki Fujii
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ limitations under the License.
 
 from proxyUtil.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url, virtualProxyEnviron
 
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 
 __all__ = [
