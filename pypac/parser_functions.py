@@ -22,9 +22,7 @@ def dnsDomainIs(host, domain):
     :return: true iff the domain of hostname matches.
     :rtype: bool
     """
-    if domain.startswith('.'):
-        domain = '*' + domain
-    return shExpMatch(host, domain)
+    return host.lower().endswith(domain.lower())
 
 
 def shExpMatch(host, pattern):

@@ -64,7 +64,7 @@ class TestFunctionsInPacParser(object):
         assert parser.find_proxy_for_url('/', 'www.example.org') == 'PROXY 0.0.0.0:80'
 
     def test_dnsDomainIs(self):
-        parser = PACFile(dummy_js % 'dnsDomainIs(host, "*.example.com")')
+        parser = PACFile(dummy_js % 'dnsDomainIs(host, "example.com")')
         assert parser.find_proxy_for_url('/', 'www.example.com') == 'DIRECT'
 
     def test_isResolvable(self):

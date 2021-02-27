@@ -12,6 +12,7 @@ from pypac.parser_functions import dnsDomainIs, isResolvable, isInNet, dnsResolv
 
 @pytest.mark.parametrize('host,domain,expected_value', [
     ('www.netscape.com', '.netscape.com', True),
+    ('www.netscape.com', 'NETSCAPE.com', True),
     ('www', '.netscape.com', False),
     ('www.mcom.com', '.netscape.com', False),
 ])
