@@ -9,13 +9,26 @@ from requests.exceptions import ProxyError, ConnectTimeout
 
 from pypac.parser import PACFile
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
-from pypac.os_settings import autoconfig_url_from_registry, autoconfig_url_from_preferences, \
-    ON_WINDOWS, ON_DARWIN, file_url_to_local_path
+from pypac.os_settings import (
+    autoconfig_url_from_registry,
+    autoconfig_url_from_preferences,
+    ON_WINDOWS,
+    ON_DARWIN,
+    file_url_to_local_path,
+)
 from pypac.wpad import proxy_urls_from_dns
 
 
-def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
-            allowed_content_types=None, session=None, **kwargs):
+def get_pac(
+    url=None,
+    js=None,
+    from_os_settings=True,
+    from_dns=True,
+    timeout=2,
+    allowed_content_types=None,
+    session=None,
+    **kwargs
+):
     """
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
 
@@ -38,9 +51,9 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
     :raises MalformedPacError: If something that claims to be a PAC file was obtained but could not be parsed.
     """
     if url:
-        downloaded_pac = download_pac([url], timeout=timeout,
-                                      allowed_content_types=allowed_content_types,
-                                      session=session)
+        downloaded_pac = download_pac(
+            [url], timeout=timeout, allowed_content_types=allowed_content_types, session=session
+        )
         if not downloaded_pac:
             return
         return PACFile(downloaded_pac, **kwargs)
@@ -48,10 +61,11 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
         return PACFile(js, **kwargs)
 
     # Deprecated in 0.8.2
-    from_registry = kwargs.get('from_registry')
+    from_registry = kwargs.get("from_registry")
     if from_registry is not None:
         import warnings
-        warnings.warn('from_registry is deprecated, use from_os_settings instead.')
+
+        warnings.warn("from_registry is deprecated, use from_os_settings instead.")
         from_os_settings = from_registry
 
     if from_os_settings:
@@ -62,7 +76,7 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
         else:
             path = None
 
-        if path and path.lower().startswith('file://'):
+        if path and path.lower().startswith("file://"):
             path = file_url_to_local_path(path)
 
         if path and os.path.isfile(path):
@@ -70,7 +84,9 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
                 return PACFile(f.read(), **kwargs)
 
     pac_candidate_urls = collect_pac_urls(from_os_settings=True, from_dns=from_dns)
-    downloaded_pac = download_pac(pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types, session=session)
+    downloaded_pac = download_pac(
+        pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types, session=session
+    )
     if not downloaded_pac:
         return
     return PACFile(downloaded_pac, **kwargs)
@@ -88,10 +104,11 @@ def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
     :rtype: list[str]
     """
     # Deprecated in 0.8.2
-    from_registry = kwargs.get('from_registry')
+    from_registry = kwargs.get("from_registry")
     if from_registry is not None:
         import warnings
-        warnings.warn('from_registry is deprecated, use from_os_settings instead.')
+
+        warnings.warn("from_registry is deprecated, use from_os_settings instead.")
         from_os_settings = from_registry
 
     pac_urls = []
@@ -103,15 +120,14 @@ def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
         else:
             url_or_path = None
 
-        if url_or_path and (url_or_path.lower().startswith('http://') or url_or_path.lower().startswith('https://')):
+        if url_or_path and (url_or_path.lower().startswith("http://") or url_or_path.lower().startswith("https://")):
             pac_urls.append(url_or_path)
     if from_dns:
         pac_urls.extend(proxy_urls_from_dns())
     return pac_urls
 
 
-def download_pac(candidate_urls, timeout=1, allowed_content_types=None,
-                 session=None):
+def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=None):
     """
     Try to download a PAC file from one of the given candidate URLs.
 
@@ -129,7 +145,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None,
     :rtype: str|None
     """
     if not allowed_content_types:
-        allowed_content_types = {'application/x-ns-proxy-autoconfig', 'application/x-javascript-config'}
+        allowed_content_types = {"application/x-ns-proxy-autoconfig", "application/x-javascript-config"}
 
     if not session:
         sess = requests.Session()
@@ -139,7 +155,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None,
     for pac_url in candidate_urls:
         try:
             resp = sess.get(pac_url, timeout=timeout)
-            content_type = resp.headers.get('content-type', '').lower()
+            content_type = resp.headers.get("content-type", "").lower()
             if content_type and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
                 continue
             if resp.ok:
@@ -155,9 +171,16 @@ class PACSession(requests.Session):
     and the Web Proxy Auto-Discovery (WPAD) protocol. Alternatively, a PAC file may be provided in the constructor.
     """
 
-    def __init__(self, pac=None, proxy_auth=None, pac_enabled=True,
-                 response_proxy_fail_filter=None, exception_proxy_fail_filter=None,
-                 socks_scheme='socks5', **kwargs):
+    def __init__(
+        self,
+        pac=None,
+        proxy_auth=None,
+        pac_enabled=True,
+        response_proxy_fail_filter=None,
+        exception_proxy_fail_filter=None,
+        socks_scheme="socks5",
+        **kwargs
+    ):
         """
         :param PACFile pac: The PAC file to consult for proxy configuration info.
             If not provided, then upon the first request, :func:`get_pac` is called with default arguments
@@ -180,9 +203,10 @@ class PACSession(requests.Session):
         self._proxy_auth = proxy_auth
         self._socks_scheme = socks_scheme
 
-        if kwargs.get('recursion_limit'):
+        if kwargs.get("recursion_limit"):
             import warnings
-            warnings.warn('recursion_limit is deprecated and has no effect. It will be removed in a future release.')
+
+            warnings.warn("recursion_limit is deprecated and has no effect. It will be removed in a future release.")
 
         #: Set to ``False`` to disable all PAC functionality, including PAC auto-discovery.
         self.pac_enabled = pac_enabled
@@ -306,26 +330,26 @@ def pac_context_for_url(url, proxy_auth=None, pac=None):
 
     :param url: Consult the PAC for the proxy to use for this URL.
     :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
-    :param PACFile pac: The PAC to use to resolve the proxy. If not provided, :func:`get_pac` is 
+    :param PACFile pac: The PAC to use to resolve the proxy. If not provided, :func:`get_pac` is
         called with default arguments in order to find a PAC file.
     """
-    prev_http_proxy, prev_https_proxy = os.environ.get('HTTP_PROXY'), os.environ.get('HTTPS_PROXY')
+    prev_http_proxy, prev_https_proxy = os.environ.get("HTTP_PROXY"), os.environ.get("HTTPS_PROXY")
     pac = pac or get_pac()
     if pac:
         resolver = ProxyResolver(pac, proxy_auth=proxy_auth)
         proxies = resolver.get_proxy_for_requests(url)
         # Cannot set None for environ. (#27)
-        os.environ['HTTP_PROXY'] = proxies.get('http') or ''
-        os.environ['HTTPS_PROXY'] = proxies.get('https') or ''
+        os.environ["HTTP_PROXY"] = proxies.get("http") or ""
+        os.environ["HTTPS_PROXY"] = proxies.get("https") or ""
     yield
     if prev_http_proxy:
-        os.environ['HTTP_PROXY'] = prev_http_proxy
-    elif 'HTTP_PROXY' in os.environ:
-        del os.environ['HTTP_PROXY']
+        os.environ["HTTP_PROXY"] = prev_http_proxy
+    elif "HTTP_PROXY" in os.environ:
+        del os.environ["HTTP_PROXY"]
     if prev_https_proxy:
-        os.environ['HTTPS_PROXY'] = prev_https_proxy
-    elif 'HTTPS_PROXY' in os.environ:
-        del os.environ['HTTPS_PROXY']
+        os.environ["HTTPS_PROXY"] = prev_https_proxy
+    elif "HTTPS_PROXY" in os.environ:
+        del os.environ["HTTPS_PROXY"]
 
 
 def default_proxy_fail_response_filter(response):

@@ -18,7 +18,7 @@ class ProxyResolver(object):
     Handles the lookup of the proxy to use for any given URL, including proxy failover logic.
     """
 
-    def __init__(self, pac, proxy_auth=None, socks_scheme='socks5'):
+    def __init__(self, pac, proxy_auth=None, socks_scheme="socks5"):
         """
         :param pypac.parser.PACFile pac: Parsed PAC file.
         :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
@@ -81,7 +81,7 @@ class ProxyResolver(object):
         """
         proxies = self.get_proxies(url)
         for proxy in proxies:
-            if proxy == 'DIRECT' or proxy not in self._offline_proxies:
+            if proxy == "DIRECT" or proxy not in self._offline_proxies:
                 return proxy
 
     def get_proxy_for_requests(self, url):
@@ -122,14 +122,11 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
     :returns: Proxy URL with auth info added, or ``DIRECT``.
     :rtype: str
     """
-    if possible_proxy_url == 'DIRECT':
+    if possible_proxy_url == "DIRECT":
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)
-    return '{0}://{1}:{2}@{3}'.format(
-        parsed.scheme,
-        quote_plus(proxy_auth.username),
-        quote_plus(proxy_auth.password),
-        parsed.netloc
+    return "{0}://{1}:{2}@{3}".format(
+        parsed.scheme, quote_plus(proxy_auth.username), quote_plus(proxy_auth.password), parsed.netloc
     )
 
 
@@ -139,12 +136,12 @@ def proxy_parameter_for_requests(proxy_url_or_direct):
     :return: Value for use with the ``proxies`` parameter in Requests.
     :rtype: dict
     """
-    if proxy_url_or_direct == 'DIRECT':
+    if proxy_url_or_direct == "DIRECT":
         # This stops Requests from inheriting environment proxy settings.
         proxy_url_or_direct = None
     return {
-        'http': proxy_url_or_direct,
-        'https': proxy_url_or_direct,
+        "http": proxy_url_or_direct,
+        "https": proxy_url_or_direct,
     }
 
 

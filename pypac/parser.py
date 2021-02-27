@@ -17,13 +17,17 @@ def _inject_function_into_js(context, name, func):
     :param func: Python function.
     """
     context.export_function(name, func)
-    context.evaljs(""";
+    context.evaljs(
+        """;
         {name} = function() {{
             var args = Array.prototype.slice.call(arguments);
             args.unshift('{name}');
             return call_python.apply(null, args);
         }};
-    """.format(name=name))
+    """.format(
+            name=name
+        )
+    )
 
 
 class PACFile(object):
@@ -44,9 +48,10 @@ class PACFile(object):
         :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
             or is otherwise invalid.
         """
-        if kwargs.get('recursion_limit'):
+        if kwargs.get("recursion_limit"):
             import warnings
-            warnings.warn('recursion_limit is deprecated and has no effect. It will be removed in a future release.')
+
+            warnings.warn("recursion_limit is deprecated and has no effect. It will be removed in a future release.")
 
         try:
             self._context = dukpy.JSInterpreter()
@@ -55,7 +60,7 @@ class PACFile(object):
             self._context.evaljs(pac_js)
 
             # A test call to weed out errors like unimplemented functions.
-            self.find_proxy_for_url('/', '0.0.0.0')
+            self.find_proxy_for_url("/", "0.0.0.0")
 
         except dukpy.JSRuntimeError as e:
             raise MalformedPacError(original_exc=e)  # from e
@@ -78,25 +83,28 @@ class MalformedPacError(Exception):
             msg = "Malformed PAC file"
         self.original_exc = original_exc
         if original_exc:
-            msg += ' ({})'.format(original_exc)
+            msg += " ({})".format(original_exc)
         super(MalformedPacError, self).__init__(msg)
 
 
 class PyimportError(MalformedPacError):
     def __init__(self):
-        super(PyimportError, self).__init__("PAC file contains pyimport statement. "
-                                            "Ensure that the source of your PAC file is trustworthy")
+        super(PyimportError, self).__init__(
+            "PAC file contains pyimport statement. " "Ensure that the source of your PAC file is trustworthy"
+        )
         import warnings
-        warnings.warn('PyimportError is deprecated and will be removed in a future release.')
+
+        warnings.warn("PyimportError is deprecated and will be removed in a future release.")
 
 
 class PacComplexityError(RuntimeError):
     def __init__(self):
         super(PacComplexityError, self).__init__(
-            "Maximum recursion depth exceeded while parsing PAC file. "
-            "Raise it using sys.setrecursionlimit()")
+            "Maximum recursion depth exceeded while parsing PAC file. " "Raise it using sys.setrecursionlimit()"
+        )
         import warnings
-        warnings.warn('PacComplexityError is deprecated and will be removed in a future release.')
+
+        warnings.warn("PacComplexityError is deprecated and will be removed in a future release.")
 
 
 def parse_pac_value(value, socks_scheme=None):
@@ -113,7 +121,7 @@ def parse_pac_value(value, socks_scheme=None):
     :rtype: list[str]
     """
     config = []
-    for element in value.split(';'):
+    for element in value.split(";"):
         element = element.strip()
         if not element:
             continue
@@ -134,19 +142,19 @@ def proxy_url(value, socks_scheme=None):
     :rtype: str
     :raises ValueError: If input value is invalid.
     """
-    if value.upper() == 'DIRECT':
-        return 'DIRECT'
+    if value.upper() == "DIRECT":
+        return "DIRECT"
     parts = value.split()
 
     if len(parts) == 2:
         keyword, proxy = parts[0].upper(), parts[1]
-        if keyword == 'HTTPS':
-            return 'https://' + proxy
-        if keyword == 'PROXY':
-            return 'http://' + proxy
-        if keyword == 'SOCKS':
+        if keyword == "HTTPS":
+            return "https://" + proxy
+        if keyword == "PROXY":
+            return "http://" + proxy
+        if keyword == "SOCKS":
             if not socks_scheme:
-                socks_scheme = 'socks5'
-            return '{0}://{1}'.format(socks_scheme, proxy)
+                socks_scheme = "socks5"
+            return "{0}://{1}".format(socks_scheme, proxy)
 
     raise ValueError("Unrecognized proxy config value '{}'".format(value))

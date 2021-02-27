@@ -26,16 +26,20 @@ def proxy_urls_from_dns(local_hostname=None):
     """
     if not local_hostname:
         local_hostname = socket.getfqdn()
-    if '.' not in local_hostname or len(local_hostname) < 3 or \
-            local_hostname.startswith('.') or local_hostname.endswith('.'):
+    if (
+        "." not in local_hostname
+        or len(local_hostname) < 3
+        or local_hostname.startswith(".")
+        or local_hostname.endswith(".")
+    ):
         return []
     try:
-        parsed = get_tld('http://' + local_hostname, as_object=True)
+        parsed = get_tld("http://" + local_hostname, as_object=True)
         subdomain, tld = parsed.subdomain, parsed.fld
     except Exception as e:
         logger.warning("Failed to get a recognized TLD, using fully-qualified hostname rightmost part as TLD")
-        final_dot_index = local_hostname.rfind('.')
-        subdomain, tld = local_hostname[0:final_dot_index], local_hostname[final_dot_index+1:]
+        final_dot_index = local_hostname.rfind(".")
+        subdomain, tld = local_hostname[0:final_dot_index], local_hostname[final_dot_index + 1 :]
     return wpad_search_urls(subdomain, tld)
 
 
@@ -47,15 +51,15 @@ def wpad_search_urls(subdomain_or_host, fld):
     :param str subdomain_or_host: Subdomain portion of the fully-qualified host name.
         For foo.bar.example.com, this is foo.bar.
     :param str fld: FLD portion of the fully-qualified host name.
-        For foo.bar.example.com, this is example.com. 
+        For foo.bar.example.com, this is example.com.
     :return: PAC URLs to try in order, according to the WPAD protocol.
     :rtype: list[str]
     """
-    parts = subdomain_or_host.split('.')
+    parts = subdomain_or_host.split(".")
     search_urls = []
-    for i in range(1, len(parts)+1):
+    for i in range(1, len(parts) + 1):
         # Chop off host and move up the subdomain hierarchy.
-        url = 'http://wpad.{}/wpad.dat'.format('.'.join(parts[i:] + [fld]))
+        url = "http://wpad.{}/wpad.dat".format(".".join(parts[i:] + [fld]))
         search_urls.append(url)
 
     return search_urls

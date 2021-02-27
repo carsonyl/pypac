@@ -13,10 +13,10 @@ else:
 
 
 #: True if running on Windows.
-ON_WINDOWS = platform.system() == 'Windows'
+ON_WINDOWS = platform.system() == "Windows"
 
 #: True if running on macOS/OSX.
-ON_DARWIN = platform.system() == 'Darwin'
+ON_DARWIN = platform.system() == "Darwin"
 
 if ON_WINDOWS:
     try:
@@ -43,9 +43,10 @@ def autoconfig_url_from_registry():
         raise NotWindowsError()
 
     try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                            'Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings') as key:
-            return winreg.QueryValueEx(key, 'AutoConfigURL')[0]
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
+        ) as key:
+            return winreg.QueryValueEx(key, "AutoConfigURL")[0]
     except WindowsError:
         return  # Key or value not found.
 
@@ -69,11 +70,15 @@ def autoconfig_url_from_preferences():
     except AttributeError:
         return  # Key or value not found.
 
-    if all(('ProxyAutoConfigEnable' in config,
-            'ProxyAutoConfigURLString' in config,
-            not config.get('ProxyAutoDiscoveryEnable', 0))):
+    if all(
+        (
+            "ProxyAutoConfigEnable" in config,
+            "ProxyAutoConfigURLString" in config,
+            not config.get("ProxyAutoDiscoveryEnable", 0),
+        )
+    ):
         # Only return a value if it is enabled, not empty, and auto discovery is disabled.
-        return str(config['ProxyAutoConfigURLString'])
+        return str(config["ProxyAutoConfigURLString"])
 
 
 def file_url_to_local_path(file_url):
@@ -85,13 +90,13 @@ def file_url_to_local_path(file_url):
     """
     parts = urlparse(file_url)
     path = unquote(parts.path)
-    if path.startswith('/') and not path.startswith('//'):
+    if path.startswith("/") and not path.startswith("//"):
         if ON_DARWIN:
             return path
-        if len(parts.netloc) == 2 and parts.netloc[1] == ':':  # Drive letter and colon.
+        if len(parts.netloc) == 2 and parts.netloc[1] == ":":  # Drive letter and colon.
             return parts.netloc + path
-        return 'C:' + path  # Assume C drive if it's just a path starting with /.
-    if len(path) > 2 and path[1] == ':':
+        return "C:" + path  # Assume C drive if it's just a path starting with /.
+    if len(path) > 2 and path[1] == ":":
         return path
 
 

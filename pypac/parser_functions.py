@@ -40,9 +40,9 @@ def _address_in_network(ip, netaddr, mask):
     """
     Like :func:`requests.utils.address_in_network` but takes a quad-dotted netmask.
     """
-    ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
-    netmask = struct.unpack('=L', socket.inet_aton(mask))[0]
-    network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
+    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
+    netmask = struct.unpack("=L", socket.inet_aton(mask))[0]
+    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
     return (ipaddr & netmask) == (network & netmask)
 
 
@@ -96,7 +96,7 @@ def dnsResolve(host):
     try:
         return socket.gethostbyname(host)
     except socket.gaierror:
-        return ''
+        return ""
 
 
 def isPlainHostName(host):
@@ -129,7 +129,7 @@ def dnsDomainLevels(host):
     :return: the number (integer) of DNS domain levels (number of dots) in the hostname.
     :rtype: int
     """
-    return host.count('.')
+    return host.count(".")
 
 
 def weekdayRange(start_day, end_day=None, gmt=None):
@@ -155,14 +155,14 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     :param str gmt: is either the string: GMT or is left out.
     :rtype: bool
     """
-    now_weekday_num = _now('GMT' if end_day == 'GMT' else gmt).weekday()
-    weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+    now_weekday_num = _now("GMT" if end_day == "GMT" else gmt).weekday()
+    weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
-    if start_day not in weekdays or (end_day not in weekdays and end_day != 'GMT'):
+    if start_day not in weekdays or (end_day not in weekdays and end_day != "GMT"):
         return False
 
     start_day_num = weekdays.index(start_day)
-    if start_day and (not end_day or end_day == 'GMT'):
+    if start_day and (not end_day or end_day == "GMT"):
         return start_day_num == now_weekday_num
 
     end_day_num = weekdays.index(end_day)
@@ -177,7 +177,7 @@ def _now(gmt=None):
     :param str|None gmt: Use 'GMT' to get GMT.
     :rtype: datetime
     """
-    return datetime.utcnow() if gmt == 'GMT' else datetime.today()
+    return datetime.utcnow() if gmt == "GMT" else datetime.today()
 
 
 def dateRange(*args):
@@ -215,8 +215,8 @@ def dateRange(*args):
 
     :rtype: bool
     """
-    months = [None, 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-    gmt_arg_present = (len(args) == 2 and args[1] == 'GMT') or (len(args) % 2 == 1 and len(args) > 1)
+    months = [None, "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
     if gmt_arg_present:
         # Remove and handle GMT argument.
         today = _now(args[-1])
@@ -289,7 +289,7 @@ def timeRange(*args):
     :return: True during (or between) the specified time(s).
     :rtype: bool
     """
-    gmt_arg_present = (len(args) == 2 and args[1] == 'GMT') or (len(args) % 2 == 1 and len(args) > 1)
+    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
     if gmt_arg_present:
         # Remove and handle GMT argument.
         today = _now(args[-1])
@@ -320,17 +320,17 @@ def alert(_):
 
 # Things to add to the scope of the JavaScript PAC file.
 function_injections = {
-    'dnsDomainIs': dnsDomainIs,
-    'shExpMatch': shExpMatch,
-    'isInNet': isInNet,
-    'myIpAddress': myIpAddress,
-    'dnsResolve': dnsResolve,
-    'isPlainHostName': isPlainHostName,
-    'localHostOrDomainIs': localHostOrDomainIs,
-    'isResolvable': isResolvable,
-    'dnsDomainLevels': dnsDomainLevels,
-    'weekdayRange': weekdayRange,
-    'dateRange': dateRange,
-    'timeRange': timeRange,
-    'alert': alert,
+    "dnsDomainIs": dnsDomainIs,
+    "shExpMatch": shExpMatch,
+    "isInNet": isInNet,
+    "myIpAddress": myIpAddress,
+    "dnsResolve": dnsResolve,
+    "isPlainHostName": isPlainHostName,
+    "localHostOrDomainIs": localHostOrDomainIs,
+    "isResolvable": isResolvable,
+    "dnsDomainLevels": dnsDomainLevels,
+    "weekdayRange": weekdayRange,
+    "dateRange": dateRange,
+    "timeRange": timeRange,
+    "alert": alert,
 }
