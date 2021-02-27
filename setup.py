@@ -27,7 +27,7 @@ classifiers = [
     'Natural Language :: English',
     'Operating System :: OS Independent',
     'Topic :: Internet',
-] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.4 3.5 3.6 3.7 3.8 3.9 3.10'.split()]
+] + ['Programming Language :: Python :: ' + v for v in '2 2.7 3 3.5 3.6 3.7 3.8 3.9 3.10'.split()]
 
 
 def get_version():
@@ -67,7 +67,7 @@ setup(
     package_data={'': ['LICENSE']},
     include_package_data=True,
     install_requires=requirements,
-    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     license="Apache 2.0",
     zip_safe=False,
     keywords='pypac pac proxy autoconfig requests',
