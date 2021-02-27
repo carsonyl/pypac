@@ -31,6 +31,8 @@ def get_pac(url=None, js=None, from_os_settings=True, from_dns=True, timeout=2,
         then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
+    :param requests.Session session: Used for getting potential PAC files.
+        If not specified, a generic session is used.
     :return: The first valid parsed PAC file according to the criteria, or `None` if nothing was found.
     :rtype: PACFile|None
     :raises MalformedPacError: If something that claims to be a PAC file was obtained but could not be parsed.
@@ -121,6 +123,8 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None,
         then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
+    :param requests.Session session: Used for getting potential PAC files.
+        If not specified, a generic session is used.
     :return: Contents of the PAC file, or `None` if no URL was successful.
     :rtype: str|None
     """
