@@ -142,7 +142,11 @@ class TestFindProxyForURLOutputParsing(object):
             ("direct", "DIRECT"),
             ("proxy foo", "http://foo"),
             ("PROXY foo:8080", "http://foo:8080"),
+            ("HTTP foo:8080", "http://foo:8080"),
+            ("HTTPS foo:8080", "https://foo:8080"),
             ("SOCKS foo:8080", "socks5://foo:8080"),
+            ("SOCKS4 foo:8080", "socks4://foo:8080"),
+            ("SOCKS5 foo:8080", "socks5://foo:8080"),
         ],
     )
     def test_parse_single_value(self, pac_value, expected_result):

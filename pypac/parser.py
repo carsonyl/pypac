@@ -136,6 +136,9 @@ def proxy_url(value, socks_scheme=None):
     """
     Parse a single proxy config value from FindProxyForURL() into a more usable element.
 
+    The recognized keywords are ``DIRECT``, ``PROXY``, ``SOCKS``, ``SOCKS4``, and ``SOCKS5``.
+    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file#return_value_format
+
     :param str value: Value to parse, e.g.: ``DIRECT``, ``PROXY example.local:8080``, or ``SOCKS example.local:8080``.
     :param str socks_scheme: Scheme to assume for SOCKS proxies. ``socks5`` by default.
     :returns: Parsed value, e.g.: ``DIRECT``, ``http://example.local:8080``, or ``socks5://example.local:8080``.
@@ -148,13 +151,12 @@ def proxy_url(value, socks_scheme=None):
 
     if len(parts) == 2:
         keyword, proxy = parts[0].upper(), parts[1]
-        if keyword == "HTTPS":
-            return "https://" + proxy
         if keyword == "PROXY":
-            return "http://" + proxy
-        if keyword == "SOCKS":
-            if not socks_scheme:
-                socks_scheme = "socks5"
-            return "{0}://{1}".format(socks_scheme, proxy)
+            keyword = "HTTP"
+        elif keyword == "SOCKS":
+            keyword = socks_scheme or "SOCKS5"
+
+        if keyword in ("HTTP", "HTTPS", "SOCKS4", "SOCKS5"):
+            return "{0}://{1}".format(keyword.lower(), proxy)
 
     raise ValueError("Unrecognized proxy config value '{}'".format(value))
