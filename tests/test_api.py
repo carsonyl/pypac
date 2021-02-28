@@ -120,16 +120,15 @@ def get_call(url, proxy):
 class TestRequests(object):
     """Test the behaviour of the Requests library that PyPAC expects."""
 
-    @pytest.mark.parametrize("proxy_host", ["0.0.0.0", "127.0.0.1", "unreachable.local", "localhost"])
-    def test_unreachable_proxy(self, proxy_host):
-        session = requests.Session()
-        with pytest.raises(ProxyError):
-            session.get(arbitrary_url, proxies=proxy_parameter_for_requests("http://" + proxy_host))
-
-    def test_timeout_proxy(self):
+    def test_proxy_connect_timeout(self):
         session = requests.Session()
         with pytest.raises(ConnectTimeout):
-            session.get(arbitrary_url, timeout=0.001, proxies=proxy_parameter_for_requests("http://192.168.1.230"))
+            session.get(arbitrary_url, timeout=1, proxies=proxy_parameter_for_requests("http://httpbin.org:99"))
+
+    def test_proxy_response_timeout(self):
+        session = requests.Session()
+        with pytest.raises(ProxyError):
+            session.get(arbitrary_url, timeout=0.001, proxies=proxy_parameter_for_requests("http://httpbin/delay/10"))
 
     @pytest.mark.parametrize(
         "request_url,expected_proxies,expected_proxy_selection",
@@ -240,12 +239,11 @@ class TestPACSession(object):
             gp.assert_called_with()
             request.assert_called_with("GET", arbitrary_url, proxies=fake_proxies_requests_arg, allow_redirects=ANY)
 
-    @pytest.mark.parametrize("proxy_host", ["unreachable.local", "localhost"])
-    def test_bad_proxy_no_failover(self, proxy_host):
+    def test_bad_proxy_no_failover(self):
         """Verify that Requests returns ProxyError when given a non-existent proxy."""
-        sess = PACSession(pac=PACFile(proxy_pac_js_tpl % "PROXY %s:80" % proxy_host))
-        with pytest.raises(ProxyError):
-            sess.get(arbitrary_url)
+        sess = PACSession(pac=PACFile(proxy_pac_js_tpl % "PROXY httpbin.org:99"))
+        with pytest.raises((ProxyError, ConnectTimeout)):
+            sess.get(arbitrary_url, timeout=1)
 
     def test_pac_failover(self):
         """First proxy raises error. Transparently fail over to second proxy."""
