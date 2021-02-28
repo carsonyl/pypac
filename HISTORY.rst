@@ -1,3 +1,12 @@
+0.15.0 (2021-02-27)
+-------------------
+
+- Drop support for Python 3.4. (#48)
+- Support more proxy keywords: HTTP, HTTPS, SOCKS4, SOCKS5. (#41)
+- Absorb any exception from ``tld.get_tld()``, not just TldDomainNotFound. (#30) Thanks @santiavenda2.
+- Reimplement ``dnsDomainIs(host, domain)`` as case-insensitive 'host ends with domain'. (#42, #57)
+
+
 0.14.0 (2020-12-05)
 -------------------
 
