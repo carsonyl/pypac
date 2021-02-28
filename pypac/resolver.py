@@ -61,7 +61,7 @@ class ProxyResolver(object):
         if value_from_js_func in self._cache:
             return self._cache[value_from_js_func]
 
-        config_values = parse_pac_value(self.pac.find_proxy_for_url(url, hostname), self.socks_scheme)
+        config_values = parse_pac_value(value_from_js_func, self.socks_scheme)
         if self._proxy_auth:
             config_values = [add_proxy_auth(value, self._proxy_auth) for value in config_values]
 
