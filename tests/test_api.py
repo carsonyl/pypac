@@ -126,12 +126,10 @@ class TestRequests(object):
         with pytest.raises(ProxyError):
             session.get(arbitrary_url, proxies=proxy_parameter_for_requests("http://" + proxy_host))
 
-    @pytest.mark.xfail(os.environ.get("TRAVIS", "").lower() == "true", reason="Travis actively refuses localhost.")
     def test_timeout_proxy(self):
-        # Travis can refuse quickly, and trigger ProxyError instead.
         session = requests.Session()
         with pytest.raises(ConnectTimeout):
-            session.get(arbitrary_url, timeout=0.001, proxies=proxy_parameter_for_requests("http://localhost"))
+            session.get(arbitrary_url, timeout=0.001, proxies=proxy_parameter_for_requests("http://192.168.1.230"))
 
     @pytest.mark.parametrize(
         "request_url,expected_proxies,expected_proxy_selection",
