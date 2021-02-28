@@ -3,6 +3,8 @@ PyPAC: Proxy auto-config for Python
 
 .. image:: https://img.shields.io/pypi/v/pypac.svg?maxAge=2592000
     :target: https://pypi.python.org/pypi/pypac
+.. image:: https://img.shields.io/pypi/pyversions/pypac.svg
+    :target: https://pypi.python.org/pypi/pypac
 .. image:: https://readthedocs.org/projects/pypac/badge/?version=latest
     :target: https://pypac.readthedocs.io/en/latest/?badge=latest
 .. image:: https://github.com/carsonyl/pypac/actions/workflows/tests.yml/badge.svg
