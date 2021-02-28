@@ -7,14 +7,16 @@ PyPAC: Proxy auto-config for Python
     :target: https://pypac.readthedocs.io/en/latest/?badge=latest
 .. image:: https://github.com/carsonyl/pypac/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/carsonyl/pypac/actions/workflows/tests.yml
-.. image:: https://readthedocs.org/projects/pypac/badge/?version=latest
-    :target: https://pypac.readthedocs.io/en/latest/?badge=latest
 .. image:: https://img.shields.io/codacy/grade/71ac103b491d44efb94976ca5ea5d89c.svg?maxAge=2592000
     :target: https://www.codacy.com/app/carsonyl/pypac
 
 PyPAC is a Python library for finding `proxy auto-config (PAC)`_ files and making HTTP requests
 that respect them. PAC files are often used in organizations that need fine-grained and centralized control
 of proxy settings.
+
+PyPAC can find PAC files according to the DNS portion of the `Web Proxy Auto-Discovery (WPAD)`_ protocol.
+On Windows, PyPAC will automatically get the PAC file URL from the Internet Options dialog.
+On macOS, PyPAC will automatically get the PAC file URL from System Preferences.
 
 .. _proxy auto-config (PAC): https://en.wikipedia.org/wiki/Proxy_auto-config
 
@@ -28,11 +30,7 @@ so you can start using it immediately, with any PAC file transparently discovere
     >>> session.get('http://example.org')
     ...
 
-If a PAC file isn't found, then ``PACSession`` acts exactly like a regular ``Session``.
-
-PyPAC can find PAC files according to the DNS portion of the `Web Proxy Auto-Discovery (WPAD)`_ protocol.
-On Windows, PyPAC can also obtain the PAC file URL from the Internet Options dialog, via the registry.
-On macOS, PyPAC can obtain the PAC file URL from System Preferences.
+If a PAC file isn't found, then ``PACSession`` behaves like a regular ``Session``.
 
 .. _Web Proxy Auto-Discovery (WPAD): https://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
 
