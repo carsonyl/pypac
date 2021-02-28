@@ -1,0 +1,7 @@
+requests >= 2.0.0
+tld >= 0.9
+dukpy >= 0.2.2
+pyobjc-framework-SystemConfiguration >= 3.2.1; sys_platform=="darwin"
+pytest
+mock
+wheel
