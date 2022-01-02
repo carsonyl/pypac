@@ -9,8 +9,6 @@ PyPAC: Proxy auto-config for Python
     :target: https://pypac.readthedocs.io/en/latest/?badge=latest
 .. image:: https://github.com/carsonyl/pypac/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/carsonyl/pypac/actions/workflows/tests.yml
-.. image:: https://img.shields.io/codacy/grade/71ac103b491d44efb94976ca5ea5d89c.svg?maxAge=2592000
-    :target: https://www.codacy.com/app/carsonyl/pypac
 
 PyPAC is a Python library for finding `proxy auto-config (PAC)`_ files and making HTTP requests
 that respect them. PAC files are often used in organizations that need fine-grained and centralized control
