@@ -4,15 +4,18 @@ Tools for the Web Proxy Auto-Discovery Protocol.
 import logging
 import socket
 
-from tld import get_tld
+import tldextract
 
 logger = logging.getLogger(__name__)
+
+# First use of tldextract goes online to update its Public Suffix List cache. Stop it.
+no_fetch_extract = tldextract.TLDExtract(suffix_list_urls=None)
 
 
 def proxy_urls_from_dns(local_hostname=None):
     """
     Generate URLs from which to look for a PAC file, based on a hostname.
-    Fully-qualified hostnames are checked against the Mozilla Public Suffix List to ensure that
+    Fully-qualified hostnames are checked against the Public Suffix List to ensure that
     generated URLs don't go outside the scope of the organization.
     If the fully-qualified hostname doesn't have a recognized TLD,
     such as in the case of intranets with '.local' or '.internal',
@@ -33,14 +36,9 @@ def proxy_urls_from_dns(local_hostname=None):
         or local_hostname.endswith(".")
     ):
         return []
-    try:
-        parsed = get_tld("http://" + local_hostname, as_object=True)
-        subdomain, tld = parsed.subdomain, parsed.fld
-    except Exception as e:
-        logger.warning("Failed to get a recognized TLD, using fully-qualified hostname rightmost part as TLD")
-        final_dot_index = local_hostname.rfind(".")
-        subdomain, tld = local_hostname[0:final_dot_index], local_hostname[final_dot_index + 1 :]
-    return wpad_search_urls(subdomain, tld)
+
+    parsed = no_fetch_extract(local_hostname)
+    return wpad_search_urls(parsed.subdomain, parsed.registered_domain or parsed.domain)
 
 
 def wpad_search_urls(subdomain_or_host, fld):
