@@ -9,7 +9,12 @@ import tldextract
 logger = logging.getLogger(__name__)
 
 # First use of tldextract goes online to update its Public Suffix List cache. Stop it.
-no_fetch_extract = tldextract.TLDExtract(suffix_list_urls=None)
+try:
+    no_fetch_extract = tldextract.TLDExtract(cache_dir=None, suffix_list_urls=None)
+except TypeError:
+    # tldextract added cache_dir in v3.0.0, which also dropped PY27 support.
+    # Maintain PY27 support / allow old tldextract by retrying here.
+    no_fetch_extract = tldextract.TLDExtract(suffix_list_urls=None)
 
 
 def proxy_urls_from_dns(local_hostname=None):
