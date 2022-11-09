@@ -9,7 +9,7 @@ import tldextract
 logger = logging.getLogger(__name__)
 
 # First use of tldextract goes online to update its Public Suffix List cache. Stop it.
-no_fetch_extract = tldextract.TLDExtract(suffix_list_urls=None)
+no_fetch_extract = tldextract.TLDExtract(cache_dir=None, suffix_list_urls=None)
 
 
 def proxy_urls_from_dns(local_hostname=None):
