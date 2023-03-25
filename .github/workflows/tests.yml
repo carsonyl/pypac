@@ -20,6 +20,10 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install dukpy for Windows Python 2.7
+      if: matrix.os == 'windows-latest' && matrix.python-version == '2.7'
+      # Pin to final release that still published Python 2.7 binary wheels
+      run: pip install dukpy==0.2.3
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools
