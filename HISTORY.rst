@@ -1,3 +1,11 @@
+0.16.2 (2023-03-26)
+-------------------
+
+- Handle boolean args to ``isInNet()``. (#69)
+- Remove Python 3.5, 3.6 from CIB test matrix.
+- Windows Python 2.7 CIB: Pin to dukpy 0.2.3.
+
+
 0.16.1 (2022-11-08)
 -------------------
 

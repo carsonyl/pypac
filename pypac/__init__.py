@@ -17,10 +17,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url
+from pypac.api import (
+    PACSession,
+    collect_pac_urls,
+    download_pac,
+    get_pac,
+    pac_context_for_url,
+)
 
-
-__version__ = "0.16.1"
+__version__ = "0.16.2"
 
 
 __all__ = ["get_pac", "collect_pac_urls", "download_pac", "PACSession", "pac_context_for_url"]
