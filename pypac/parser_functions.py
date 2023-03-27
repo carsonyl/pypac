@@ -58,6 +58,9 @@ def isInNet(host, pattern, mask):
     :returns: True iff the IP address of the host matches the specified IP address pattern.
     :rtype: bool
     """
+    host = str(host)
+    pattern = str(pattern)
+    mask = str(mask)
     host_ip = host if is_ipv4_address(host) else dnsResolve(host)
     if not host_ip or not is_ipv4_address(pattern) or not is_ipv4_address(mask):
         return False

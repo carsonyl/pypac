@@ -1,25 +1,26 @@
-import pytest
 from datetime import datetime
+
+import pytest
 
 try:
     from unittest.mock import patch
 except ImportError:
-    from mock import patch
+    from mock import patch  # noqa
 
 from pypac.parser_functions import (
+    alert,
+    dateRange,
     dnsDomainIs,
-    isResolvable,
-    isInNet,
-    dnsResolve,
     dnsDomainLevels,
-    weekdayRange,
-    myIpAddress,
+    dnsResolve,
+    isInNet,
     isPlainHostName,
+    isResolvable,
+    localHostOrDomainIs,
+    myIpAddress,
     shExpMatch,
     timeRange,
-    localHostOrDomainIs,
-    dateRange,
-    alert,
+    weekdayRange,
 )
 
 
@@ -55,6 +56,7 @@ def test_isResolvable(host, expected_value):
         ("192.168.1.100", "192.168.2.0", "255.255.255.0", False),
         ("google.com", "0.0.0.0", "0.0.0.0", True),
         ("google.com", "google.com", "foo", False),
+        (False, False, False, False),
     ],
 )
 def test_isInNet(host, pattern, mask, expected_value):
