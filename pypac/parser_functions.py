@@ -14,6 +14,11 @@ from fnmatch import fnmatch
 
 from requests.utils import is_ipv4_address
 
+try:
+    basestring  # noqa
+except NameError:
+    basestring = str
+
 
 def dnsDomainIs(host, domain):
     """
@@ -58,7 +63,7 @@ def isInNet(host, pattern, mask):
     :returns: True iff the IP address of the host matches the specified IP address pattern.
     :rtype: bool
     """
-    if not isinstance(host, str) or not host:
+    if not isinstance(host, basestring) or not host:
         return False
     pattern = str(pattern)
     mask = str(mask)
