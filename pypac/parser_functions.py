@@ -7,12 +7,12 @@ They aren't meant to be called directly from Python, so the function signatures 
 Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
 """
 import socket
-from calendar import monthrange
-from datetime import datetime, time, date
-from fnmatch import fnmatch
-from requests.utils import is_ipv4_address
-
 import struct
+from calendar import monthrange
+from datetime import date, datetime, time
+from fnmatch import fnmatch
+
+from requests.utils import is_ipv4_address
 
 
 def dnsDomainIs(host, domain):
@@ -58,7 +58,8 @@ def isInNet(host, pattern, mask):
     :returns: True iff the IP address of the host matches the specified IP address pattern.
     :rtype: bool
     """
-    host = str(host)
+    if not isinstance(host, str) or not host:
+        return False
     pattern = str(pattern)
     mask = str(mask)
     host_ip = host if is_ipv4_address(host) else dnsResolve(host)
