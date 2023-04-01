@@ -1,3 +1,8 @@
+0.16.3 (2023-03-31)
+-------------------
+
+- ``isInNet()``: Return False immediately for invalid host arg. (#71)
+
 0.16.2 (2023-03-26)
 -------------------
 
