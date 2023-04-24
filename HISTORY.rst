@@ -1,3 +1,8 @@
+0.16.4 (2023-04-24)
+-------------------
+
+- Release using `Trusted Publishing <https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/>`_.
+
 0.16.3 (2023-03-31)
 -------------------
 
