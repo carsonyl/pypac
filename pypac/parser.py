@@ -64,6 +64,7 @@ class PACFile(object):
 
         except dukpy.JSRuntimeError as e:
             raise MalformedPacError(original_exc=e)  # from e
+        self.js = pac_js
 
     def find_proxy_for_url(self, url, host):
         """
