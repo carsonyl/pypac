@@ -1,4 +1,6 @@
 import os
+import sys
+
 import pytest
 import requests
 from requests.auth import HTTPProxyAuth
@@ -122,7 +124,7 @@ class TestRequests(object):
 
     def test_proxy_connect_timeout(self):
         session = requests.Session()
-        with pytest.raises(ConnectTimeout):
+        with pytest.raises((ProxyError, ConnectTimeout)):  # ConnectTimeout on urllib3 < 2
             session.get(arbitrary_url, timeout=1, proxies=proxy_parameter_for_requests("http://httpbin.org:99"))
 
     def test_proxy_response_timeout(self):
