@@ -2,6 +2,7 @@
 These are the most commonly used components of PyPAC.
 """
 import os
+import logging
 from contextlib import contextmanager
 
 import requests
@@ -18,6 +19,7 @@ from pypac.os_settings import (
 )
 from pypac.wpad import proxy_urls_from_dns
 
+logger = logging.getLogger(__name__)
 
 def get_pac(
     url=None,
@@ -157,6 +159,9 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
             resp = sess.get(pac_url, timeout=timeout)
             content_type = resp.headers.get("content-type", "").lower()
             if content_type and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
+                logger.warning(
+                    f"{pac_url} available but content-type {content_type} is not allowed. Only {','.join(allowed_content_types)} are allowed."
+                )
                 continue
             if resp.ok:
                 return resp.text
