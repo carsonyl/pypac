@@ -26,6 +26,7 @@ def get_pac(
     from_dns=True,
     timeout=2,
     allowed_content_types=None,
+    ignore_content_type=False,
     session=None,
     **kwargs
 ):
@@ -44,6 +45,7 @@ def get_pac(
         then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
+    :param ignore_content_type: If true the ``Content-Type`` header will be ignored. Will supersede param allowed_content_types
     :param requests.Session session: Used for getting potential PAC files.
         If not specified, a generic session is used.
     :return: The first valid parsed PAC file according to the criteria, or `None` if nothing was found.
@@ -52,7 +54,11 @@ def get_pac(
     """
     if url:
         downloaded_pac = download_pac(
-            [url], timeout=timeout, allowed_content_types=allowed_content_types, session=session
+            [url],
+            timeout=timeout,
+            allowed_content_types=allowed_content_types,
+            ignore_content_type=ignore_content_type,
+            session=session
         )
         if not downloaded_pac:
             return
@@ -85,7 +91,11 @@ def get_pac(
 
     pac_candidate_urls = collect_pac_urls(from_os_settings=True, from_dns=from_dns)
     downloaded_pac = download_pac(
-        pac_candidate_urls, timeout=timeout, allowed_content_types=allowed_content_types, session=session
+        pac_candidate_urls, 
+        timeout=timeout,
+        allowed_content_types=allowed_content_types,
+        ignore_content_type=ignore_content_type,
+        session=session
     )
     if not downloaded_pac:
         return
@@ -127,7 +137,7 @@ def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
     return pac_urls
 
 
-def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=None):
+def download_pac(candidate_urls, timeout=1, allowed_content_types=None, ignore_content_type=False, session=None):
     """
     Try to download a PAC file from one of the given candidate URLs.
 
@@ -139,6 +149,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
         then consider the response to be a PAC file only if the header is one of these values.
         If not specified, the allowed types are
         ``application/x-ns-proxy-autoconfig`` and ``application/x-javascript-config``.
+    :param ignore_content_type: If true the ``Content-Type`` header will be ignored. Will supersede param allowed_content_types
     :param requests.Session session: Used for getting potential PAC files.
         If not specified, a generic session is used.
     :return: Contents of the PAC file, or `None` if no URL was successful.
@@ -156,8 +167,12 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
         try:
             resp = sess.get(pac_url, timeout=timeout)
             content_type = resp.headers.get("content-type", "").lower()
-            if content_type and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
+            if not ignore_content_type \
+                and content_type \
+                and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
+                    
                 continue
+                    
             if resp.ok:
                 return resp.text
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
