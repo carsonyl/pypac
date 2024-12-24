@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -78,12 +79,17 @@ class TestApiFunctions(object):
             ({"content-type": "text/plain"}, ["text/plain"], direct_pac_js),
         ],
     )
-    def test_download_pac_content_type(self, headers, allowed_content_types, expected_value):
+    def test_download_pac_content_type(self, headers, allowed_content_types, expected_value, caplog):
         """Test acceptance/rejection of obtained PAC based on Content-Type header."""
         mock_pac_response = Mock(spec=requests.Response, ok=True, headers=headers, text=direct_pac_js)
         with _patch_request_base(mock_pac_response):
             result = download_pac([arbitrary_pac_url], allowed_content_types=allowed_content_types)
             assert result == expected_value
+        if expected_value is None:
+            ex_warn = "available but content-type {} is not allowed".format(headers["content-type"])
+            log = caplog.records[0]
+            assert log.levelno == logging.WARNING
+            assert ex_warn in log.msg
 
     def test_registry_filesystem_path(self):
         """
