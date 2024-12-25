@@ -1,3 +1,9 @@
+0.16.5 (2024-12-24)
+-------------------
+
+- Log warning for rejected PAC content-type. (#79) Thanks @jmkerloch.
+- Remove Python 2.7, 3.7 from CIB test matrix.
+
 0.16.4 (2023-04-24)
 -------------------
 
