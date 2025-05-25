@@ -24,9 +24,7 @@ def _inject_function_into_js(context, name, func):
             args.unshift('{name}');
             return call_python.apply(null, args);
         }};
-    """.format(
-            name=name
-        )
+    """.format(name=name)
     )
 
 
@@ -91,7 +89,7 @@ class MalformedPacError(Exception):
 class PyimportError(MalformedPacError):
     def __init__(self):
         super(PyimportError, self).__init__(
-            "PAC file contains pyimport statement. " "Ensure that the source of your PAC file is trustworthy"
+            "PAC file contains pyimport statement. Ensure that the source of your PAC file is trustworthy"
         )
         import warnings
 
@@ -101,7 +99,7 @@ class PyimportError(MalformedPacError):
 class PacComplexityError(RuntimeError):
     def __init__(self):
         super(PacComplexityError, self).__init__(
-            "Maximum recursion depth exceeded while parsing PAC file. " "Raise it using sys.setrecursionlimit()"
+            "Maximum recursion depth exceeded while parsing PAC file. Raise it using sys.setrecursionlimit()"
         )
         import warnings
 

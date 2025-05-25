@@ -1,14 +1,15 @@
 """
 Tools for working with a given PAC file and its return values.
 """
+
 try:
     from urllib.parse import urlparse
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse  # noqa
 try:
     from urllib.parse import quote_plus
 except ImportError:
-    from urllib import quote_plus
+    from urllib import quote_plus  # noqa
 
 from pypac.parser import parse_pac_value
 

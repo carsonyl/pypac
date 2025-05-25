@@ -6,6 +6,8 @@ They aren't meant to be called directly from Python, so the function signatures 
 
 Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
 """
+
+# ruff: noqa: N802
 import socket
 import struct
 from calendar import monthrange
