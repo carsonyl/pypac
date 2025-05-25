@@ -32,8 +32,32 @@ def myIpAddressEx():
     return ";".join(ipv6 + ipv4)  # Assume that getaddrinfo() returns sorted addresses.
 
 
+def sortIpAddressList(addrs):
+    """
+    Sort a list of IP addresses, with IPv6 addresses first, then IPv4 addresses.
+    :param str addrs: Semicolon-separated string of IP addresses.
+    :returns: Sorted semicolon-separated string of IP addresses,
+        or empty string if sorting failed.
+    :rtype: str
+    """
+    if not addrs:
+        return ""
+    addrs = addrs.split(";")
+    try:
+        # FIXME: Handle IPv6 :: address expansion
+        ipv6 = sorted(
+            (addr for addr in addrs if ":" in addr),
+            key=lambda x: tuple(map(lambda i: int(i, 16) if i else 0, x.split(":"))),
+        )
+        ipv4 = sorted((addr for addr in addrs if ":" not in addr), key=lambda x: tuple(map(int, x.split("."))))
+        return ";".join(ipv6 + ipv4)
+    except ValueError:
+        return ""
+
+
 # Things to add to the scope of the JavaScript PAC file.
 function_injections = {
     "getClientVersion": getClientVersion,
     "myIpAddressEx": myIpAddressEx,
+    "sortIpAddressList": sortIpAddressList,
 }

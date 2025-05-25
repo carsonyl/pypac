@@ -143,7 +143,11 @@ class TestFunctionsInPacParserIPv6(object):
         assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
 
     def test_myIpAddressEx(self):
-        parser = PACFile(dummy_js % 'myIpAddressEx().indexOf(myIpAddress()) != -1')
+        parser = PACFile(dummy_js % "myIpAddressEx().indexOf(myIpAddress()) != -1")
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_sortIpAddressList(self):
+        parser = PACFile(dummy_js % 'sortIpAddressList("192.168.0.1;2001:db8::1") != "192.168.0.1;2001:db8::1"')
         assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
 
 

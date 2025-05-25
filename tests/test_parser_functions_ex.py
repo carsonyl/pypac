@@ -1,7 +1,9 @@
 import socket
 
+import pytest
+
 from pypac.parser_functions import myIpAddress
-from pypac.parser_functions_ex import getClientVersion, myIpAddressEx
+from pypac.parser_functions_ex import getClientVersion, myIpAddressEx, sortIpAddressList
 
 
 def test_getClientVersion():
@@ -29,3 +31,18 @@ def test_myIpAddressEx_live():
     local_ipv4 = myIpAddress()
     if local_ipv4:
         assert local_ipv4 in result
+
+
+@pytest.mark.parametrize(
+    "addresses, expected",
+    [
+        ("", ""),
+        ("192.168.0.1", "192.168.0.1"),
+        ("8.8.8.8;192.168.0.1", "8.8.8.8;192.168.0.1"),
+        ("2001:db8::1", "2001:db8::1"),
+        ("192.168.0.1;2001:db8::1", "2001:db8::1;192.168.0.1"),
+        ("2001:xyz::1;a.b.c.d", ""),
+    ],
+)
+def test_sortIpAddressList(addresses, expected):
+    assert sortIpAddressList(addresses) == expected
