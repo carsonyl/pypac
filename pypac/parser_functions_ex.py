@@ -55,9 +55,32 @@ def sortIpAddressList(addrs):
         return ""
 
 
+def dnsResolveEx(host):
+    """
+    :param str host: Hostname to resolve.
+    :returns: List of resolved IP addresses as a semicolon-separated string.
+    :rtype: str
+    """
+    try:
+        return ";".join([addr[4][0] for addr in socket.getaddrinfo(host, 0)])
+    except socket.gaierror:
+        return ""
+
+
+def isResolvableEx(host):
+    """
+    :param str host: Hostname to resolve.
+    :returns: True if the hostname is resolvable, False otherwise.
+    :rtype: bool
+    """
+    return dnsResolveEx(host) != ""
+
+
 # Things to add to the scope of the JavaScript PAC file.
 function_injections = {
     "getClientVersion": getClientVersion,
     "myIpAddressEx": myIpAddressEx,
     "sortIpAddressList": sortIpAddressList,
+    "dnsResolveEx": dnsResolveEx,
+    "isResolvableEx": isResolvableEx,
 }

@@ -3,7 +3,7 @@ import socket
 import pytest
 
 from pypac.parser_functions import myIpAddress
-from pypac.parser_functions_ex import getClientVersion, myIpAddressEx, sortIpAddressList
+from pypac.parser_functions_ex import getClientVersion, myIpAddressEx, sortIpAddressList, dnsResolveEx
 
 
 def test_getClientVersion():
@@ -46,3 +46,7 @@ def test_myIpAddressEx_live():
 )
 def test_sortIpAddressList(addresses, expected):
     assert sortIpAddressList(addresses) == expected
+
+
+def test_dnsResolveEx():
+    assert dnsResolveEx("google.ca") != ""

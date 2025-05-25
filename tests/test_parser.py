@@ -150,6 +150,14 @@ class TestFunctionsInPacParserIPv6(object):
         parser = PACFile(dummy_js % 'sortIpAddressList("192.168.0.1;2001:db8::1") != "192.168.0.1;2001:db8::1"')
         assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
 
+    def test_dnsResolveEx(self):
+        parser = PACFile(dummy_js % 'dnsResolveEx("example.com") != ""')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_isResolvableEx(self):
+        parser = PACFile(dummy_js % 'isResolvableEx("example.com")')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
 
 class TestFindProxyForURLOutputParsing(object):
     """
