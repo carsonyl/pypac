@@ -142,6 +142,10 @@ class TestFunctionsInPacParserIPv6(object):
         parser = PACFile(dummy_js % 'getClientVersion() == "1.0"')
         assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
 
+    def test_myIpAddressEx(self):
+        parser = PACFile(dummy_js % 'myIpAddressEx().indexOf(myIpAddress()) != -1')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
 
 class TestFindProxyForURLOutputParsing(object):
     """
