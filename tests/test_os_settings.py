@@ -69,7 +69,7 @@ def test_mock_autoconfigurl_mac():
 
 
 @pytest.mark.skipif(not_windows, reason=windows_reason)
-def test_reg_errors_reraise():
+def test_reg_errors_reraise_win():
     with _patch_winreg_qve(side_effect=WindowsError()):
         assert not autoconfig_url_from_registry()
     with _patch_winreg_qve(side_effect=CalledProcessError(2, "foo")):
@@ -79,7 +79,7 @@ def test_reg_errors_reraise():
 
 
 @pytest.mark.skipif(not_darwin, reason=darwin_reason)
-def test_reg_errors_reraise():
+def test_reg_errors_reraise_mac():
     with _patch_pyobjc_dscp(side_effect=AttributeError()):
         assert not autoconfig_url_from_preferences()
     with _patch_pyobjc_dscp(side_effect=CalledProcessError(2, "foo")):
@@ -109,4 +109,5 @@ def test_file_url_to_local_path(input_url, windows_expected_path, mac_expected_p
         expected_path = mac_expected_path
     else:
         pytest.skip("Not on Windows or macOS/OSX")
+        return
     assert file_url_to_local_path(input_url) == expected_path

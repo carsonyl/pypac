@@ -77,7 +77,8 @@ def test_get_proxy_for_requests():
 def test_url_host_port_excluded():
     res = ProxyResolver(
         PACFile(
-            'function FindProxyForURL(url, host) { return host.indexOf(" ") == -1 ? "PROXY PASS:80" : "PROXY FAIL:80"; }'
+            'function FindProxyForURL(url, host) { return host.indexOf(" ") == -1 ? '
+            '"PROXY PASS:80" : "PROXY FAIL:80"; }'
         )
     )
     for url in ("http://foo/bar", "http://foo:80/bar"):
