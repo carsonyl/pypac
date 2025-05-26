@@ -1,3 +1,4 @@
+# ruff: noqa: SLF001
 import socket
 
 import pytest
@@ -50,6 +51,10 @@ def test_myIpAddressEx_live():
         ("2001:db8::1", "2001:db8::1"),
         ("192.168.0.1;2001:db8::1", "2001:db8::1;192.168.0.1"),
         ("2001:xyz::1;a.b.c.d", ""),
+        (
+            "10.2.3.9;2001:4898:28:3:201:2ff:feea:fc14;::1;127.0.0.1;::9",
+            "::1;::9;2001:4898:28:3:201:2ff:feea:fc14;10.2.3.9;127.0.0.1",
+        ),  # from https://bits.netbeans.org/dev/javadoc/org-netbeans-core-network/org/netbeans/core/network/proxy/pac/PacHelperMethodsMicrosoft.html#sortIpAddressList(java.lang.String)
     ],
 )
 def test_sortIpAddressList(addresses, expected):

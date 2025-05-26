@@ -1,13 +1,14 @@
 """
 Python implementation of JavaScript functions for Microsoft's IPv6 extensions.
+For Python 2.7 compatibility, this doesn't use the ``ipaddress`` module
+or the IPv6 ``socket`` functions that are not available in Python 2.7.
 
-- Microsoft's specification: https://learn.microsoft.com/en-us/windows/win32/winhttp/ipv6-extensions-to-navigator-auto-config-file-format
+- Spec: https://learn.microsoft.com/en-us/windows/win32/winhttp/ipv6-extensions-to-navigator-auto-config-file-format
 - De-facto API: https://bits.netbeans.org/dev/javadoc/org-netbeans-core-network/org/netbeans/core/network/proxy/pac/PacHelperMethodsMicrosoft.html
 """
 
-import re
-
 # ruff: noqa: N802
+import re
 import socket
 from requests.utils import address_in_network, is_ipv4_address
 
@@ -34,29 +35,6 @@ def myIpAddressEx():
         elif addr[0] == socket.AF_INET:
             ipv4.append(addr[4][0])
     return ";".join(ipv6 + ipv4)  # Assume that getaddrinfo() returns sorted addresses.
-
-
-def sortIpAddressList(addrs):
-    """
-    Sort a list of IP addresses, with IPv6 addresses first, then IPv4 addresses.
-    :param str addrs: Semicolon-separated string of IP addresses.
-    :returns: Sorted semicolon-separated string of IP addresses,
-        or empty string if sorting failed.
-    :rtype: str
-    """
-    if not addrs:
-        return ""
-    addrs = addrs.split(";")
-    try:
-        # FIXME: Handle IPv6 :: address expansion
-        ipv6 = sorted(
-            (addr for addr in addrs if ":" in addr),
-            key=lambda x: tuple(map(lambda i: int(i, 16) if i else 0, x.split(":"))),
-        )
-        ipv4 = sorted((addr for addr in addrs if ":" not in addr), key=lambda x: tuple(map(int, x.split("."))))
-        return ";".join(ipv6 + ipv4)
-    except ValueError:
-        return ""
 
 
 def dnsResolveEx(host):
@@ -117,6 +95,27 @@ def _parse_ipv6_to_hextets(ipv6_str):
     return hextets
 
 
+def sortIpAddressList(addrs):
+    """
+    Sort a list of IP addresses, with IPv6 addresses first, then IPv4 addresses.
+    Follows the behaviour of Chrome and NetBeans.
+
+    :param str addrs: Semicolon-separated string of IP addresses.
+    :returns: Sorted semicolon-separated string of IP addresses,
+        or empty string if sorting failed.
+    :rtype: str
+    """
+    if not addrs:
+        return ""
+    addrs = addrs.split(";")
+    try:
+        ipv6 = sorted((addr for addr in addrs if ":" in addr), key=lambda x: _parse_ipv6_to_hextets(x))
+        ipv4 = sorted((addr for addr in addrs if ":" not in addr), key=lambda x: tuple(map(int, x.split("."))))
+        return ";".join(ipv6 + ipv4)
+    except ValueError:
+        return ""
+
+
 def _ipv6_addr_in_network(ipv6_addr_str, ipv6_prefix_str):
     """
     Checks if an IPv6 address string is within a given IPv6 prefix string.
@@ -126,7 +125,6 @@ def _ipv6_addr_in_network(ipv6_addr_str, ipv6_prefix_str):
     :return: True if the address is in the network, False otherwise.
     :raises ValueError: If inputs are malformed.
     """
-    # For Python 2.7 compatibility, the ipaddress module is not used.
     try:
         network_part_str, prefix_len_str = ipv6_prefix_str.split("/", 1)
         prefix_len = int(prefix_len_str)
