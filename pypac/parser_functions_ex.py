@@ -21,20 +21,50 @@ def getClientVersion():
     return "1.0"
 
 
+def sortIpAddressList(addrs):
+    """
+    Sort a list of IP addresses, with IPv6 addresses first, then IPv4 addresses.
+    Follows the behaviour of Chrome and NetBeans.
+
+    :param str|set addrs: IP addresses as semicolon-separated string or iterable.
+    :returns: Sorted semicolon-separated string of IP addresses,
+        or empty string if sorting failed.
+    :rtype: str
+    """
+    if not addrs:
+        return ""
+    if isinstance(addrs, str):
+        addrs = addrs.split(";")
+    try:
+        ipv6 = sorted((addr for addr in addrs if ":" in addr), key=lambda x: _parse_ipv6_to_hextets(x))
+        ipv4 = sorted((addr for addr in addrs if ":" not in addr), key=lambda x: tuple(map(int, x.split("."))))
+        return ";".join(ipv6 + ipv4)
+    except ValueError:
+        return ""
+
+
 def myIpAddressEx():
     """
     :returns: All local IPv4 and IPv6 addresses as a semicolon-separated string.
         Entries are sorted by address family with IPv6 first, then sorted by address.
     :rtype: str
     """
-    ipv6 = []
-    ipv4 = []
-    for addr in socket.getaddrinfo("", 0, 0):
-        if addr[0] == socket.AF_INET6:
-            ipv6.append(addr[4][0])
-        elif addr[0] == socket.AF_INET:
-            ipv4.append(addr[4][0])
-    return ";".join(ipv6 + ipv4)  # Assume that getaddrinfo() returns sorted addresses.
+    addrs = set()
+    try:
+        addrs.update(set(socket.gethostbyname_ex(socket.gethostname())[2]))
+    except socket.gaierror:
+        pass
+
+    for host in (None, ""):  # These 2 hosts may return different addresses.
+        try:
+            results = socket.getaddrinfo(host, 0, 0)
+        except socket.gaierror:
+            continue
+        for addr in results:
+            if addr[0] in (socket.AF_INET6, socket.AF_INET):
+                addrs.add(addr[4][0])
+
+    return sortIpAddressList(addrs)
 
 
 def dnsResolveEx(host):
@@ -93,27 +123,6 @@ def _parse_ipv6_to_hextets(ipv6_str):
         if not (0 <= seg <= 0xFFFF):
             raise ValueError("Hextet out of range")
     return hextets
-
-
-def sortIpAddressList(addrs):
-    """
-    Sort a list of IP addresses, with IPv6 addresses first, then IPv4 addresses.
-    Follows the behaviour of Chrome and NetBeans.
-
-    :param str addrs: Semicolon-separated string of IP addresses.
-    :returns: Sorted semicolon-separated string of IP addresses,
-        or empty string if sorting failed.
-    :rtype: str
-    """
-    if not addrs:
-        return ""
-    addrs = addrs.split(";")
-    try:
-        ipv6 = sorted((addr for addr in addrs if ":" in addr), key=lambda x: _parse_ipv6_to_hextets(x))
-        ipv4 = sorted((addr for addr in addrs if ":" not in addr), key=lambda x: tuple(map(int, x.split("."))))
-        return ";".join(ipv6 + ipv4)
-    except ValueError:
-        return ""
 
 
 def _ipv6_addr_in_network(ipv6_addr_str, ipv6_prefix_str):

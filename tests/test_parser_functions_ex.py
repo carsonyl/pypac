@@ -28,9 +28,13 @@ def test_myIpAddressEx(monkeypatch):
             (socket.AF_INET, None, None, None, ("10.0.0.1", 0)),
         ]
 
+    def fake_gethostbyname_ex(hostname):
+        return hostname, [], ["10.0.0.1", "192.168.1.1"]
+
     monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr(socket, "gethostbyname_ex", fake_gethostbyname_ex)
     result = myIpAddressEx()
-    assert result == "2001:db8::1;fe80::1;192.168.1.1;10.0.0.1"
+    assert result == "2001:db8::1;fe80::1;10.0.0.1;192.168.1.1"
 
 
 def test_myIpAddressEx_live():
