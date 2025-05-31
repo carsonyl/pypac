@@ -1,3 +1,8 @@
+Unreleased
+----------
+
+- Add support for Microsoft IPv6 extension functions in PAC files.
+
 0.16.5 (2024-12-24)
 -------------------
 
