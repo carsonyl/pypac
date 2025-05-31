@@ -6,6 +6,8 @@ They aren't meant to be called directly from Python, so the function signatures 
 
 Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
 """
+
+# ruff: noqa: N802
 import socket
 import struct
 from calendar import monthrange
@@ -153,7 +155,8 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     If only one parameter is present, the function yields a true value on the weekday that the parameter represents.
     If the string "GMT" is specified as a second parameter, times are taken to be in GMT, otherwise in local timezone.
 
-    If both ``wd1`` and wd2`` are defined, the condition is true if the current weekday is in between those two weekdays.
+    If both ``wd1`` and wd2`` are defined,
+    the condition is true if the current weekday is in between those two weekdays.
     Bounds are inclusive. If the ``gmt`` parameter is specified, times are taken to be in GMT,
     otherwise the local timezone is used.
 

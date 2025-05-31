@@ -5,10 +5,10 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
+[tool.ruff]
+fix = true
+target-version = "py38"  # py27 still intended
 line-length = 120
 
-[tool.ruff]
-select = ["E", "F"]
-fix = true
-target-version = "py27"
+[tool.ruff.lint]
+extend-select = ["E", "F"]

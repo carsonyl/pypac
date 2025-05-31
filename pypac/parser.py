@@ -1,11 +1,14 @@
 """
 Functions and classes for parsing and executing PAC files.
 """
+
+import itertools
 import warnings
 
 import dukpy
 
 from pypac.parser_functions import function_injections
+from pypac.parser_functions_ex import function_injections as ipv6_functions
 
 
 def _inject_function_into_js(context, name, func):
@@ -24,9 +27,7 @@ def _inject_function_into_js(context, name, func):
             args.unshift('{name}');
             return call_python.apply(null, args);
         }};
-    """.format(
-            name=name
-        )
+    """.format(name=name)
     )
 
 
@@ -44,9 +45,10 @@ class PACFile(object):
         Load a PAC file from a given string of JavaScript.
         Errors during parsing and validation may raise a specialized exception.
 
-        :param str pac_js: JavaScript that defines the FindProxyForURL() function.
-        :raises MalformedPacError: If the JavaScript could not be parsed, does not define FindProxyForURL(),
-            or is otherwise invalid.
+        :param str pac_js: JavaScript that defines the ``FindProxyForURL()``
+            or ``FindProxyForURLEx()`` function.
+        :raises MalformedPacError: If the JavaScript could not be parsed,
+            does not define the expected function, or is otherwise invalid.
         """
         if kwargs.get("recursion_limit"):
             import warnings
@@ -55,7 +57,10 @@ class PACFile(object):
 
         try:
             self._context = dukpy.JSInterpreter()
-            for name, func in function_injections.items():
+            # IPv6 functions always available instead of only in FindProxyForURLEx(),
+            # contrary to Microsoft spec.
+            # https://issues.chromium.org/issues/40955802
+            for name, func in itertools.chain(function_injections.items(), ipv6_functions.items()):
                 _inject_function_into_js(self._context, name, func)
             self._context.evaljs(pac_js)
 
@@ -69,13 +74,20 @@ class PACFile(object):
     def find_proxy_for_url(self, url, host):
         """
         Call ``FindProxyForURL()`` in the PAC file with the given arguments.
+        If ``FindProxyForURL()`` is not defined, then call ``FindProxyForURLEx()`` instead.
 
         :param str url: The full URL.
         :param str host: The URL's host.
-        :return: Result of evaluating the ``FindProxyForURL()`` JavaScript function in the PAC file.
+        :return: Result of evaluating the ``FindProxyForURL()`` or ``FindProxyForURLEx()``
+            JavaScript function in the PAC file.
         :rtype: str
         """
-        return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
+        try:
+            return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
+        except dukpy.JSRuntimeError as e:
+            if "ReferenceError: identifier 'FindProxyForURL' undefined" not in str(e):
+                raise
+            return self._context.evaljs("FindProxyForURLEx(dukpy['url'], dukpy['host'])", url=url, host=host)
 
 
 class MalformedPacError(Exception):
@@ -91,7 +103,7 @@ class MalformedPacError(Exception):
 class PyimportError(MalformedPacError):
     def __init__(self):
         super(PyimportError, self).__init__(
-            "PAC file contains pyimport statement. " "Ensure that the source of your PAC file is trustworthy"
+            "PAC file contains pyimport statement. Ensure that the source of your PAC file is trustworthy"
         )
         import warnings
 
@@ -101,7 +113,7 @@ class PyimportError(MalformedPacError):
 class PacComplexityError(RuntimeError):
     def __init__(self):
         super(PacComplexityError, self).__init__(
-            "Maximum recursion depth exceeded while parsing PAC file. " "Raise it using sys.setrecursionlimit()"
+            "Maximum recursion depth exceeded while parsing PAC file. Raise it using sys.setrecursionlimit()"
         )
         import warnings
 

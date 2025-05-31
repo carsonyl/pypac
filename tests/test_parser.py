@@ -31,6 +31,8 @@ class TestPacFile(object):
             'function FindProxyForURL(url, host) { return "DIRECT"; }',
             'function FindProxyForURL(url, host, bar) { return "DIRECT"; }',
             'function FindProxyForURL(url) { return "DIRECT"; }',
+            'function FindProxyForURLEx(url) { return "DIRECT"; }',
+            'function FindProxyForURLEx(url, host) { return "DIRECT"; }',
         ],
     )
     def test_valid_js_function_signatures(self, pac_js):
@@ -63,7 +65,7 @@ dummy_js = 'function FindProxyForURL(url, host) {return %s ? "DIRECT" : "PROXY 0
 
 class TestFunctionsInPacParser(object):
     """
-    Call the Python functions that were added to the JavaScript scope.
+    Call the Python functions added to the JavaScript scope.
     This is mostly coverage for catching problems handling PyJs* class arguments.
     """
 
@@ -130,9 +132,36 @@ class TestFunctionsInPacParser(object):
         assert PACFile(js).find_proxy_for_url("/", "foo") == "DIRECT"
 
 
+class TestFunctionsInPacParserIPv6(object):
+    """
+    Call the Python IPv6 functions added to the JavaScript scope.
+    This is mostly coverage for catching problems handling PyJs* class arguments.
+    """
+
+    def test_getClientVersion(self):
+        parser = PACFile(dummy_js % 'getClientVersion() == "1.0"')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_myIpAddressEx(self):
+        parser = PACFile(dummy_js % "myIpAddressEx().indexOf(myIpAddress()) != -1")
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_sortIpAddressList(self):
+        parser = PACFile(dummy_js % 'sortIpAddressList("192.168.0.1;2001:db8::1") != "192.168.0.1;2001:db8::1"')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_dnsResolveEx(self):
+        parser = PACFile(dummy_js % 'dnsResolveEx("example.com") != ""')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+    def test_isResolvableEx(self):
+        parser = PACFile(dummy_js % 'isResolvableEx("example.com")')
+        assert parser.find_proxy_for_url("/", "www.example.com") == "DIRECT"
+
+
 class TestFindProxyForURLOutputParsing(object):
     """
-    Tests parsing of the outputs of the FindProxyForURL() function.
+    Tests parsing of FindProxyForURL() function outputs.
     """
 
     @pytest.mark.parametrize(

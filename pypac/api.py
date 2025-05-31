@@ -1,6 +1,7 @@
 """
 These are the most commonly used components of PyPAC.
 """
+
 import os
 import logging
 from contextlib import contextmanager
@@ -21,6 +22,7 @@ from pypac.wpad import proxy_urls_from_dns
 
 logger = logging.getLogger(__name__)
 
+
 def get_pac(
     url=None,
     js=None,
@@ -29,7 +31,7 @@ def get_pac(
     timeout=2,
     allowed_content_types=None,
     session=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Convenience function for finding and getting a parsed PAC file (if any) that's ready to use.
@@ -160,13 +162,16 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
             content_type = resp.headers.get("content-type", "").lower()
             if content_type and True not in [allowed_type in content_type for allowed_type in allowed_content_types]:
                 logger.warning(
-                    f"{pac_url} available but content-type {content_type} is not allowed. Only {','.join(allowed_content_types)} are allowed."
+                    "{} available but content-type {} is not allowed. Only {} are allowed.".format(
+                        pac_url, content_type, ",".join(allowed_content_types)
+                    )
                 )
                 continue
             if resp.ok:
                 return resp.text
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             continue
+    return
 
 
 class PACSession(requests.Session):
@@ -184,7 +189,7 @@ class PACSession(requests.Session):
         response_proxy_fail_filter=None,
         exception_proxy_fail_filter=None,
         socks_scheme="socks5",
-        **kwargs
+        **kwargs,
     ):
         """
         :param PACFile pac: The PAC file to consult for proxy configuration info.

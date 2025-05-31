@@ -1,6 +1,7 @@
 """
 Tools for the Web Proxy Auto-Discovery Protocol.
 """
+
 import logging
 import socket
 
@@ -43,7 +44,12 @@ def proxy_urls_from_dns(local_hostname=None):
         return []
 
     parsed = no_fetch_extract(local_hostname)
-    return wpad_search_urls(parsed.subdomain, parsed.registered_domain or parsed.domain)
+    try:
+        # tldextract >= 5.3.0
+        top_domain_under_public_suffix = parsed.top_domain_under_public_suffix  # noqa
+    except AttributeError:
+        top_domain_under_public_suffix = parsed.registered_domain
+    return wpad_search_urls(parsed.subdomain, top_domain_under_public_suffix or parsed.domain)
 
 
 def wpad_search_urls(subdomain_or_host, fld):
