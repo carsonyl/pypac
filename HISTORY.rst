@@ -1,5 +1,5 @@
-Unreleased
-----------
+0.17.0 (2025-05-31)
+-------------------
 
 - Add support for Microsoft IPv6 extension functions in PAC files.
 - Fix DeprecationWarning under tldextract >= 5.3.0.

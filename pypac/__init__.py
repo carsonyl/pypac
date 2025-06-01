@@ -25,7 +25,7 @@ from pypac.api import (
     pac_context_for_url,
 )
 
-__version__ = "0.16.3"
+__version__ = "0.17.0"
 
 
 __all__ = ["get_pac", "collect_pac_urls", "download_pac", "PACSession", "pac_context_for_url"]
