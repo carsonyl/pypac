@@ -13,6 +13,7 @@ import struct
 from calendar import monthrange
 from datetime import date, datetime, time
 from fnmatch import fnmatch
+import sys
 
 from requests.utils import is_ipv4_address
 
@@ -189,7 +190,15 @@ def _now(gmt=None):
     :param str|None gmt: Use 'GMT' to get GMT.
     :rtype: datetime
     """
-    return datetime.utcnow() if gmt == "GMT" else datetime.today()
+    if gmt != "GMT":
+        return datetime.today()
+
+    if sys.version_info[0] >= 3:
+        from datetime import timezone
+
+        return datetime.now(timezone.utc)
+
+    return datetime.utcnow()  # noqa
 
 
 def dateRange(*args):

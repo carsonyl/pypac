@@ -2,6 +2,7 @@ dev
 -------------------
 
 - Make ``socks_scheme`` arguments case-insensitive. (#82)
+- Avoid DeprecationWarning when using GMT times on Python 3.12+.
 
 0.17.0 (2025-05-31)
 -------------------
