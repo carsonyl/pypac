@@ -19,6 +19,7 @@ def _get_resolver(js_func_return_value, proxy_auth=None):
     [
         "DIRECT",
         "PROXY foo:8080",
+        "SOCKS foo:8080",
     ],
 )
 def test_single_pac_value(pac_value):

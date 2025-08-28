@@ -25,6 +25,7 @@ class ProxyResolver(object):
         :param requests.auth.HTTPProxyAuth proxy_auth: Username and password proxy authentication.
             If provided, then all proxy URLs returned will include these credentials.
         :param str socks_scheme: Scheme to assume for SOCKS proxies. `socks5` by default.
+            Case-insensitive.
         """
         self.pac = pac
         self._proxy_auth = proxy_auth

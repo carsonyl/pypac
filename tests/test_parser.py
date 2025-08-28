@@ -181,6 +181,11 @@ class TestFindProxyForURLOutputParsing(object):
     def test_parse_single_value(self, pac_value, expected_result):
         assert parse_pac_value(pac_value) == [expected_result]
         assert proxy_url(pac_value) == expected_result
+        if pac_value.startswith("SOCKS "):
+            # socks_scheme must be case-insensitive
+            assert proxy_url(pac_value, socks_scheme="Socks4") == "socks4://foo:8080"
+            with pytest.raises(ValueError):
+                assert proxy_url(pac_value, socks_scheme="bad")
 
     def test_multiple(self):
         assert parse_pac_value("PROXY foo:8080; DIRECT") == ["http://foo:8080", "DIRECT"]

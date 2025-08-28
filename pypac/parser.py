@@ -130,6 +130,7 @@ def parse_pac_value(value, socks_scheme=None):
 
     :param str value: Any value returned by ``FindProxyForURL()``.
     :param str socks_scheme: Scheme to assume for SOCKS proxies. ``socks5`` by default.
+        Case-insensitive.
     :returns: Parsed output, with invalid elements ignored. Warnings are logged for invalid elements.
     :rtype: list[str]
     """
@@ -145,6 +146,9 @@ def parse_pac_value(value, socks_scheme=None):
     return config
 
 
+_PROXY_SCHEMES = {"HTTP", "HTTPS", "SOCKS4", "SOCKS5"}
+
+
 def proxy_url(value, socks_scheme=None):
     """
     Parse a single proxy config value from FindProxyForURL() into a more usable element.
@@ -154,6 +158,7 @@ def proxy_url(value, socks_scheme=None):
 
     :param str value: Value to parse, e.g.: ``DIRECT``, ``PROXY example.local:8080``, or ``SOCKS example.local:8080``.
     :param str socks_scheme: Scheme to assume for SOCKS proxies. ``socks5`` by default.
+        Case-insensitive.
     :returns: Parsed value, e.g.: ``DIRECT``, ``http://example.local:8080``, or ``socks5://example.local:8080``.
     :rtype: str
     :raises ValueError: If input value is invalid.
@@ -167,9 +172,12 @@ def proxy_url(value, socks_scheme=None):
         if keyword == "PROXY":
             keyword = "HTTP"
         elif keyword == "SOCKS":
-            keyword = socks_scheme or "SOCKS5"
+            socks_scheme = socks_scheme.upper() if socks_scheme else "SOCKS5"
+            if socks_scheme not in _PROXY_SCHEMES:
+                raise ValueError("socks_scheme '{}' is not one of {}".format(socks_scheme, ", ".join(_PROXY_SCHEMES)))
+            keyword = socks_scheme
 
-        if keyword in ("HTTP", "HTTPS", "SOCKS4", "SOCKS5"):
+        if keyword in _PROXY_SCHEMES:
             return "{0}://{1}".format(keyword.lower(), proxy)
 
     raise ValueError("Unrecognized proxy config value '{}'".format(value))
