@@ -1,4 +1,4 @@
-dev
+0.17.1 (2025-08-27)
 -------------------
 
 - Make ``socks_scheme`` arguments case-insensitive. (#82)

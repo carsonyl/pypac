@@ -2,7 +2,7 @@
 PyPAC: Proxy auto-config for Python
 ===================================
 
-Copyright 2018 Carson Lam
+Copyright 2018-2025 Carson Lam
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ from pypac.api import (
     pac_context_for_url,
 )
 
-__version__ = "0.17.0"
+__version__ = "0.17.1"
 
 
 __all__ = ["get_pac", "collect_pac_urls", "download_pac", "PACSession", "pac_context_for_url"]
