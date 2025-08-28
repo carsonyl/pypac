@@ -12,3 +12,6 @@ line-length = 120
 
 [tool.ruff.lint]
 extend-select = ["E", "F"]
+
+[tool.pytest.ini_options]
+addopts = "-s"

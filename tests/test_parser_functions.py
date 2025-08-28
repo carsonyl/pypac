@@ -1,3 +1,4 @@
+import socket
 from datetime import datetime
 
 import pytest
@@ -77,6 +78,11 @@ def test_localHostOrDomainIs(host, hostdom, expected_value):
 
 
 def test_myIpAddress():
+    hostname = socket.gethostname()
+    try:
+        socket.gethostbyname(hostname)
+    except socket.gaierror as e:
+        print("Could not resolve hostname {}: {}".format(hostname, e))
     assert myIpAddress().count(".") == 3
 
 
