@@ -1,5 +1,6 @@
 import pytest
 from requests.auth import HTTPProxyAuth
+from requests.utils import get_auth_from_url
 
 from pypac.parser import PACFile, proxy_url
 from pypac.resolver import ProxyResolver, add_proxy_auth, ProxyConfigExhaustedError
@@ -59,6 +60,12 @@ def test_add_proxy_auth(proxy_value, auth_obj, expected_result):
 def test_resolver_add_proxy_auth():
     res = _get_resolver("PROXY foo:8080", mock_proxy_auth)
     assert res.get_proxy(arbitrary_url) == "http://user:pwd@foo:8080"
+
+
+def test_requests_proxy_auth():
+    pypac_auth = HTTPProxyAuth('user', 'Pass phr@s3+')
+    requests_auth = get_auth_from_url(add_proxy_auth(arbitrary_url, pypac_auth))
+    assert (pypac_auth.username, pypac_auth.password) == requests_auth
 
 
 def test_get_proxy_for_requests():

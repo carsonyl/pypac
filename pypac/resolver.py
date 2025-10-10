@@ -7,9 +7,9 @@ try:
 except ImportError:
     from urlparse import urlparse  # noqa
 try:
-    from urllib.parse import quote_plus
+    from urllib.parse import quote
 except ImportError:
-    from urllib import quote_plus  # noqa
+    from urllib import quote  # noqa
 
 from pypac.parser import parse_pac_value
 
@@ -128,7 +128,7 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)
     return "{0}://{1}:{2}@{3}".format(
-        parsed.scheme, quote_plus(proxy_auth.username), quote_plus(proxy_auth.password), parsed.netloc
+        parsed.scheme, quote(proxy_auth.username), quote(proxy_auth.password), parsed.netloc
     )
 
 
