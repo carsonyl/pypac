@@ -1,3 +1,9 @@
+0.17.2 (2025-10-11)
+-------------------
+
+- Fix URL encoding mismatch in proxy authentication. (#84) Thanks @l4u23n7p.
+- Add Python 3.14 to CIB test matrix.
+
 0.17.1 (2025-08-27)
 -------------------
 
