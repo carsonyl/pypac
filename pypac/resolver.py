@@ -128,7 +128,7 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)
     return "{0}://{1}:{2}@{3}".format(
-        parsed.scheme, quote(proxy_auth.username), quote(proxy_auth.password), parsed.netloc
+        parsed.scheme, quote(proxy_auth.username, safe=""), quote(proxy_auth.password, safe=""), parsed.netloc
     )
 
 

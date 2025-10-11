@@ -63,7 +63,7 @@ def test_resolver_add_proxy_auth():
 
 
 def test_requests_proxy_auth():
-    pypac_auth = HTTPProxyAuth('user', 'Pass phr@s3+')
+    pypac_auth = HTTPProxyAuth("user", "Pass phr@s3+/")
     requests_auth = get_auth_from_url(add_proxy_auth(arbitrary_url, pypac_auth))
     assert (pypac_auth.username, pypac_auth.password) == requests_auth
 
