@@ -23,7 +23,7 @@ This is simpler than a PAC file, but also less powerful.
 
 `Wikipedia`_ has further details regarding PAC files.
 
-.. _PAC specification: http://findproxyforurl.com/netscape-documentation/
+.. _PAC specification: https://web.archive.org/web/20220627151241/http://findproxyforurl.com/netscape-documentation/
 .. _Wikipedia: https://en.wikipedia.org/wiki/Proxy_auto-config
 
 There are also `Microsoft extensions`_ that add IPv6 functions to PAC files.

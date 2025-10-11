@@ -20,7 +20,7 @@ On macOS, PyPAC will automatically get the PAC file URL from System Preferences.
 
 .. _proxy auto-config (PAC): https://en.wikipedia.org/wiki/Proxy_auto-config
 
-PyPAC provides a subclass of a `Requests <http://docs.python-requests.org/en/master/>`_ ``Session``,
+PyPAC provides a subclass of a `Requests <https://docs.python-requests.org/en/latest/>`_ ``Session``,
 so you can start using it immediately, with any PAC file transparently discovered and honoured:
 
 .. code-block:: python
@@ -75,4 +75,4 @@ Install PyPAC using `pip <https://pip.pypa.io>`_::
 Documentation
 -------------
 
-PyPAC's documentation is available at http://pypac.readthedocs.io/.
+PyPAC's documentation is available at https://pypac.readthedocs.io/.

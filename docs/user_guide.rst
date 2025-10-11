@@ -4,7 +4,7 @@ User guide
 Learn how to get started with PyPAC.
 This guide assumes familiarity with the `Requests`_ library and its API.
 
-.. _Requests: http://docs.python-requests.org/en/master/
+.. _Requests: https://docs.python-requests.org/en/latest/
 
 
 Basic usage
@@ -131,7 +131,7 @@ Supporting and using PAC files comes with some security implications that are wo
 PAC discovery and parsing
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PAC files are JavaScript. PyPAC uses `dukpy <https://pypi.org/p/dukpy>`_
+PAC files are JavaScript. PyPAC uses `dukpy <https://pypi.org/project/dukpy>`_
 to parse and execute JavaScript. dukpy was not designed for handling untrusted JavaScript,
 and so it is unclear whether the handling of PAC files is sufficiently sandboxed to prevent
 untrusted Python code execution.
@@ -142,7 +142,7 @@ the scope of the organization. If the hostname's TLD isn't in the Public Suffix 
 everything up to the final node is used in the search path. For example, a hostname of
 ``foo.bar.local`` will result in a search for a PAC file from ``wpad.bar.local`` and ``wpad.local``.
 
-PyPAC uses the `tld <https://pypi.python.org/pypi/tld>`_ library to match TLDs.
+PyPAC uses the `tldextract <https://pypi.org/project/tldextract>`_ library to match TLDs.
 
 .. _Mozilla Public Suffix List: https://publicsuffix.org/
 

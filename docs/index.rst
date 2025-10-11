@@ -33,7 +33,7 @@ Features
 * Proxy failover and load balancing
 * Generic components for adding PAC support to other code
 
-PyPAC supports Python 2.7 and 3.4+.
+PyPAC supports Python 2.7 and 3.5+.
 
 
 Installation
