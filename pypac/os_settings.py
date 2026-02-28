@@ -48,6 +48,14 @@ def autoconfig_url_from_registry():
         ) as key:
             return winreg.QueryValueEx(key, "AutoConfigURL")[0]
     except WindowsError:
+        pass  # Key or value not found.
+
+    try:
+        with winref.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
+        ) as key:
+            return winreg.QueryValueEx(key, "AutoConfigURL")[0]
+    except WindowsError:
         return  # Key or value not found.
 
 
@@ -108,3 +116,4 @@ class NotWindowsError(Exception):
 class NotDarwinError(Exception):
     def __init__(self):
         super(NotDarwinError, self).__init__("Platform is not macOS/OSX.")
+
