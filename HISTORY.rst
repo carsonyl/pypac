@@ -1,4 +1,9 @@
-0.18.0 (2026-04-25)
+0.18.2 (2026-04-25)
+-------------------
+
+- Fix incorrect version constants.
+
+0.18.1 (2026-04-25)
 -------------------
 
 - Windows: When ``ProxySettingsPerUser`` is 0, then only check ``AutoConfigURL`` in HKLM.
