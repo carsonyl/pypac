@@ -9,11 +9,6 @@ except ImportError:
 
 import sys
 
-try:
-    import winreg
-except ImportError:
-    winreg = None
-
 from pypac.os_settings import (
     ON_DARWIN,
     ON_WINDOWS,
@@ -23,6 +18,16 @@ from pypac.os_settings import (
     autoconfig_url_from_registry,
     file_url_to_local_path,
 )
+
+HKEY_CURRENT_MACHINE = 0
+HKEY_CURRENT_USER = 1
+if ON_WINDOWS:
+    try:
+        import winreg
+    except ImportError:  # PY2.
+        import _winreg as winreg  # type: ignore
+    HKEY_CURRENT_MACHINE = winreg.HKEY_LOCAL_MACHINE
+    HKEY_CURRENT_USER = winreg.HKEY_CURRENT_USER
 
 test_reg_output_url = "http://foo-bar.baz/x/proxy.pac"
 
@@ -84,8 +89,8 @@ def test_is_per_user_proxy_setting(openkey_success, qve_value, expected):
 @pytest.mark.parametrize(
     "per_user, expected_hive",
     [
-        pytest.param(True, winreg.HKEY_CURRENT_USER, id="per-user"),
-        pytest.param(False, winreg.HKEY_LOCAL_MACHINE, id="per-machine"),
+        pytest.param(True, HKEY_CURRENT_USER, id="per-user"),
+        pytest.param(False, HKEY_CURRENT_MACHINE, id="per-machine"),
     ],
 )
 def test_autoconfig_url_from_registry_mode(per_user, expected_hive):
@@ -108,7 +113,7 @@ def test_per_machine_mode_no_fallback_to_hkcu():
             with _patch_winreg_qve(side_effect=WindowsError()):
                 assert autoconfig_url_from_registry() is None
             mock_openkey.assert_called_once()
-            assert mock_openkey.call_args[0][0] == winreg.HKEY_LOCAL_MACHINE
+            assert mock_openkey.call_args[0][0] == HKEY_CURRENT_MACHINE
 
 
 def _patch_pyobjc_dscp(**kwargs):

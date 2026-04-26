@@ -6,8 +6,9 @@ import platform
 from sys import version_info
 
 if version_info[0] == 2:
-    from urlparse import urlparse  # noqa
-    from urllib import unquote  # noqa
+    from urllib import unquote  # type: ignore
+
+    from urlparse import urlparse  # type: ignore
 else:
     from urllib.parse import urlparse, unquote  # noqa
 
@@ -21,11 +22,11 @@ ON_DARWIN = platform.system() == "Darwin"
 if ON_WINDOWS:
     try:
         import winreg
-    except ImportError:
-        import _winreg as winreg  # PY2.
+    except ImportError:  # PY2.
+        import _winreg as winreg  # type: ignore
 
 if ON_DARWIN:
-    import SystemConfiguration
+    import SystemConfiguration  # type: ignore
 
 
 _INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
