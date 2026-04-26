@@ -1,3 +1,9 @@
+0.18.0 (2026-04-25)
+-------------------
+
+- Windows: When ``ProxySettingsPerUser`` is 0, then only check ``AutoConfigURL`` in HKLM.
+  (#85) Thanks @pbourguignon-enertrag.
+
 0.17.2 (2025-10-11)
 -------------------
 
