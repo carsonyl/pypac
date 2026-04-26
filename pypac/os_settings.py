@@ -1,9 +1,9 @@
 """
 Tools for getting the configured PAC file URL out of the OS settings.
 """
+
 import platform
 from sys import version_info
-
 
 if version_info[0] == 2:
     from urlparse import urlparse  # noqa
@@ -28,11 +28,34 @@ if ON_DARWIN:
     import SystemConfiguration
 
 
+_INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
+
+
+def _is_per_user_proxy_setting():
+    """
+    Get the PAC ``ProxySettingsPerUser`` value from the Windows Registry.
+
+    See https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-ie-clientnetworkprotocolimplementation-hklmproxyenable.
+
+    :return: True if settings are per-user (default), False if per-machine.
+    :rtype: bool
+    """
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, _INTERNET_SETTINGS_PATH) as key:
+            value, _ = winreg.QueryValueEx(key, "ProxySettingsPerUser")
+            return value != 0
+    except WindowsError:
+        return True
+
+
 def autoconfig_url_from_registry():
     """
     Get the PAC ``AutoConfigURL`` value from the Windows Registry.
     This setting is visible as the "use automatic configuration script" field in
     Internet Options > Connection > LAN Settings.
+
+    If ``ProxySettingsPerUser`` is 0, only HKLM is checked.
+    If it is non-zero or absent, HKCU is checked first, then HKLM as a fallback.
 
     :return: The value from the registry, or None if the value isn't configured or available.
         Note that it may be local filesystem path instead of a URL.
@@ -42,21 +65,18 @@ def autoconfig_url_from_registry():
     if not ON_WINDOWS:
         raise NotWindowsError()
 
-    try:
-        with winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
-        ) as key:
-            return winreg.QueryValueEx(key, "AutoConfigURL")[0]
-    except WindowsError:
-        pass  # Key or value not found.
+    hives = [winreg.HKEY_LOCAL_MACHINE]
+    if _is_per_user_proxy_setting():
+        hives.insert(0, winreg.HKEY_CURRENT_USER)  # Check HKCU first in per-user mode.
 
-    try:
-        with winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
-        ) as key:
-            return winreg.QueryValueEx(key, "AutoConfigURL")[0]
-    except WindowsError:
-        return  # Key or value not found.
+    for hive in hives:
+        try:
+            with winreg.OpenKey(hive, _INTERNET_SETTINGS_PATH) as key:
+                return winreg.QueryValueEx(key, "AutoConfigURL")[0]
+        except WindowsError:
+            pass
+
+    return None
 
 
 def autoconfig_url_from_preferences():
@@ -116,5 +136,3 @@ class NotWindowsError(Exception):
 class NotDarwinError(Exception):
     def __init__(self):
         super(NotDarwinError, self).__init__("Platform is not macOS/OSX.")
-
-

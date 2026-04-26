@@ -1,5 +1,6 @@
-import pytest
 from subprocess import CalledProcessError
+
+import pytest
 
 try:
     from unittest.mock import patch
@@ -8,13 +9,18 @@ except ImportError:
 
 import sys
 
+try:
+    import winreg
+except ImportError:
+    winreg = None
+
 from pypac.os_settings import (
-    autoconfig_url_from_registry,
-    autoconfig_url_from_preferences,
-    NotWindowsError,
-    NotDarwinError,
-    ON_WINDOWS,
     ON_DARWIN,
+    ON_WINDOWS,
+    NotDarwinError,
+    NotWindowsError,
+    autoconfig_url_from_preferences,
+    autoconfig_url_from_registry,
     file_url_to_local_path,
 )
 
@@ -53,9 +59,56 @@ def _patch_winreg_qve(**kwargs):
 
 
 @pytest.mark.skipif(not_windows, reason=windows_reason)
-def test_mock_autoconfigurl_windows():
-    with _patch_winreg_qve(return_value=(test_reg_output_url, "foo")):
-        assert autoconfig_url_from_registry() == test_reg_output_url
+@pytest.mark.parametrize(
+    "openkey_success, qve_value, expected",
+    [
+        pytest.param(False, None, True, id="absent-key"),
+        pytest.param(True, (1, 4), True, id="per-user"),  # ProxySettingsPerUser=1
+        pytest.param(True, (0, 4), False, id="per-machine"),  # ProxySettingsPerUser=0
+    ],
+)
+def test_is_per_user_proxy_setting(openkey_success, qve_value, expected):
+    """_is_per_user_proxy_setting returns expected bool based on registry state."""
+    with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+        if openkey_success:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+        else:
+            mock_openkey.side_effect = WindowsError()
+        with patch("pypac.os_settings.winreg.QueryValueEx", return_value=qve_value):
+            from pypac.os_settings import _is_per_user_proxy_setting
+
+            assert _is_per_user_proxy_setting() is expected
+
+
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+@pytest.mark.parametrize(
+    "per_user, expected_hive",
+    [
+        pytest.param(True, winreg.HKEY_CURRENT_USER, id="per-user"),
+        pytest.param(False, winreg.HKEY_LOCAL_MACHINE, id="per-machine"),
+    ],
+)
+def test_autoconfig_url_from_registry_mode(per_user, expected_hive):
+    """autoconfig_url_from_registry checks the correct hive in per-user and per-machine mode."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=per_user):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            with _patch_winreg_qve(return_value=(test_reg_output_url, "foo")):
+                assert autoconfig_url_from_registry() == test_reg_output_url
+            mock_openkey.assert_called_once()
+            assert mock_openkey.call_args[0][0] == expected_hive
+
+
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+def test_per_machine_mode_no_fallback_to_hkcu():
+    """In per-machine mode, when HKLM has no AutoConfigURL, return None without checking HKCU."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=False):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            with _patch_winreg_qve(side_effect=WindowsError()):
+                assert autoconfig_url_from_registry() is None
+            mock_openkey.assert_called_once()
+            assert mock_openkey.call_args[0][0] == winreg.HKEY_LOCAL_MACHINE
 
 
 def _patch_pyobjc_dscp(**kwargs):
@@ -70,12 +123,14 @@ def test_mock_autoconfigurl_mac():
 
 @pytest.mark.skipif(not_windows, reason=windows_reason)
 def test_reg_errors_reraise_win():
-    with _patch_winreg_qve(side_effect=WindowsError()):
-        assert not autoconfig_url_from_registry()
-    with _patch_winreg_qve(side_effect=CalledProcessError(2, "foo")):
-        with pytest.raises(CalledProcessError) as exinfo:
-            autoconfig_url_from_registry()
-        assert exinfo.value.returncode == 2
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with _patch_winreg_qve(side_effect=WindowsError()):
+            assert not autoconfig_url_from_registry()
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with _patch_winreg_qve(side_effect=CalledProcessError(2, "foo")):
+            with pytest.raises(CalledProcessError) as exinfo:
+                autoconfig_url_from_registry()
+            assert exinfo.value.returncode == 2
 
 
 @pytest.mark.skipif(not_darwin, reason=darwin_reason)
