@@ -29,7 +29,8 @@ if ON_DARWIN:
     import SystemConfiguration  # type: ignore
 
 
-_INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
+_POLICIES_INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
+_NORMAL_INTERNET_SETTINGS_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
 
 
 def _is_per_user_proxy_setting():
@@ -42,7 +43,7 @@ def _is_per_user_proxy_setting():
     :rtype: bool
     """
     try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, _INTERNET_SETTINGS_PATH) as key:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, _POLICIES_INTERNET_SETTINGS_PATH) as key:
             value, _ = winreg.QueryValueEx(key, "ProxySettingsPerUser")
             return value != 0
     except WindowsError:
@@ -66,13 +67,10 @@ def autoconfig_url_from_registry():
     if not ON_WINDOWS:
         raise NotWindowsError()
 
-    hives = [winreg.HKEY_LOCAL_MACHINE]
-    if _is_per_user_proxy_setting():
-        hives.insert(0, winreg.HKEY_CURRENT_USER)  # Check HKCU first in per-user mode.
-
-    for hive in hives:
+    hive = winreg.HKEY_CURRENT_USER if _is_per_user_proxy_setting() else winreg.HKEY_LOCAL_MACHINE
+    for path in (_POLICIES_INTERNET_SETTINGS_PATH, _NORMAL_INTERNET_SETTINGS_PATH):
         try:
-            with winreg.OpenKey(hive, _INTERNET_SETTINGS_PATH) as key:
+            with winreg.OpenKey(hive, path) as key:
                 return winreg.QueryValueEx(key, "AutoConfigURL")[0]
         except WindowsError:
             pass
