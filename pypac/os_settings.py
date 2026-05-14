@@ -56,19 +56,33 @@ def autoconfig_url_from_registry():
     This setting is visible as the "use automatic configuration script" field in
     Internet Options > Connection > LAN Settings.
 
-    If ``ProxySettingsPerUser`` is 0, only HKLM is checked.
-    If it is non-zero or absent, HKCU is checked first, then HKLM as a fallback.
+    The search order is:
+
+    1. HKCU Policies (per-user Group Policy)
+    2. HKLM Policies (machine Group Policy)
+    3. HKCU Normal (user preference)
+    4. HKLM Normal (machine default)
+
+    If ``ProxySettingsPerUser`` is 0 (per-machine mode), HKCU entries are skipped.
 
     :return: The value from the registry, or None if the value isn't configured or available.
-        Note that it may be local filesystem path instead of a URL.
+        Note that it may be a local filesystem path instead of a URL.
     :rtype: str|None
     :raises NotWindowsError: If called on a non-Windows platform.
     """
     if not ON_WINDOWS:
         raise NotWindowsError()
 
-    hive = winreg.HKEY_CURRENT_USER if _is_per_user_proxy_setting() else winreg.HKEY_LOCAL_MACHINE
-    for path in (_POLICIES_INTERNET_SETTINGS_PATH, _NORMAL_INTERNET_SETTINGS_PATH):
+    per_user = _is_per_user_proxy_setting()
+
+    for hive, path in [
+        (winreg.HKEY_CURRENT_USER, _POLICIES_INTERNET_SETTINGS_PATH),
+        (winreg.HKEY_LOCAL_MACHINE, _POLICIES_INTERNET_SETTINGS_PATH),
+        (winreg.HKEY_CURRENT_USER, _NORMAL_INTERNET_SETTINGS_PATH),
+        (winreg.HKEY_LOCAL_MACHINE, _NORMAL_INTERNET_SETTINGS_PATH),
+    ]:
+        if not per_user and hive == winreg.HKEY_CURRENT_USER:
+            continue
         try:
             with winreg.OpenKey(hive, path) as key:
                 return winreg.QueryValueEx(key, "AutoConfigURL")[0]
