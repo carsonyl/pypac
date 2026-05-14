@@ -85,7 +85,10 @@ def autoconfig_url_from_registry():
             continue
         try:
             with winreg.OpenKey(hive, path) as key:
-                return winreg.QueryValueEx(key, "AutoConfigURL")[0]
+                value = winreg.QueryValueEx(key, "AutoConfigURL")[0]
+            if not value:
+                continue
+            return value
         except WindowsError:
             pass
 

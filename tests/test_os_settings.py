@@ -150,6 +150,24 @@ def test_per_user_mode_fallback_to_hklm():
                 assert autoconfig_url_from_registry() == test_reg_output_url
 
 
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+def test_empty_autoconfigurl_skipped():
+    """An empty string AutoConfigURL is treated as not set, and the search continues."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            call_count = [0]
+
+            def qve_side_effect(key, value_name):
+                call_count[0] += 1
+                if call_count[0] == 1:  # HKCU Policies returns empty
+                    return ("", "foo")
+                return (test_reg_output_url, "foo")  # HKLM Policies succeeds
+
+            with _patch_winreg_qve(side_effect=qve_side_effect):
+                assert autoconfig_url_from_registry() == test_reg_output_url
+
+
 def _patch_pyobjc_dscp(**kwargs):
     return patch("pypac.os_settings.SystemConfiguration.SCDynamicStoreCopyProxies", **kwargs)
 
