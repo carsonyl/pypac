@@ -1,3 +1,8 @@
+0.18.3 dev
+-------------------
+
+- Update tests to pass under Requests >= 2.34.0 after psf/requests#7427 and psf/requests#7429.
+
 0.18.2 (2026-04-25)
 -------------------
 
