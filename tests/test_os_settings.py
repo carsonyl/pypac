@@ -87,33 +87,85 @@ def test_is_per_user_proxy_setting(openkey_success, qve_value, expected):
 
 @pytest.mark.skipif(not_windows, reason=windows_reason)
 @pytest.mark.parametrize(
-    "per_user, expected_hive",
+    "per_user, expected_first_hive",
     [
         pytest.param(True, HKEY_CURRENT_USER, id="per-user"),
         pytest.param(False, HKEY_CURRENT_MACHINE, id="per-machine"),
     ],
 )
-def test_autoconfig_url_from_registry_mode(per_user, expected_hive):
-    """autoconfig_url_from_registry checks the correct hive in per-user and per-machine mode."""
+def test_autoconfig_url_from_registry_first_hive(per_user, expected_first_hive):
+    """autoconfig_url_from_registry checks the correct first hive in per-user and per-machine mode."""
     with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=per_user):
         with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
             mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
             with _patch_winreg_qve(return_value=(test_reg_output_url, "foo")):
                 assert autoconfig_url_from_registry() == test_reg_output_url
-            mock_openkey.assert_called_once()
-            assert mock_openkey.call_args[0][0] == expected_hive
+            # First call should be to the expected first hive.
+            assert mock_openkey.call_args_list[0][0][0] == expected_first_hive
 
 
 @pytest.mark.skipif(not_windows, reason=windows_reason)
-def test_per_machine_mode_no_fallback_to_hkcu():
-    """In per-machine mode, when HKLM has no AutoConfigURL, return None without checking HKCU."""
+def test_per_user_mode_search_order():
+    """In per-user mode, all 4 registry locations are checked in order until a value is found."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            with _patch_winreg_qve(side_effect=WindowsError()):
+                assert autoconfig_url_from_registry() is None
+            # All 4 locations should have been tried.
+            assert mock_openkey.call_count == 4
+            hives_called = [call[0][0] for call in mock_openkey.call_args_list]
+            assert hives_called == [HKEY_CURRENT_USER, HKEY_CURRENT_MACHINE, HKEY_CURRENT_USER, HKEY_CURRENT_MACHINE]
+
+
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+def test_per_machine_mode_skips_hkcu():
+    """In per-machine mode, HKCU entries are skipped and only 2 HKLM locations are checked."""
     with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=False):
         with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
             mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
             with _patch_winreg_qve(side_effect=WindowsError()):
                 assert autoconfig_url_from_registry() is None
-            mock_openkey.assert_called_once()
-            assert mock_openkey.call_args[0][0] == HKEY_CURRENT_MACHINE
+            # Only 2 HKLM locations should have been tried.
+            assert mock_openkey.call_count == 2
+            hives_called = [call[0][0] for call in mock_openkey.call_args_list]
+            assert hives_called == [HKEY_CURRENT_MACHINE, HKEY_CURRENT_MACHINE]
+
+
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+def test_per_user_mode_fallback_to_hklm():
+    """In per-user mode, falls back to HKLM when HKCU has no AutoConfigURL."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            call_count = [0]
+
+            def qve_side_effect(key, value_name):
+                call_count[0] += 1
+                if call_count[0] <= 2:  # HKCU Policies and HKLM Policies fail
+                    raise WindowsError()
+                return (test_reg_output_url, "foo")  # HKCU Normal succeeds
+
+            with _patch_winreg_qve(side_effect=qve_side_effect):
+                assert autoconfig_url_from_registry() == test_reg_output_url
+
+
+@pytest.mark.skipif(not_windows, reason=windows_reason)
+def test_empty_autoconfigurl_skipped():
+    """An empty string AutoConfigURL is treated as not set, and the search continues."""
+    with patch("pypac.os_settings._is_per_user_proxy_setting", return_value=True):
+        with patch("pypac.os_settings.winreg.OpenKey") as mock_openkey:
+            mock_openkey.return_value.__enter__.return_value = mock_openkey.return_value
+            call_count = [0]
+
+            def qve_side_effect(key, value_name):
+                call_count[0] += 1
+                if call_count[0] == 1:  # HKCU Policies returns empty
+                    return ("", "foo")
+                return (test_reg_output_url, "foo")  # HKLM Policies succeeds
+
+            with _patch_winreg_qve(side_effect=qve_side_effect):
+                assert autoconfig_url_from_registry() == test_reg_output_url
 
 
 def _patch_pyobjc_dscp(**kwargs):
