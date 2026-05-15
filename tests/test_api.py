@@ -171,22 +171,6 @@ class TestRequests(object):
         else:
             assert selection is None
 
-    # @pytest.mark.parametrize('input_proxies,expected_proxy_selection', [
-    #     ({'http': 'http://http'}, 'http://env'),
-    #     ({'http://exact': 'http://override'}, 'http://override'),
-    #     ({'all://exact': 'http://override'}, 'http://override'),
-    # ])
-    # def test_environment_all_proxy(self, monkeypatch, input_proxies, expected_proxy_selection):
-    #     """When `ALL_PROXY` is defined, it takes precedence over other scheme-only proxy definitions.
-    #     For Requests > 2.10.0."""
-    #     monkeypatch.setenv('ALL_PROXY', 'http://env')
-    #     sess = requests.Session()
-    #     settings = sess.merge_environment_settings(arbitrary_url, input_proxies, False, False, False)
-    #     proxies = {'all': 'http://env'}
-    #     proxies.update(input_proxies)
-    #     assert settings['proxies'] == proxies
-    #     assert select_proxy(arbitrary_url, settings['proxies']) == expected_proxy_selection
-
     def test_override_env_proxy_and_go_direct(self, monkeypatch):
         """Ensure that it's possible to ignore environment proxy settings for a request."""
         monkeypatch.setenv("HTTP_PROXY", "http://env")
