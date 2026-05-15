@@ -24,6 +24,8 @@ if ON_WINDOWS:
         import winreg
     except ImportError:  # PY2.
         import _winreg as winreg  # type: ignore
+else:
+    winreg = None
 
 
 _POLICIES_INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
@@ -39,6 +41,8 @@ def _is_per_user_proxy_setting():
     :return: True if settings are per-user (default), False if per-machine.
     :rtype: bool
     """
+    if not ON_WINDOWS or not winreg:
+        raise NotWindowsError()
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, _POLICIES_INTERNET_SETTINGS_PATH) as key:
             value, _ = winreg.QueryValueEx(key, "ProxySettingsPerUser")
@@ -67,7 +71,7 @@ def autoconfig_url_from_registry():
     :rtype: str|None
     :raises NotWindowsError: If called on a non-Windows platform.
     """
-    if not ON_WINDOWS:
+    if not ON_WINDOWS or not winreg:
         raise NotWindowsError()
 
     per_user = _is_per_user_proxy_setting()
