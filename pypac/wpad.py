@@ -5,17 +5,10 @@ Tools for the Web Proxy Auto-Discovery Protocol.
 import logging
 import socket
 
-import tldextract
+from publicsuffixlist import PublicSuffixList
 
 logger = logging.getLogger(__name__)
-
-# First use of tldextract goes online to update its Public Suffix List cache. Stop it.
-try:
-    no_fetch_extract = tldextract.TLDExtract(cache_dir=None, suffix_list_urls=None)
-except TypeError:
-    # tldextract added cache_dir in v3.0.0, which also dropped PY27 support.
-    # Maintain PY27 support / allow old tldextract by retrying here.
-    no_fetch_extract = tldextract.TLDExtract(suffix_list_urls=None)
+psl = PublicSuffixList(accept_unknown=False)
 
 
 def proxy_urls_from_dns(local_hostname=None):
@@ -43,13 +36,18 @@ def proxy_urls_from_dns(local_hostname=None):
     ):
         return []
 
-    parsed = no_fetch_extract(local_hostname)
-    try:
-        # tldextract >= 5.3.0
-        top_domain_under_public_suffix = parsed.top_domain_under_public_suffix  # noqa
-    except AttributeError:
-        top_domain_under_public_suffix = parsed.registered_domain
-    return wpad_search_urls(parsed.subdomain, top_domain_under_public_suffix or parsed.domain)
+    priv = psl.privatesuffix(local_hostname)
+    if priv:
+        # privatesuffix returns e.g. "example.com" for "pc.corp.example.com"
+        subdomain = local_hostname[: -len(priv) - 1]  # "pc.corp"
+        fld = priv
+    else:
+        # Unrecognized TLD (e.g. ".local", ".internal"): treat last label as TLD,
+        # everything before it as the subdomain.
+        parts = local_hostname.rsplit(".", 1)
+        subdomain = parts[0] if len(parts) == 2 else ""
+        fld = parts[1] if len(parts) == 2 else local_hostname
+    return wpad_search_urls(subdomain, fld)
 
 
 def wpad_search_urls(subdomain_or_host, fld):
