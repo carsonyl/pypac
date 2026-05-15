@@ -5,10 +5,19 @@ Tools for the Web Proxy Auto-Discovery Protocol.
 import logging
 import socket
 
-from publicsuffixlist import PublicSuffixList
-
 logger = logging.getLogger(__name__)
-psl = PublicSuffixList(accept_unknown=False)
+
+_psl = None
+
+
+def _get_psl():
+    """Lazy-load and cache the PublicSuffixList singleton."""
+    global _psl
+    if _psl is None:
+        from publicsuffixlist import PublicSuffixList
+
+        _psl = PublicSuffixList(accept_unknown=False)
+    return _psl
 
 
 def proxy_urls_from_dns(local_hostname=None):
@@ -36,7 +45,7 @@ def proxy_urls_from_dns(local_hostname=None):
     ):
         return []
 
-    priv = psl.privatesuffix(local_hostname)
+    priv = _get_psl().privatesuffix(local_hostname)
     if priv:
         # privatesuffix returns e.g. "example.com" for "pc.corp.example.com"
         subdomain = local_hostname[: -len(priv) - 1]  # "pc.corp"
