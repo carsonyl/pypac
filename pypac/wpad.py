@@ -1,11 +1,6 @@
 """
 Tools for the Web Proxy Auto-Discovery Protocol.
 """
-
-import logging
-
-logger = logging.getLogger(__name__)
-
 _psl = None
 
 
