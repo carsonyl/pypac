@@ -6,8 +6,8 @@ import os
 import logging
 from contextlib import contextmanager
 
-import requests
-from requests.exceptions import ProxyError, ConnectTimeout
+from requests import Session
+from requests.exceptions import ProxyError, ConnectTimeout, ConnectionError, Timeout
 
 from pypac.parser import PACFile
 from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
@@ -152,7 +152,7 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
         allowed_content_types = {"application/x-ns-proxy-autoconfig", "application/x-javascript-config"}
 
     if not session:
-        sess = requests.Session()
+        sess = Session()
     else:
         sess = session
     sess.trust_env = False  # Don't inherit proxy config from environment variables.
@@ -169,12 +169,12 @@ def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=
                 continue
             if resp.ok:
                 return resp.text
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        except (ConnectionError, Timeout):
             continue
     return
 
 
-class PACSession(requests.Session):
+class PACSession(Session):
     """
     A PAC-aware :ref:`Requests Session <requests:session-objects>` that discovers and complies with a PAC file,
     without any configuration necessary. PAC file discovery is accomplished via the Windows Registry (if applicable),
