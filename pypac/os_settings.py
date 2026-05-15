@@ -2,15 +2,14 @@
 Tools for getting the configured PAC file URL out of the OS settings.
 """
 
-import platform
-from sys import version_info
+import sys
 
 
 #: True if running on Windows.
-ON_WINDOWS = platform.system() == "Windows"
+ON_WINDOWS = sys.platform.startswith("win")
 
 #: True if running on macOS/OSX.
-ON_DARWIN = platform.system() == "Darwin"
+ON_DARWIN = sys.platform == "darwin"
 
 if ON_WINDOWS:
     try:
@@ -128,7 +127,7 @@ def file_url_to_local_path(file_url):
     :param file_url: Must start with ``file://``.
     :return: A local filesystem path. It might not exist.
     """
-    if version_info[0] == 2:
+    if sys.version_info[0] == 2:
         from urllib import unquote  # type: ignore
 
         from urlparse import urlparse  # type: ignore
