@@ -48,6 +48,7 @@ class PACFile(object):
         :raises MalformedPacError: If the JavaScript could not be parsed,
             does not define the expected function, or is otherwise invalid.
         """
+        self._entry_func = "FindProxyForURL"
         if kwargs.get("recursion_limit"):
             import warnings
 
@@ -83,13 +84,15 @@ class PACFile(object):
         :rtype: str
         """
         from dukpy import JSRuntimeError
-        
+
         try:
-            return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
+            return self._context.evaljs(self._entry_func + "(dukpy['url'], dukpy['host'])", url=url, host=host)
         except JSRuntimeError as e:
             if "ReferenceError: identifier 'FindProxyForURL' undefined" not in str(e):
                 raise
-            return self._context.evaljs("FindProxyForURLEx(dukpy['url'], dukpy['host'])", url=url, host=host)
+            # Persist switch to Ex entry point if the regular one wasn't found.
+            self._entry_func = "FindProxyForURLEx"
+            return self.find_proxy_for_url(url, host)
 
 
 class MalformedPacError(Exception):
