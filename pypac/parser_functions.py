@@ -8,9 +8,7 @@ Most docstrings below are adapted from http://findproxyforurl.com/netscape-docum
 """
 
 # ruff: noqa: N802
-import socket
 import struct
-from calendar import monthrange
 from datetime import date, datetime, time
 from fnmatch import fnmatch
 import sys
@@ -48,6 +46,8 @@ def _address_in_network(ip, netaddr, mask):
     """
     Like :func:`requests.utils.address_in_network` but takes a quad-dotted netmask.
     """
+    import socket
+
     ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
     netmask = struct.unpack("=L", socket.inet_aton(mask))[0]
     network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
@@ -93,6 +93,8 @@ def myIpAddress():
         as a string in the dot-separated integer format.
     :rtype: str
     """
+    import socket
+
     return dnsResolve(socket.gethostname())
 
 
@@ -105,6 +107,8 @@ def dnsResolve(host):
     :return: Resolved IP address, or empty string if resolution failed.
     :rtype: str
     """
+    import socket
+
     try:
         return socket.gethostbyname(host)
     except socket.gaierror:
@@ -128,6 +132,8 @@ def isResolvable(host):
     :return: true if succeeds.
     :rtype: bool
     """
+    import socket
+
     try:
         socket.gethostbyname(host)
     except socket.gaierror:
@@ -269,6 +275,7 @@ def dateRange(*args):
             if args[0] in months and args[2] in months:
                 m1, y1, m2, y2 = args
                 m1, m2 = months.index(m1), months.index(m2)
+                from calendar import monthrange
                 return date(y1, m1, 1) <= today <= date(y2, m2, monthrange(y2, m2)[1])
             if args[1] in months and args[3] in months:
                 d1, m1, d2, m2 = args
