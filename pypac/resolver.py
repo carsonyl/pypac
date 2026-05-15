@@ -1,15 +1,7 @@
 """
 Tools for working with a given PAC file and its return values.
 """
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse  # noqa
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote  # noqa
+import sys
 
 from pypac.parser import parse_pac_value
 
@@ -54,6 +46,11 @@ class ProxyResolver(object):
             Can be empty, which means to abort the request.
         :rtype: list[str]
         """
+        if sys.version_info[0] == 2:
+            from urlparse import urlparse  # noqa
+        else:
+            from urllib.parse import urlparse
+
         hostname = urlparse(url).hostname
         if hostname is None:
             # URL has no hostname, and PAC functions don't expect to receive nulls.
@@ -124,6 +121,12 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
     :returns: Proxy URL with auth info added, or ``DIRECT``.
     :rtype: str
     """
+    if sys.version_info[0] == 2:
+        from urlparse import urlparse  # noqa
+        from urllib import quote  # noqa
+    else:
+        from urllib.parse import urlparse, quote
+    
     if possible_proxy_url == "DIRECT":
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)

@@ -9,7 +9,6 @@ or the IPv6 ``socket`` functions that are not available in Python 2.7.
 
 # ruff: noqa: N802
 import re
-import socket
 from requests.utils import address_in_network, is_ipv4_address
 
 
@@ -49,6 +48,8 @@ def myIpAddressEx():
         Entries are sorted by address family with IPv6 first, then sorted by address.
     :rtype: str
     """
+    import socket
+    
     addrs = set()
     try:
         addrs.update(set(socket.gethostbyname_ex(socket.gethostname())[2]))
@@ -73,6 +74,7 @@ def dnsResolveEx(host):
     :returns: List of resolved IP addresses as a semicolon-separated string.
     :rtype: str
     """
+    import socket
     try:
         return ";".join([addr[4][0] for addr in socket.getaddrinfo(host, 0)])
     except socket.gaierror:

@@ -3,7 +3,6 @@ Tools for the Web Proxy Auto-Discovery Protocol.
 """
 
 import logging
-import socket
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +34,8 @@ def proxy_urls_from_dns(local_hostname=None):
         If the hostname isn't qualified or is otherwise invalid, an empty list is returned.
     :rtype: list[str]
     """
+    import socket
+
     if not local_hostname:
         local_hostname = socket.getfqdn()
     if (
