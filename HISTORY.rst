@@ -1,7 +1,7 @@
 dev
 -------------------
 
-
+- Add ``publicsuffixlist`` dependency and remove ``tldextract``, ``filelock``, and ``requests-file``. (#77)
 
 0.18.3 (2026-05-14)
 -------------------
