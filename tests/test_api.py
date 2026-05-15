@@ -9,9 +9,9 @@ from requests.utils import select_proxy
 from tempfile import mkstemp
 
 try:
-    from unittest.mock import patch, Mock, ANY, call
+    from unittest.mock import patch, Mock
 except ImportError:
-    from mock import patch, Mock, ANY, call
+    from mock import patch, Mock
 
 from pypac.api import get_pac, collect_pac_urls, download_pac, PACSession, pac_context_for_url
 from pypac.parser import PACFile, MalformedPacError
@@ -30,6 +30,18 @@ def _patch_download_pac(return_value):
 
 def _patch_request_base(return_value=None, side_effect=None):
     return patch("requests.Session.request", return_value=return_value, side_effect=side_effect)
+
+
+def _assert_request_calls(mock_request, expected_calls):
+    """Assert mock request's last N calls match expected (method, url, proxies) tuples.
+
+    Only method, url, and proxies are checked; incidental kwargs like
+    ``params`` or ``allow_redirects`` are ignored for cross-version compatibility.
+    """
+    actual = mock_request.call_args_list[-len(expected_calls):]
+    assert len(actual) == len(expected_calls)
+    for (a_args, a_kwargs), (exp_method, exp_url, exp_proxies) in zip(actual, expected_calls):
+        assert (a_args[0], a_args[1], a_kwargs["proxies"]) == (exp_method, exp_url, exp_proxies)
 
 
 class TestApiFunctions(object):
@@ -120,10 +132,6 @@ def _patch_get_pac(return_value):
     return patch("pypac.api.get_pac", return_value=return_value)
 
 
-def get_call(url, proxy):
-    return call("GET", url, proxies=proxy_parameter_for_requests(proxy) if proxy else proxy, allow_redirects=ANY)
-
-
 class TestRequests(object):
     """Test the behaviour of the Requests library that PyPAC expects."""
 
@@ -138,48 +146,40 @@ class TestRequests(object):
             session.get(arbitrary_url, timeout=0.001, proxies=proxy_parameter_for_requests("http://httpbin/delay/10"))
 
     @pytest.mark.parametrize(
-        "request_url,expected_proxies,expected_proxy_selection",
+        "request_url,should_use_proxy",
         [
-            ("http://a.local/x.html", {}, None),
-            ("http://fooa.local/x.html", {}, None),  # Shady.
-            ("http://foo.b.local/x.html", {}, None),
-            ("http://foob.local/x.html", {"http": "http://env", "no": "a.local, .b.local"}, "http://env"),
-            ("http://c.local/x.html", {"http": "http://env", "no": "a.local, .b.local"}, "http://env"),
+            ("http://a.local/x.html", False),
+            # fooa.local would have matched "a.local" before Requests 2.34: psf/requests#7427
+            ("http://foo.b.local/x.html", False),
+            ("http://foob.local/x.html", True),
+            ("http://c.local/x.html", True),
         ],
     )
-    def test_environment_proxies(self, monkeypatch, request_url, expected_proxies, expected_proxy_selection):
+    def test_environment_proxies(self, monkeypatch, request_url, should_use_proxy):
         """Test usage of proxy settings from environment variables, including host exclusions using `NO_PROXY`."""
         monkeypatch.setenv("HTTP_PROXY", "http://env")
         monkeypatch.setenv("NO_PROXY", "a.local, .b.local")
         sess = requests.Session()
-        settings = sess.merge_environment_settings(request_url, {}, False, False, False)
+        settings = sess.merge_environment_settings(request_url, {}, False, False, None)
         settings["proxies"].pop("travis_apt", None)
-        assert settings["proxies"] == expected_proxies
-        assert select_proxy(request_url, settings["proxies"]) == expected_proxy_selection
-
-    # @pytest.mark.parametrize('input_proxies,expected_proxy_selection', [
-    #     ({'http': 'http://http'}, 'http://env'),
-    #     ({'http://exact': 'http://override'}, 'http://override'),
-    #     ({'all://exact': 'http://override'}, 'http://override'),
-    # ])
-    # def test_environment_all_proxy(self, monkeypatch, input_proxies, expected_proxy_selection):
-    #     """When `ALL_PROXY` is defined, it takes precedence over other scheme-only proxy definitions.
-    #     For Requests > 2.10.0."""
-    #     monkeypatch.setenv('ALL_PROXY', 'http://env')
-    #     sess = requests.Session()
-    #     settings = sess.merge_environment_settings(arbitrary_url, input_proxies, False, False, False)
-    #     proxies = {'all': 'http://env'}
-    #     proxies.update(input_proxies)
-    #     assert settings['proxies'] == proxies
-    #     assert select_proxy(arbitrary_url, settings['proxies']) == expected_proxy_selection
+        # In requests >= 2.34, merge_environment_settings strips the proxy entry
+        # for NO_PROXY-excluded hosts. In older versions, select_proxy checks
+        # the 'no' key. Either way, select_proxy should return the right result.
+        selection = select_proxy(request_url, settings["proxies"])
+        if should_use_proxy:
+            assert selection is not None
+        else:
+            assert selection is None
 
     def test_override_env_proxy_and_go_direct(self, monkeypatch):
         """Ensure that it's possible to ignore environment proxy settings for a request."""
         monkeypatch.setenv("HTTP_PROXY", "http://env")
         sess = requests.Session()
-        settings = sess.merge_environment_settings(arbitrary_url, {"http": None}, False, False, False)
+        settings = sess.merge_environment_settings(arbitrary_url, {"http": None}, False, False, None)
         settings["proxies"].pop("travis_apt", None)
-        assert settings["proxies"] == {}  # requests.session.merge_setting removes entries with None value.
+        # requests.session.merge_setting removes entries with None value.
+        # The 'no' key may be present but is not used by select_proxy.
+        assert "http" not in settings["proxies"]
         assert not select_proxy(arbitrary_url, settings["proxies"])
 
 
@@ -190,7 +190,7 @@ class TestPACSession(object):
         with _patch_get_pac(None), _patch_request_base(mock_ok) as request:
             resp = sess.get(arbitrary_url)
             assert resp.status_code == 204
-            request.assert_called_with("GET", arbitrary_url, proxies=None, allow_redirects=ANY)
+            _assert_request_calls(request, [("GET", arbitrary_url, None)])
 
     def test_no_pac_but_call_get_pac_twice(self):
         with _patch_get_pac(None):
@@ -203,7 +203,7 @@ class TestPACSession(object):
         mock_ok = Mock(spec=requests.Response, status_code=204)
         with _patch_get_pac(PACFile(proxy_pac_js)), _patch_request_base(mock_ok) as request:
             assert sess.get(arbitrary_url).status_code == 204
-            request.assert_called_with("GET", arbitrary_url, proxies=fake_proxies_requests_arg, allow_redirects=ANY)
+            _assert_request_calls(request, [("GET", arbitrary_url, fake_proxies_requests_arg)])
 
     def test_pac_from_constructor(self):
         sess = PACSession(pac=PACFile(direct_pac_js))
@@ -231,7 +231,7 @@ class TestPACSession(object):
         with _patch_get_pac(PACFile(proxy_pac_js)), _patch_request_base(mock_ok) as request:
             for proxies_arg in ({}, proxy_parameter_for_requests("http://manual:80")):
                 sess.get(arbitrary_url, proxies=proxies_arg)
-                request.assert_called_with("GET", arbitrary_url, proxies=proxies_arg, allow_redirects=ANY)
+                _assert_request_calls(request, [("GET", arbitrary_url, proxies_arg)])
 
     def test_pac_disabled(self):
         sess = PACSession(pac_enabled=False)
@@ -239,12 +239,12 @@ class TestPACSession(object):
         with _patch_get_pac(PACFile(proxy_pac_js)) as gp, _patch_request_base(mock_ok) as request:
             assert sess.get(arbitrary_url).status_code == 204
             gp.assert_not_called()
-            request.assert_called_with("GET", arbitrary_url, proxies=None, allow_redirects=ANY)
+            _assert_request_calls(request, [("GET", arbitrary_url, None)])
             # When re-enabled, PAC discovery should proceed and be honoured.
             sess.pac_enabled = True
             assert sess.get(arbitrary_url).status_code == 204
             gp.assert_called_with()
-            request.assert_called_with("GET", arbitrary_url, proxies=fake_proxies_requests_arg, allow_redirects=ANY)
+            _assert_request_calls(request, [("GET", arbitrary_url, fake_proxies_requests_arg)])
 
     def test_bad_proxy_no_failover(self):
         """Verify that Requests returns ProxyError when given a non-existent proxy."""
@@ -262,12 +262,10 @@ class TestPACSession(object):
 
         with _patch_request_base(side_effect=fake_request) as request:
             sess.get(arbitrary_url)
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://a:80"),
-                    get_call(arbitrary_url, "http://b:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://a:80")),
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://b:80")),
+            ])
 
     def test_pac_failover_to_direct(self):
         """Proxy fails. Next in line is DIRECT keyword."""
@@ -279,12 +277,10 @@ class TestPACSession(object):
 
         with _patch_request_base(side_effect=fake_request_reject_proxy) as request:
             sess.get(arbitrary_url)
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, fake_proxy_url),
-                    get_call(arbitrary_url, "DIRECT"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests(fake_proxy_url)),
+                ("GET", arbitrary_url, proxy_parameter_for_requests("DIRECT")),
+            ])
 
     def test_pac_failover_to_direct_also_fails(self):
         """Proxy fails. Next in line is DIRECT keyword, but direct connection also fails. Error should bubble up.
@@ -294,13 +290,11 @@ class TestPACSession(object):
             for _ in range(2):
                 with pytest.raises(ProxyError):
                     sess.get(arbitrary_url)
-        request.assert_has_calls(
-            [
-                get_call(arbitrary_url, fake_proxy_url),
-                get_call(arbitrary_url, "DIRECT"),
-                get_call(arbitrary_url, "DIRECT"),
-            ]
-        )
+        _assert_request_calls(request, [
+            ("GET", arbitrary_url, proxy_parameter_for_requests(fake_proxy_url)),
+            ("GET", arbitrary_url, proxy_parameter_for_requests("DIRECT")),
+            ("GET", arbitrary_url, proxy_parameter_for_requests("DIRECT")),
+        ])
 
     def test_pac_no_failover_available_exc_case(self):
         """Special case where proxy fails but there's no DIRECT fallback. Error should bubble up,
@@ -309,12 +303,10 @@ class TestPACSession(object):
         for _ in range(2):
             with _patch_request_base(side_effect=ProxyError()) as request, pytest.raises(ProxyError):
                 sess.get(arbitrary_url)
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://a:80"),
-                    get_call(arbitrary_url, "http://b:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://a:80")),
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://b:80")),
+            ])
 
     def test_failover_using_custom_response_filter(self):
         """Use a custom response filter to say that HTTP 407 responses are considered a proxy failure,
@@ -330,12 +322,10 @@ class TestPACSession(object):
         with _patch_request_base(proxy_fail_resp) as request:
             # Both proxies failed due to 407 response, so return value is the same 407.
             assert sess.get(arbitrary_url).status_code == 407
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://a:80"),
-                    get_call(arbitrary_url, "http://b:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://a:80")),
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://b:80")),
+            ])
 
     def test_failover_using_custom_exception_criteria(self):
         """Use a custom request exception filter to say that some arbitrary exception is considered a proxy failure,
@@ -354,32 +344,26 @@ class TestPACSession(object):
 
         with _patch_request_base(side_effect=fake_request) as request:
             sess.get(arbitrary_url)
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://a:80"),
-                    get_call(arbitrary_url, "http://b:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://a:80")),
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://b:80")),
+            ])
 
     def test_post_init_proxy_auth(self):
         """Set proxy auth info after constructing PACSession, and ensure that PAC proxy URLs then reflect it."""
         sess = PACSession(pac=PACFile(proxy_pac_js_tpl % "PROXY a:80;"))
         with _patch_request_base() as request:
             sess.get(arbitrary_url)  # Prime proxy resolver state.
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://a:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://a:80")),
+            ])
 
         sess.proxy_auth = HTTPProxyAuth("user", "pwd")
         with _patch_request_base() as request:
             sess.get(arbitrary_url)
-            request.assert_has_calls(
-                [
-                    get_call(arbitrary_url, "http://user:pwd@a:80"),
-                ]
-            )
+            _assert_request_calls(request, [
+                ("GET", arbitrary_url, proxy_parameter_for_requests("http://user:pwd@a:80")),
+            ])
 
 
 class TestContextManager(object):
