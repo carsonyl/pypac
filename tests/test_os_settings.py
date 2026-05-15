@@ -169,7 +169,7 @@ def test_empty_autoconfigurl_skipped():
 
 
 def _patch_pyobjc_dscp(**kwargs):
-    return patch("pypac.os_settings.SystemConfiguration.SCDynamicStoreCopyProxies", **kwargs)
+    return patch("SystemConfiguration.SCDynamicStoreCopyProxies", **kwargs)
 
 
 @pytest.mark.skipif(not_darwin, reason=darwin_reason)
