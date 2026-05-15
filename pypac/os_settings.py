@@ -25,9 +25,6 @@ if ON_WINDOWS:
     except ImportError:  # PY2.
         import _winreg as winreg  # type: ignore
 
-if ON_DARWIN:
-    import SystemConfiguration  # type: ignore
-
 
 _POLICIES_INTERNET_SETTINGS_PATH = "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
 _NORMAL_INTERNET_SETTINGS_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"
@@ -108,6 +105,8 @@ def autoconfig_url_from_preferences():
     """
     if not ON_DARWIN:
         raise NotDarwinError()
+    
+    import SystemConfiguration  # type: ignore
 
     try:
         config = SystemConfiguration.SCDynamicStoreCopyProxies(None)
