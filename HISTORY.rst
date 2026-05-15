@@ -1,7 +1,9 @@
-0.18.3 dev
+0.18.3 (2026-05-14)
 -------------------
 
-- Update tests to pass under Requests >= 2.34.0 after psf/requests#7427 and psf/requests#7429.
+- Windows: Fix regression in 0.18 where only ``Software\Policies\...`` registry keys were checked instead of ``Software\...``.
+  (#87) Thanks @agraboso.
+- Update tests to pass under Requests >= 2.34.0 after psf/requests#7427 and psf/requests#7429. (#88)
 
 0.18.2 (2026-04-25)
 -------------------
