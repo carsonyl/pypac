@@ -15,9 +15,7 @@ import sys
 
 from requests.utils import is_ipv4_address
 
-try:
-    basestring  # noqa
-except NameError:
+if sys.version_info[0] >= 3:
     basestring = str
 
 
@@ -174,10 +172,10 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     :param str gmt: is either the string: GMT or is left out.
     :rtype: bool
     """
-    now_weekday_num = _now("GMT" if end_day == "GMT" else gmt).weekday()
+    now_weekday_num = _now("GMT" in (end_day, gmt)).weekday()
     weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
-    if start_day not in weekdays or (end_day not in weekdays and end_day != "GMT"):
+    if start_day not in weekdays or (end_day != "GMT" and end_day not in weekdays):
         return False
 
     start_day_num = weekdays.index(start_day)
@@ -191,12 +189,12 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     return start_day_num <= now_weekday_num <= end_day_num
 
 
-def _now(gmt=None):
+def _now(utc=False):
     """
-    :param str|None gmt: Use 'GMT' to get GMT.
+    :param bool utc: Return in UTC timezone.
     :rtype: datetime
     """
-    if gmt != "GMT":
+    if not utc:
         return datetime.today()
 
     if sys.version_info[0] >= 3:
@@ -243,16 +241,17 @@ def dateRange(*args):
     :rtype: bool
     """
     months = [None, "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
-    if gmt_arg_present:
-        # Remove and handle GMT argument.
-        today = _now(args[-1])
+    utc = len(args) and args[-1] == "GMT"
+    if utc:
         args = args[:-1]
+        today = _now(utc=True).date()
     else:
-        today = _now()
-    today = today.date()
+        today = _now().date()
 
     num_args = len(args)
+    if num_args == 0:
+        return False
+    
     try:
         if num_args == 1:
             # Match only against the day, month, or year.
@@ -317,15 +316,16 @@ def timeRange(*args):
     :return: True during (or between) the specified time(s).
     :rtype: bool
     """
-    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
-    if gmt_arg_present:
-        # Remove and handle GMT argument.
-        today = _now(args[-1])
+    utc = len(args) and args[-1] == "GMT"
+    if utc:
         args = args[:-1]
+        today = _now(utc=True)
     else:
         today = _now()
-
+    
     num_args = len(args)
+    if num_args == 0:
+        return False
     if num_args == 1:
         h1 = args[0]
         return h1 == today.hour
