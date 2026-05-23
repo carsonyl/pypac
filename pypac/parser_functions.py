@@ -10,11 +10,12 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunne
 
 # ruff: noqa: N802
 import datetime as dt
-import sys
 
 from requests.utils import is_ipv4_address
 
-if sys.version_info[0] >= 3:
+from pypac._utils import ON_PY3
+
+if ON_PY3:
     basestring = str
 
 
@@ -199,7 +200,7 @@ def _now(utc=False):
     if not utc:
         return dt.datetime.today()
 
-    if sys.version_info[0] >= 3:
+    if ON_PY3:
         return dt.datetime.now(dt.timezone.utc)
 
     return dt.datetime.utcnow()  # noqa

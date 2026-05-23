@@ -7,11 +7,8 @@ try:
 except ImportError:
     from mock import patch
 
-import sys
-
+from pypac._utils import ON_DARWIN, ON_WINDOWS
 from pypac.os_settings import (
-    ON_DARWIN,
-    ON_WINDOWS,
     NotDarwinError,
     NotWindowsError,
     autoconfig_url_from_preferences,
@@ -31,8 +28,8 @@ if ON_WINDOWS:
 
 test_reg_output_url = "http://foo-bar.baz/x/proxy.pac"
 
-not_windows = not sys.platform.startswith("win")
-not_darwin = not (sys.platform == "darwin")
+not_windows = not ON_WINDOWS
+not_darwin = not ON_DARWIN
 windows_reason = "not on Windows"
 darwin_reason = "not on macOS/OSX"
 

@@ -2,8 +2,7 @@
 Tools for working with a given PAC file and its return values.
 """
 
-import sys
-
+from pypac._utils import ON_PY3
 from pypac.parser import parse_pac_value
 
 
@@ -47,10 +46,10 @@ class ProxyResolver(object):
             Can be empty, which means to abort the request.
         :rtype: list[str]
         """
-        if sys.version_info[0] == 2:
-            from urlparse import urlparse  # noqa
-        else:
+        if ON_PY3:
             from urllib.parse import urlparse
+        else:
+            from urlparse import urlparse  # type: ignore
 
         hostname = urlparse(url).hostname
         if hostname is None:
@@ -122,11 +121,12 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
     :returns: Proxy URL with auth info added, or ``DIRECT``.
     :rtype: str
     """
-    if sys.version_info[0] == 2:
-        from urlparse import urlparse  # noqa
-        from urllib import quote  # noqa
-    else:
+    if ON_PY3:
         from urllib.parse import quote, urlparse
+    else:
+        from urllib import quote  # type: ignore
+
+        from urlparse import urlparse  # type: ignore
 
     if possible_proxy_url == "DIRECT":
         return possible_proxy_url
