@@ -10,9 +10,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunne
 
 # ruff: noqa: N802
 import datetime as dt
-import struct
 import sys
-from fnmatch import fnmatch
 
 from requests.utils import is_ipv4_address
 
@@ -38,6 +36,8 @@ def shExpMatch(host, pattern):
     :param str pattern: Shell expression pattern to match against.
     :rtype: bool
     """
+    from fnmatch import fnmatch
+
     return fnmatch(host.lower(), pattern.lower())
 
 
@@ -46,6 +46,7 @@ def _address_in_network(ip, netaddr, mask):
     Like :func:`requests.utils.address_in_network` but takes a quad-dotted netmask.
     """
     import socket
+    import struct
 
     ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
     netmask = struct.unpack("=L", socket.inet_aton(mask))[0]

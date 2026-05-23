@@ -8,8 +8,6 @@ or the IPv6 ``socket`` functions that are not available in Python 2.7.
 """
 
 # ruff: noqa: N802
-import re
-
 from requests.utils import address_in_network, is_ipv4_address
 
 
@@ -190,6 +188,8 @@ def isInNetEx(addrs_or_hosts, patterns):
     :return: True if any address or hostname matches any pattern.
     :rtype: bool
     """
+    import re
+
     addrs_or_hosts = addrs_or_hosts.split(";")
     patterns = list(filter(lambda x: "/" in x, patterns.split(";")))  # skip unprefixed
     ipv4_patterns = list(filter(lambda x: "." in x, patterns))
