@@ -215,6 +215,7 @@ class TestPACSession(object):
         proxy = "PROXY %s; DIRECT" % arbitrary_pac_url
         pac_js = proxy_pac_js_tpl % "PROXY %s; DIRECT" % arbitrary_pac_url
         pac = sess.get_pac(js=pac_js)
+        assert pac
         assert proxy == pac.find_proxy_for_url(host="example.org", url="http://example.org")
 
     def test_extend_session_with_pacsession(self):
@@ -223,6 +224,7 @@ class TestPACSession(object):
         proxy = "PROXY %s; DIRECT" % arbitrary_pac_url
         pac_js = proxy_pac_js_tpl % "PROXY %s; DIRECT" % arbitrary_pac_url
         pac = sess.get_pac(js=pac_js)
+        assert pac
         assert proxy == pac.find_proxy_for_url(host="example.org", url="http://example.org")
 
     def test_pac_override_using_request_proxies_parameter(self):

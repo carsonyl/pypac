@@ -128,13 +128,13 @@ def collect_pac_urls(from_os_settings=True, from_dns=True, **kwargs):
     return pac_urls
 
 
-def download_pac(candidate_urls, timeout=1, allowed_content_types=None, session=None):
+def download_pac(candidate_urls, timeout=1.0, allowed_content_types=None, session=None):
     """
     Try to download a PAC file from one of the given candidate URLs.
 
     :param list[str] candidate_urls: URLs that are expected to return a PAC file.
         Requests are made in order, one by one.
-    :param timeout: Time to wait for host resolution and response for each URL.
+    :param float timeout: Time to wait for host resolution and response for each URL.
         When a timeout or DNS failure occurs, the next candidate URL is tried.
     :param allowed_content_types: If the response has a ``Content-Type`` header,
         then consider the response to be a PAC file only if the header is one of these values.
@@ -252,14 +252,14 @@ class PACSession(Session):
         :raises ProxyConfigExhaustedError: If the PAC file provided no usable proxy configuration.
         :raises MalformedPacError: If something that claims to be a PAC file was downloaded but could not be parsed.
         """
+        # If proxies are provided as a parameter, or if PAC is disabled, then don't use PAC for this request.
+        if not self.pac_enabled or proxies is not None:
+            return super(PACSession, self).request(method, url, proxies=proxies, **kwargs)
+
+        # At this point, PAC is enabled. Try to find a PAC, if we haven't already.
         if not self._tried_get_pac:
             self.get_pac()
-
-        # Whether we obtained or are trying to obtain a proxy from the PAC.
-        # PAC is not in use if this request has proxies provided as a parameter, or if the session has disabled PAC.
-        using_pac = proxies is None and self._proxy_resolver and self.pac_enabled
-
-        if using_pac:
+        if self._proxy_resolver:  # PAC found and in use.
             proxies = self._proxy_resolver.get_proxy_for_requests(url)
 
         while True:
@@ -269,7 +269,7 @@ class PACSession(Session):
             except Exception as request_exc:
                 # Use PAC's proxy failover rules if the proxy used for the request is from the PAC,
                 # and this exception represents a proxy failure.
-                if using_pac and proxy_url and self._exc_proxy_failure_filter(request_exc):
+                if self._proxy_resolver and proxy_url and self._exc_proxy_failure_filter(request_exc):
                     try:
                         proxies = self.do_proxy_failover(proxy_url, url)
                         continue
@@ -280,7 +280,7 @@ class PACSession(Session):
 
             # Use PAC's proxy failover rules if the proxy used for the request is from the PAC,
             # and this response represents a proxy failure.
-            if using_pac and proxy_url and self._response_proxy_failure_filter(response):
+            if self._proxy_resolver and proxy_url and self._response_proxy_failure_filter(response):
                 try:
                     proxies = self.do_proxy_failover(proxy_url, url)
                     continue
@@ -298,6 +298,8 @@ class PACSession(Session):
         :returns: The next proxy config to try, or 'DIRECT'.
         :raises ProxyConfigExhaustedError: If the PAC file provided no usable proxy configuration.
         """
+        if not self._proxy_resolver:
+            raise ProxyConfigExhaustedError(for_url)
         self._proxy_resolver.ban_proxy(proxy_url)
         return self._proxy_resolver.get_proxy_for_requests(for_url)
 

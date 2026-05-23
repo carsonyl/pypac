@@ -78,7 +78,7 @@ def dnsResolveEx(host):
     import socket
 
     try:
-        return ";".join([addr[4][0] for addr in socket.getaddrinfo(host, 0)])
+        return ";".join([str(addr[4][0]) for addr in socket.getaddrinfo(host, 0)])
     except socket.gaierror:
         return ""
 
