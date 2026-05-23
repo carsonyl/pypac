@@ -8,7 +8,8 @@ or the IPv6 ``socket`` functions that are not available in Python 2.7.
 """
 
 # ruff: noqa: N802
-from requests.utils import address_in_network, is_ipv4_address
+
+from pypac._utils import ON_PY3, is_ipv4_address
 
 
 def getClientVersion():
@@ -179,6 +180,23 @@ def _ipv6_addr_in_network(ipv6_addr_str, ipv6_prefix_str):
     return True
 
 
+def _address_in_network(addr, pattern):
+    """
+    On Python 3, use stdlib to check if an IPv4 or IPv6 address is in a network.
+    On Python 2, fall back to requests.utils and local implementation.
+    """
+    if ON_PY3:
+        import ipaddress
+
+        return ipaddress.ip_address(addr) in ipaddress.ip_network(pattern, strict=False)
+
+    if is_ipv4_address(addr):
+        from requests.utils import address_in_network
+
+        return address_in_network(addr, pattern)
+    return _ipv6_addr_in_network(addr, pattern)
+
+
 def isInNetEx(addrs_or_hosts, patterns):
     """
     :param str addrs_or_hosts: Semicolon-separated string of IP addresses or hostnames.
@@ -203,20 +221,13 @@ def isInNetEx(addrs_or_hosts, patterns):
             addrs = [item]
 
         for addr in filter(lambda x: x, addrs):
-            if is_ipv4_address(addr):
-                for pattern in ipv4_patterns:
-                    try:
-                        if address_in_network(addr, pattern):
-                            return True
-                    except ValueError:
-                        continue
-            else:  # IPv6
-                for pattern in ipv6_patterns:
-                    try:
-                        if _ipv6_addr_in_network(addr, pattern):
-                            return True
-                    except ValueError:
-                        continue
+            patterns = ipv4_patterns if is_ipv4_address(addr) else ipv6_patterns
+            for pattern in patterns:
+                try:
+                    if _address_in_network(addr, pattern):
+                        return True
+                except ValueError:
+                    continue
 
     return False
 

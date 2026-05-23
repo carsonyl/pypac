@@ -11,9 +11,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunne
 # ruff: noqa: N802
 import datetime as dt
 
-from requests.utils import is_ipv4_address
-
-from pypac._utils import ON_PY3
+from pypac._utils import ON_PY3, is_ipv4_address
 
 if ON_PY3:
     basestring = str
