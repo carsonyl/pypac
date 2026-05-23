@@ -6,19 +6,18 @@ import os
 from contextlib import contextmanager
 
 from requests import Session
-from requests.exceptions import ProxyError, ConnectTimeout, ConnectionError, Timeout
+from requests.exceptions import ConnectionError, ConnectTimeout, ProxyError, Timeout
 
-from pypac.parser import PACFile
-from pypac.resolver import ProxyResolver, ProxyConfigExhaustedError
 from pypac.os_settings import (
-    autoconfig_url_from_registry,
-    autoconfig_url_from_preferences,
-    ON_WINDOWS,
     ON_DARWIN,
+    ON_WINDOWS,
+    autoconfig_url_from_preferences,
+    autoconfig_url_from_registry,
     file_url_to_local_path,
 )
+from pypac.parser import PACFile
+from pypac.resolver import ProxyConfigExhaustedError, ProxyResolver
 from pypac.wpad import proxy_urls_from_dns
-
 
 
 def get_pac(

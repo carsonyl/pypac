@@ -4,7 +4,6 @@ Tools for getting the configured PAC file URL out of the OS settings.
 
 import sys
 
-
 #: True if running on Windows.
 ON_WINDOWS = sys.platform.startswith("win")
 
@@ -101,7 +100,7 @@ def autoconfig_url_from_preferences():
     """
     if not ON_DARWIN:
         raise NotDarwinError()
-    
+
     import SystemConfiguration  # type: ignore
 
     try:

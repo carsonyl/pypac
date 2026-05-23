@@ -1,6 +1,7 @@
 """
 Tools for working with a given PAC file and its return values.
 """
+
 import sys
 
 from pypac.parser import parse_pac_value
@@ -125,8 +126,8 @@ def add_proxy_auth(possible_proxy_url, proxy_auth):
         from urlparse import urlparse  # noqa
         from urllib import quote  # noqa
     else:
-        from urllib.parse import urlparse, quote
-    
+        from urllib.parse import quote, urlparse
+
     if possible_proxy_url == "DIRECT":
         return possible_proxy_url
     parsed = urlparse(possible_proxy_url)

@@ -4,14 +4,15 @@ Python implementations of JavaScript functions needed to execute a PAC file.
 These are injected into the JavaScript execution context.
 They aren't meant to be called directly from Python, so the function signatures may look unusual.
 
-Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
+Reference:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file
 """
 
 # ruff: noqa: N802
+import datetime as dt
 import struct
-from datetime import date, datetime, time
-from fnmatch import fnmatch
 import sys
+from fnmatch import fnmatch
 
 from requests.utils import is_ipv4_address
 
@@ -195,14 +196,12 @@ def _now(utc=False):
     :rtype: datetime
     """
     if not utc:
-        return datetime.today()
+        return dt.datetime.today()
 
     if sys.version_info[0] >= 3:
-        from datetime import timezone
+        return dt.datetime.now(dt.timezone.utc)
 
-        return datetime.now(timezone.utc)
-
-    return datetime.utcnow()  # noqa
+    return dt.datetime.utcnow()  # noqa
 
 
 def dateRange(*args):
@@ -251,7 +250,7 @@ def dateRange(*args):
     num_args = len(args)
     if num_args == 0:
         return False
-    
+
     try:
         if num_args == 1:
             # Match only against the day, month, or year.
@@ -275,16 +274,17 @@ def dateRange(*args):
                 m1, y1, m2, y2 = args
                 m1, m2 = months.index(m1), months.index(m2)
                 from calendar import monthrange
-                return date(y1, m1, 1) <= today <= date(y2, m2, monthrange(y2, m2)[1])
+
+                return dt.date(y1, m1, 1) <= today <= dt.date(y2, m2, monthrange(y2, m2)[1])
             if args[1] in months and args[3] in months:
                 d1, m1, d2, m2 = args
                 m1, m2 = months.index(m1), months.index(m2)
-                return date(today.year, m1, d1) <= today <= date(today.year, m2, d2)
+                return dt.date(today.year, m1, d1) <= today <= dt.date(today.year, m2, d2)
         if num_args == 6:
             # Match against inclusive range of start date and end date.
             d1, m1, y1, d2, m2, y2 = args
             m1, m2 = months.index(m1), months.index(m2)
-            return date(y1, m1, d1) <= today <= date(y2, m2, d2)
+            return dt.date(y1, m1, d1) <= today <= dt.date(y2, m2, d2)
     except (ValueError, TypeError):
         # Probably an invalid M/D/Y argument.
         return False
@@ -322,7 +322,7 @@ def timeRange(*args):
         today = _now(utc=True)
     else:
         today = _now()
-    
+
     num_args = len(args)
     if num_args == 0:
         return False
@@ -334,10 +334,10 @@ def timeRange(*args):
         return h1 <= today.hour < h2
     if num_args == 4:
         h1, m1, h2, m2 = args
-        return time(h1, m1) <= today.time() <= time(h2, m2)
+        return dt.time(h1, m1) <= today.time() <= dt.time(h2, m2)
     if num_args == 6:
         h1, m1, s1, h2, m2, s2 = args
-        return time(h1, m1, s1) <= today.time() <= time(h2, m2, s2)
+        return dt.time(h1, m1, s1) <= today.time() <= dt.time(h2, m2, s2)
     return False
 
 

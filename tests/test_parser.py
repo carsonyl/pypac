@@ -1,5 +1,6 @@
-import pytest
 import warnings
+
+import pytest
 
 from pypac.parser import MalformedPacError, PACFile, parse_pac_value, proxy_url
 
