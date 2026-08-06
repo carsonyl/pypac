@@ -28,4 +28,4 @@ from pypac.api import (
 __version__ = "0.18.3"
 
 
-__all__ = ["get_pac", "collect_pac_urls", "download_pac", "PACSession", "pac_context_for_url"]
+__all__ = ["PACSession", "collect_pac_urls", "download_pac", "get_pac", "pac_context_for_url"]
