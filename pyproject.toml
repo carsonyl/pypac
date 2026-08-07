@@ -9,9 +9,20 @@ build-backend = "setuptools.build_meta"
 fix = true
 target-version = "py38"  # py27 still intended
 line-length = 120
+include = ["pypac/**", "tests/**"]
 
 [tool.ruff.lint]
-extend-select = ["E", "F"]
+extend-select = ["E", "F", "I", "ICN"]
+ignore = ["UP", "DTZ", "SIM117", "TRY201", "RUF015"]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.lint.flake8-import-conventions]
+banned-from = ["datetime"]
+
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+"datetime" = "dt"
 
 [tool.pytest.ini_options]
 addopts = "-s"

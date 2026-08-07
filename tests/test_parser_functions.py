@@ -1,5 +1,5 @@
+import datetime as dt
 import socket
-from datetime import datetime
 
 import pytest
 
@@ -135,7 +135,7 @@ def test_shExpMatch(url, pattern, expected_value):
     ],
 )
 def test_weekdayRange(args, expected_value):
-    with patch("pypac.parser_functions._now", return_value=datetime(2016, 6, 3)):
+    with patch("pypac.parser_functions._now", return_value=dt.datetime(2016, 6, 3)):
         assert weekdayRange(*args) == expected_value
 
 
@@ -161,7 +161,7 @@ def test_weekdayRange(args, expected_value):
     ],
 )
 def test_dateRange(args, expected_value):
-    with patch("pypac.parser_functions._now", return_value=datetime(2016, 6, 3)):
+    with patch("pypac.parser_functions._now", return_value=dt.datetime(2016, 6, 3)):
         assert dateRange(*args) == expected_value
 
 
@@ -178,7 +178,7 @@ def test_dateRange(args, expected_value):
     ],
 )
 def test_timeRange(args, expected_value):
-    with patch("pypac.parser_functions._now", return_value=datetime(2016, 6, 3, 12, 30, 30)):
+    with patch("pypac.parser_functions._now", return_value=dt.datetime(2016, 6, 3, 12, 30, 30)):
         assert timeRange(*args) == expected_value
 
 

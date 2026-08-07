@@ -4,22 +4,16 @@ Python implementations of JavaScript functions needed to execute a PAC file.
 These are injected into the JavaScript execution context.
 They aren't meant to be called directly from Python, so the function signatures may look unusual.
 
-Most docstrings below are adapted from http://findproxyforurl.com/netscape-documentation/.
+Reference:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file
 """
 
 # ruff: noqa: N802
-import socket
-import struct
-from calendar import monthrange
-from datetime import date, datetime, time
-from fnmatch import fnmatch
-import sys
+import datetime as dt
 
-from requests.utils import is_ipv4_address
+from pypac._utils import ON_PY3, is_ipv4_address
 
-try:
-    basestring  # noqa
-except NameError:
+if ON_PY3:
     basestring = str
 
 
@@ -41,6 +35,8 @@ def shExpMatch(host, pattern):
     :param str pattern: Shell expression pattern to match against.
     :rtype: bool
     """
+    from fnmatch import fnmatch
+
     return fnmatch(host.lower(), pattern.lower())
 
 
@@ -48,6 +44,9 @@ def _address_in_network(ip, netaddr, mask):
     """
     Like :func:`requests.utils.address_in_network` but takes a quad-dotted netmask.
     """
+    import socket
+    import struct
+
     ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
     netmask = struct.unpack("=L", socket.inet_aton(mask))[0]
     network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
@@ -93,6 +92,8 @@ def myIpAddress():
         as a string in the dot-separated integer format.
     :rtype: str
     """
+    import socket
+
     return dnsResolve(socket.gethostname())
 
 
@@ -105,6 +106,8 @@ def dnsResolve(host):
     :return: Resolved IP address, or empty string if resolution failed.
     :rtype: str
     """
+    import socket
+
     try:
         return socket.gethostbyname(host)
     except socket.gaierror:
@@ -128,6 +131,8 @@ def isResolvable(host):
     :return: true if succeeds.
     :rtype: bool
     """
+    import socket
+
     try:
         socket.gethostbyname(host)
     except socket.gaierror:
@@ -168,10 +173,10 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     :param str gmt: is either the string: GMT or is left out.
     :rtype: bool
     """
-    now_weekday_num = _now("GMT" if end_day == "GMT" else gmt).weekday()
+    now_weekday_num = _now("GMT" in (end_day, gmt)).weekday()
     weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 
-    if start_day not in weekdays or (end_day not in weekdays and end_day != "GMT"):
+    if start_day not in weekdays or (end_day != "GMT" and end_day not in weekdays):
         return False
 
     start_day_num = weekdays.index(start_day)
@@ -185,20 +190,18 @@ def weekdayRange(start_day, end_day=None, gmt=None):
     return start_day_num <= now_weekday_num <= end_day_num
 
 
-def _now(gmt=None):
+def _now(utc=False):
     """
-    :param str|None gmt: Use 'GMT' to get GMT.
+    :param bool utc: Return in UTC timezone.
     :rtype: datetime
     """
-    if gmt != "GMT":
-        return datetime.today()
+    if not utc:
+        return dt.datetime.today()
 
-    if sys.version_info[0] >= 3:
-        from datetime import timezone
+    if ON_PY3:
+        return dt.datetime.now(dt.timezone.utc)
 
-        return datetime.now(timezone.utc)
-
-    return datetime.utcnow()  # noqa
+    return dt.datetime.utcnow()  # noqa
 
 
 def dateRange(*args):
@@ -237,16 +240,17 @@ def dateRange(*args):
     :rtype: bool
     """
     months = [None, "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
-    if gmt_arg_present:
-        # Remove and handle GMT argument.
-        today = _now(args[-1])
+    utc = len(args) and args[-1] == "GMT"
+    if utc:
         args = args[:-1]
+        today = _now(utc=True).date()
     else:
-        today = _now()
-    today = today.date()
+        today = _now().date()
 
     num_args = len(args)
+    if num_args == 0:
+        return False
+
     try:
         if num_args == 1:
             # Match only against the day, month, or year.
@@ -269,16 +273,18 @@ def dateRange(*args):
             if args[0] in months and args[2] in months:
                 m1, y1, m2, y2 = args
                 m1, m2 = months.index(m1), months.index(m2)
-                return date(y1, m1, 1) <= today <= date(y2, m2, monthrange(y2, m2)[1])
+                from calendar import monthrange
+
+                return dt.date(y1, m1, 1) <= today <= dt.date(y2, m2, monthrange(y2, m2)[1])
             if args[1] in months and args[3] in months:
                 d1, m1, d2, m2 = args
                 m1, m2 = months.index(m1), months.index(m2)
-                return date(today.year, m1, d1) <= today <= date(today.year, m2, d2)
+                return dt.date(today.year, m1, d1) <= today <= dt.date(today.year, m2, d2)
         if num_args == 6:
             # Match against inclusive range of start date and end date.
             d1, m1, y1, d2, m2, y2 = args
             m1, m2 = months.index(m1), months.index(m2)
-            return date(y1, m1, d1) <= today <= date(y2, m2, d2)
+            return dt.date(y1, m1, d1) <= today <= dt.date(y2, m2, d2)
     except (ValueError, TypeError):
         # Probably an invalid M/D/Y argument.
         return False
@@ -310,15 +316,16 @@ def timeRange(*args):
     :return: True during (or between) the specified time(s).
     :rtype: bool
     """
-    gmt_arg_present = (len(args) == 2 and args[1] == "GMT") or (len(args) % 2 == 1 and len(args) > 1)
-    if gmt_arg_present:
-        # Remove and handle GMT argument.
-        today = _now(args[-1])
+    utc = len(args) and args[-1] == "GMT"
+    if utc:
         args = args[:-1]
+        today = _now(utc=True)
     else:
         today = _now()
 
     num_args = len(args)
+    if num_args == 0:
+        return False
     if num_args == 1:
         h1 = args[0]
         return h1 == today.hour
@@ -327,10 +334,10 @@ def timeRange(*args):
         return h1 <= today.hour < h2
     if num_args == 4:
         h1, m1, h2, m2 = args
-        return time(h1, m1) <= today.time() <= time(h2, m2)
+        return dt.time(h1, m1) <= today.time() <= dt.time(h2, m2)
     if num_args == 6:
         h1, m1, s1, h2, m2, s2 = args
-        return time(h1, m1, s1) <= today.time() <= time(h2, m2, s2)
+        return dt.time(h1, m1, s1) <= today.time() <= dt.time(h2, m2, s2)
     return False
 
 

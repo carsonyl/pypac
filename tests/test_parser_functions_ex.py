@@ -5,13 +5,13 @@ import pytest
 
 from pypac.parser_functions import myIpAddress
 from pypac.parser_functions_ex import (
+    _ipv6_addr_in_network,
+    _parse_ipv6_to_hextets,
+    dnsResolveEx,
     getClientVersion,
+    isInNetEx,
     myIpAddressEx,
     sortIpAddressList,
-    dnsResolveEx,
-    _parse_ipv6_to_hextets,
-    _ipv6_addr_in_network,
-    isInNetEx,
 )
 
 

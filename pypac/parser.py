@@ -5,8 +5,6 @@ Functions and classes for parsing and executing PAC files.
 import itertools
 import warnings
 
-import dukpy
-
 from pypac.parser_functions import function_injections
 from pypac.parser_functions_ex import function_injections as ipv6_functions
 
@@ -50,13 +48,16 @@ class PACFile(object):
         :raises MalformedPacError: If the JavaScript could not be parsed,
             does not define the expected function, or is otherwise invalid.
         """
+        self._entry_func = "FindProxyForURL"
         if kwargs.get("recursion_limit"):
             import warnings
 
             warnings.warn("recursion_limit is deprecated and has no effect. It will be removed in a future release.")
 
+        from dukpy import JSInterpreter, JSRuntimeError
+
         try:
-            self._context = dukpy.JSInterpreter()
+            self._context = JSInterpreter()
             # IPv6 functions always available instead of only in FindProxyForURLEx(),
             # contrary to Microsoft spec.
             # https://issues.chromium.org/issues/40955802
@@ -67,7 +68,7 @@ class PACFile(object):
             # A test call to weed out errors like unimplemented functions.
             self.find_proxy_for_url("/", "0.0.0.0")
 
-        except dukpy.JSRuntimeError as e:
+        except JSRuntimeError as e:
             raise MalformedPacError(original_exc=e)  # from e
         self.js = pac_js
 
@@ -82,12 +83,16 @@ class PACFile(object):
             JavaScript function in the PAC file.
         :rtype: str
         """
+        from dukpy import JSRuntimeError
+
         try:
-            return self._context.evaljs("FindProxyForURL(dukpy['url'], dukpy['host'])", url=url, host=host)
-        except dukpy.JSRuntimeError as e:
+            return self._context.evaljs(self._entry_func + "(dukpy['url'], dukpy['host'])", url=url, host=host)
+        except JSRuntimeError as e:
             if "ReferenceError: identifier 'FindProxyForURL' undefined" not in str(e):
                 raise
-            return self._context.evaljs("FindProxyForURLEx(dukpy['url'], dukpy['host'])", url=url, host=host)
+            # Persist switch to Ex entry point if the regular one wasn't found.
+            self._entry_func = "FindProxyForURLEx"
+            return self.find_proxy_for_url(url, host)
 
 
 class MalformedPacError(Exception):

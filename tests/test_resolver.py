@@ -3,7 +3,7 @@ from requests.auth import HTTPProxyAuth
 from requests.utils import get_auth_from_url
 
 from pypac.parser import PACFile, proxy_url
-from pypac.resolver import ProxyResolver, add_proxy_auth, ProxyConfigExhaustedError
+from pypac.resolver import ProxyConfigExhaustedError, ProxyResolver, add_proxy_auth
 
 mock_proxy_auth = HTTPProxyAuth("user", "pwd")
 arbitrary_url = "http://example.org"
