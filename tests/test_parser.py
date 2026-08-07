@@ -53,12 +53,14 @@ class TestPacFile(object):
 
     def test_pac_callstack_limit(self):
         """
-        Try to load a PAC file that hits the Duktape call stack limit.
+        Try to load a PAC file that hits the JavaScript engine's call stack limit.
         """
         pac_js = 'function FindProxyForURL(url, host) {function b() {a();} function a() {b();}; a(); return "DIRECT";}'
         with pytest.raises(MalformedPacError) as e:
             PACFile(pac_js)
-        assert "callstack limit" in str(e.value)
+        # dukpy < 0.6.0: "callstack limit exceeded"
+        # dukpy >= 0.6.0: "Maximum call stack size exceeded"
+        assert "stack" in str(e.value)
 
 
 dummy_js = 'function FindProxyForURL(url, host) {return %s ? "DIRECT" : "PROXY 0.0.0.0:80";}'

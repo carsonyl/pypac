@@ -19,6 +19,17 @@ jobs:
           macos-14,  # is flaky too
         ]
         python-version: [3.8, 3.9, '3.10', 3.11, 3.12, 3.13, 3.14]
+        exclude:
+          # Use Ubuntu + Python 3.9 to test dukpy before/after 0.6.0
+          - os: ubuntu-latest
+            python-version: 3.9
+        include:
+          - os: ubuntu-latest
+            python-version: 3.9
+            dukpy: "dukpy<0.6.0"
+          - os: ubuntu-latest
+            python-version: 3.9
+            dukpy: "dukpy>=0.6.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -30,6 +41,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools
         pip install --prefer-binary -e .[dev]
+    - name: Pin dukpy version (ubuntu / Python 3.9 variants)
+      if: matrix.dukpy != ''
+      run: pip install "${{ matrix.dukpy }}"
     - name: Test with pytest and coverage
       run: |
         pytest --cov=pypac
