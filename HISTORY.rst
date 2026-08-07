@@ -3,6 +3,7 @@ dev
 
 - Add ``publicsuffixlist`` dependency and remove ``tldextract``, ``filelock``, and ``requests-file``. (#77)
 - Lazy-load dependencies to reduce initial memory usage.
+- Add support for dukpy 0.6.0. (#90)
 
 0.18.4 (2026-08-06)
 -------------------

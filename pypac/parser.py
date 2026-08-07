@@ -18,6 +18,7 @@ def _inject_function_into_js(context, name, func):
     :param func: Python function.
     """
     context.export_function(name, func)
+    # dukpy 0.6.0 needs serializable return value.
     context.evaljs(
         """;
         {name} = function() {{
@@ -25,6 +26,7 @@ def _inject_function_into_js(context, name, func):
             args.unshift('{name}');
             return call_python.apply(null, args);
         }};
+        void 0;
     """.format(name=name)
     )
 
@@ -88,7 +90,8 @@ class PACFile(object):
         try:
             return self._context.evaljs(self._entry_func + "(dukpy['url'], dukpy['host'])", url=url, host=host)
         except JSRuntimeError as e:
-            if "ReferenceError: identifier 'FindProxyForURL' undefined" not in str(e):
+            # Duktape and QuickJS (dukpy >= 0.6.0) word an undefined identifier differently.
+            if "'FindProxyForURL' undefined" not in str(e) and "FindProxyForURL is not defined" not in str(e):
                 raise
             # Persist switch to Ex entry point if the regular one wasn't found.
             self._entry_func = "FindProxyForURLEx"
