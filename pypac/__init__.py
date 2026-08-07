@@ -19,7 +19,7 @@ limitations under the License.
 
 from pypac.api import PACSession, collect_pac_urls, download_pac, get_pac, pac_context_for_url
 
-__version__ = "0.18.4"
+__version__ = "0.19.0"
 
 
 __all__ = ["PACSession", "collect_pac_urls", "download_pac", "get_pac", "pac_context_for_url"]
